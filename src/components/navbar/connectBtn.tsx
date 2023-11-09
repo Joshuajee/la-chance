@@ -60,9 +60,9 @@ const ConnectBtn = () => {
                 <ConnectionInfo show={show} close={close} />
             }
 
-            {/* <ModalWrapper title={"Choose Wallet"} open={showOptions} handleClose={closeOptions}>
+            <ModalWrapper title={"Choose Wallet"} open={showOptions} handleClose={closeOptions}>
                 <WalletOptions close={closeOptions}/>
-            </ModalWrapper> */}
+            </ModalWrapper> 
 
         </div>
     )

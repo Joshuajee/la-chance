@@ -16,8 +16,9 @@ const WalletOptions = (props: IProps) => {
 
     if (isConnected) close()
 
+
     return (
-        <div style={{zIndex: 100000000}}>
+        <div>
 
             <div className='p-4'>
         

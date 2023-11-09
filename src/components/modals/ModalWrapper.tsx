@@ -16,13 +16,13 @@ const ModalWrapper = (props: IProps) => {
     if (!open) return <></>
 
     return (
-        <div className="fixed top-0 left-0 h-screen w-screen" style={{zIndex: 10 }}>
+        <div className="fixed top-0 left-0 h-screen w-screen text-gray-600" style={{zIndex: 10 }}>
 
             <div className="fixed h-screen w-screen bg-slate-800 opacity-70"></div>
 
             <div className="fixed flex justify-center items-center h-screen w-screen">
 
-                <div data-aos="slide-up" className="mx-4 rounded-lg w-full max-w-[500px] min-h-[150px]">
+                <div data-aos="slide-up" className="bg-white mx-4 rounded-lg w-full max-w-[500px] min-h-[150px]">
 
                     {
                        !props.hideTitle &&

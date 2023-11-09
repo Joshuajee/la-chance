@@ -1,4 +1,4 @@
-import { isAddress } from "ethers"
+//import { isAddress } from "ethers"
 import { useEffect, useState } from "react"
 
 type Verification = "text" | "slug" | "username" | "address"
@@ -14,15 +14,15 @@ const useInput = (verification: Verification, minLength?: number, initial?: stri
     useEffect(() => {
 
         switch (verification) {
-            case "address":
-                if (!isAddress(value)) {
-                    setError(true)
-                    setErrorMessage(`Too short, should contain atleast ${minLength} characters`)
-                } else {
-                    setError(false)
-                    setErrorMessage("")
-                }
-                break
+            // case "address":
+            //     if (!isAddress(value)) {
+            //         setError(true)
+            //         setErrorMessage(`Too short, should contain atleast ${minLength} characters`)
+            //     } else {
+            //         setError(false)
+            //         setErrorMessage("")
+            //     }
+            //     break
             case "text":
                 if ((value as string)?.length < Number(minLength)) {
                     setError(true)

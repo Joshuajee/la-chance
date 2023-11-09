@@ -1,4 +1,3 @@
-import Image from 'next/image';
 import { toast } from 'react-toastify';
 import { Connector, useConnect } from 'wagmi'
 
@@ -20,13 +19,15 @@ const Wallet = (props: IProps) => {
     const icon = (id: SUPPORTED_WALLETS) => {
         switch(id) {
             case "walletConnect":
-                return  <Image alt={connect.name} src="/icons/walletconnect-logo.png" height={40} width={40} />
+                return  <img alt={connect.name} src="/icons/walletconnect-logo.png" height={40} width={40} />
             case "coinbaseWallet":
-                return <Image alt={connect.name} src="/icons/coinbasewallet-logo.png" height={40} width={40} />
+                return <img alt={connect.name} src="/icons/coinbasewallet-logo.png" height={40} width={40} />
             default:
-                return  <Image alt={connect.name} src="/icons/metamask-logo.png" height={40} width={40} />
+                return  <img alt={connect.name} src="/icons/metamask-logo.png" height={40} width={40} />
         }
     }
+
+    
 
     return (
         <button 

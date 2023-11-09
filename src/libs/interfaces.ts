@@ -1,7 +1,5 @@
-import { Address } from "wagmi";
-import { CHAIN_ID, FACTORY_ADDRESS } from "./enums";
+import { CHAIN_ID, CONTRACT_ADDRESS } from "./enums";
 import { SUPPORTED_SYMBOLS } from "./types";
-import { BigNumberish } from "ethers";
 
 export interface SUPPORTED_NETWORKS {
     name: string,
@@ -9,7 +7,6 @@ export interface SUPPORTED_NETWORKS {
     icon: string,
     chainId: CHAIN_ID,
     domainId: number,
-    mailbox?: Address,
-    factoryAddress: FACTORY_ADDRESS,
+    contractAddress: CONTRACT_ADDRESS,
     symbol: SUPPORTED_SYMBOLS;
 }
