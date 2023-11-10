@@ -32,6 +32,7 @@ const HomePage = () => {
             </div>
 
             <div className="my-10">
+                <h3 className="text-center mb-4 text-white font-bold text-3xl">Recent Results</h3>
                 <RecentResults />
             </div>
 

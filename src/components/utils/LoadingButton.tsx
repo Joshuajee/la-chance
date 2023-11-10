@@ -49,6 +49,15 @@ const LoadingButton = (props: IProps) => {
                     {children}
                 </button>
             )
+        case "gray":
+            return (
+                <button 
+                    onClick={onClick}
+                    disabled={disabled}
+                    className="my-2 rounded-lg w-full bg-gray-600 hover:bg-gray-700 py-2 text-white disabled:bg-gray-400 disabled:hover:bg-gray-400 disabled:text-gray-200"> 
+                    {children}
+                </button>
+            )
         default:
             return (
                 <button 

@@ -2,8 +2,8 @@ const RecentResults = () => {
 
     return (
         <div className="relative overflow-x-auto shadow-md sm:rounded-lg border-[1px]">
-            <table className="w-full text-sm text-left text-white text-white">
-                <thead className="text-xs text-gray-700 uppercase text-gray-400 text-white">
+            <table className="w-full text-sm text-left text-white">
+                <thead className="text-xs uppercase text-white">
                     <tr>
                         <th scope="col" className="px-6 py-3">
                             Numbers
