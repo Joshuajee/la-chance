@@ -4,9 +4,15 @@ pragma solidity ^0.8.19;
 // Uncomment this line to use console.log
 // import "hardhat/console.sol";
 
-import './CloneFactory.sol';
 
+contract LendingProtocol {
 
-contract Pool is CloneFactory {
+    constructor() {
+
+    }
+
+    function setVault() external {
+
+    }
 
 }

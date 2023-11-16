@@ -11,27 +11,32 @@ export async function deploy() {
 
     const TUSDC = await hre.viem.deployContract("TestUSDC");
 
-    const jackpotBase = await hre.viem.deployContract("JackpotBase", [TUSDC.address, testUSDCPrice]);
+    const Vault = await hre.viem.deployContract("Vault");
+
+    const LendingProtocol = await hre.viem.deployContract("LendingProtocol");
+
+    const JackpotBase = await hre.viem.deployContract("JackpotBase", [LendingProtocol.address, Vault.address, TUSDC.address, testUSDCPrice.toBigInt()]);
 
     const publicClient = await hre.viem.getPublicClient();
 
     return {
-      jackpotBase,
+      JackpotBase,
+      LendingProtocol,
       user1,
       user2,
+      TUSDC,
       publicClient,
-      TUSDC
     };
 }
 
 export async function deployAndAddAcceptedToken() {
 
-    const { jackpotBase, user1, user2, publicClient, TUSDC} = await loadFixture(deploy);
+    const { JackpotBase, user1, user2, publicClient, TUSDC} = await loadFixture(deploy);
 
-    //await jackpotBase.write.
+    //await JackpotBase.write.
 
     return {
-      jackpotBase,
+      JackpotBase,
       user1,
       user2,
       publicClient,
