@@ -3,7 +3,7 @@ pragma solidity ^0.8.9;
 
 // import "./TicketBase.sol";
 
-contract TicketCore {
+abstract contract TicketCore {
 
     struct TicketIDStruct {
         uint round;
@@ -125,7 +125,7 @@ contract TicketCore {
 
     }
 
-    function _saveResult(TicketValueStruct calldata ticket) internal {
+    function _saveResult(TicketValueStruct memory ticket) internal {
         results[gameRounds] = ticket;
         _newRound();
     }

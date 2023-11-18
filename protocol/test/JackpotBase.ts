@@ -181,33 +181,25 @@ describe("JackpotBase", function () {
 
       const { JackpotBase, TUSDC, VRFCoordinatorV2Mock, VRFV2Wrapper } = await loadFixture(deployTest);
 
-      await TUSDC.write.approve([JackpotBase.address, BigInt(10e28)])
+      await TUSDC.write.approve([JackpotBase.address, BigInt(10e40)])
 
       await JackpotBase.write.buyTickets([TUSDC.address, ticket1]);
 
-      await JackpotBase.write.randomRequestRandomWords([900000000]);
+      await JackpotBase.write.randomRequestRandomWords([300_000]);
 
-      const requestId = await JackpotBase.read.lastRequestId()
+      await VRFCoordinatorV2Mock.write.fulfillRandomWords([1n, VRFV2Wrapper.address])
 
-      console.log(requestId)
+      const request = (await JackpotBase.read.s_requests([1n]))
 
-      //await VRFCoordinatorV2Mock.write.fulfillRandomWords([1n, VRFV2Wrapper.address])
+      expect(request[1]).to.be.equal(true)
 
-      await VRFCoordinatorV2Mock.write.fulfillRandomWordsWithOverride([
-        requestId,
-        VRFV2Wrapper.address,
-        [1, 2, 3, 4, 5],
-      ])
+      expect(await JackpotBase.read.results([1n])).to.not.equal([[0n], [0n],[0n],[0n],[0n]])
 
-      // console.log(req_id, await JackpotBase.read.lastRequestId())
+      // gameRounds should be 2 and gameTickets should be 1
 
-      console.log(await JackpotBase.read.getRequestStatus([1n]))
+      expect(await JackpotBase.read.gameRounds()).to.be.equal(2n)
 
-      console.log(await JackpotBase.read.getRequestStatus([1n]))
-
-      //expect(await JackpotBase.read.lastRequestId()).to.be.equal(req_id)
-
-
+      expect(await JackpotBase.read.gameTickets()).to.be.equal(1n)
       
     });
 

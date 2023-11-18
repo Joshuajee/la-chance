@@ -10,6 +10,8 @@ import './Chainlink.sol';
 import "./LendingProtocol.sol";
 import './interface/IVault.sol';
 
+import "hardhat/console.sol";
+
 
 contract JackpotBase is IJackpot, Chainlink, TicketCore, CloneFactory {
 
@@ -100,6 +102,27 @@ contract JackpotBase is IJackpot, Chainlink, TicketCore, CloneFactory {
     function getTicketPrize (address token) public view returns (uint tokenPrize) {
         tokenPrize = acceptedTokenPrize[token];
         if (tokenPrize == 0) revert UnAcceptedERC20Token();
+    }
+
+
+    function randomRequestRandomWords(uint32 _callbackGasLimit) external returns (uint256 randomRequestId) {
+        return _randomRequestRandomWords(_callbackGasLimit);
+    }
+
+    function fulfillRandomWords(
+        uint256 _requestId,
+        uint256[] memory _randomWords
+    ) internal override {
+        TicketValueStruct memory result = TicketValueStruct({
+            value1: _randomWords[0] % PERCENT + 1,
+            value2: _randomWords[1] % PERCENT + 1,
+            value3: _randomWords[2] % PERCENT + 1,
+            value4: _randomWords[3] % PERCENT + 1,
+            value5: _randomWords[4] % PERCENT + 1
+        });
+
+        _saveResult(result);
+        _fulfillRandomWords(_requestId, _randomWords);
     }
 
     // Internal functions

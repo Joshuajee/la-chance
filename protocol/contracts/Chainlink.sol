@@ -5,9 +5,9 @@ pragma solidity ^0.8.7;
 import "@chainlink/contracts/src/v0.8/vrf/VRFV2WrapperConsumerBase.sol";
 
 import './Authorization.sol';
+import "hardhat/console.sol";
 
-
-contract Chainlink is VRFV2WrapperConsumerBase, Authorization {
+abstract contract Chainlink is VRFV2WrapperConsumerBase, Authorization {
 
     event RandomRequestSent(uint256 requestId, uint32 numWords, uint256 paid);
     event RandomRequestFulfilled(uint256 requestId, uint256[] randomWords, uint256 payment);
@@ -30,15 +30,7 @@ contract Chainlink is VRFV2WrapperConsumerBase, Authorization {
     
     constructor(address _linkAddress, address _wrapperAddress) VRFV2WrapperConsumerBase(_linkAddress, _wrapperAddress) {}
 
-    // Depends on the number of RandomRequested values that you want sent to the
-    // fulfillRandomWords() function. Test and adjust
-    // this limit based on the network that you select, the size of the RandomRequest,
-    // and the processing of the callback RandomRequest in the fulfillRandomWords()
-    // function.
-    // The default is 3, but you can set this higher.
-    // For this example, retrieve 2 random values in one RandomRequest.
-    // Cannot exceed VRFV2Wrapper.getConfig().maxNumWords.
-    function randomRequestRandomWords(uint32 _callbackGasLimit) external returns (uint256 randomRequestId) {
+    function _randomRequestRandomWords(uint32 _callbackGasLimit) internal returns (uint256 randomRequestId) {
         randomRequestId = requestRandomness(_callbackGasLimit,3, 5);
         uint256 paid = VRF_V2_WRAPPER.calculateRequestPrice(_callbackGasLimit);
         uint256 balance = LINK.balanceOf(address(this));
@@ -53,15 +45,13 @@ contract Chainlink is VRFV2WrapperConsumerBase, Authorization {
         emit RandomRequestSent(randomRequestId, 5, paid);
     }
 
-    function fulfillRandomWords(
-        uint256 _requestId,
-        uint256[] memory _randomWords
-    ) internal override {
-        RandomRequestStatus storage randomRequest = s_requests[_requestId];
-        if (randomRequest.paid == 0) revert RandomRequestNotFound(_requestId);
-        randomRequest.fulfilled = true;
-        randomRequest.randomWords = _randomWords;
-        emit RandomRequestFulfilled(_requestId, _randomWords, randomRequest.paid);
+
+    function _fulfillRandomWords( uint256 _requestId, uint256[] memory _randomWords) internal {
+        RandomRequestStatus storage request = s_requests[_requestId];
+        if (request.paid == 0) revert RandomRequestNotFound(_requestId);
+        request.fulfilled = true;
+        request.randomWords = _randomWords;
+        emit RandomRequestFulfilled(_requestId, _randomWords, request.paid);
     }
 
     function getNumberOfRequests() external view returns (uint256) {
@@ -81,7 +71,7 @@ contract Chainlink is VRFV2WrapperConsumerBase, Authorization {
     /**
      * Allow withdraw of Link tokens from the contract
      */
-    function withdrawLink(address _receiver) public  {
+    function withdrawLink(address _receiver) external onlyGovernor  {
         bool success = LINK.transfer(_receiver, LINK.balanceOf(address(this)));
         if (!success)
             revert LinkTransferError(
