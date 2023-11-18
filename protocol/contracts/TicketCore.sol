@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.9;
 
+// import "./TicketBase.sol";
+
 contract TicketCore {
 
     struct TicketIDStruct {
@@ -45,12 +47,48 @@ contract TicketCore {
     mapping(uint => mapping(uint => TicketStruct)) public _tickets;
 
     // mapping of ticket values frequencies
-    mapping(uint => mapping(uint => uint)) public ticketFrequency1;
-    mapping(uint => mapping(uint => uint)) public ticketFrequency2;
-    mapping(uint => mapping(uint => uint)) public ticketFrequency3;
-    mapping(uint => mapping(uint => uint)) public ticketFrequency4;
-    mapping(uint => mapping(uint => uint)) public ticketFrequency5;
+    mapping(uint => mapping(uint => uint)) public ticketFrequency1_1;
+    mapping(uint => mapping(uint => uint)) public ticketFrequency1_2;
+    mapping(uint => mapping(uint => uint)) public ticketFrequency1_3;
+    mapping(uint => mapping(uint => uint)) public ticketFrequency1_4;
+    mapping(uint => mapping(uint => uint)) public ticketFrequency1_5;
 
+
+    // 
+    mapping(uint => mapping(uint => mapping(uint => uint))) public ticketFrequency2_1;
+    mapping(uint => mapping(uint => mapping(uint => uint))) public ticketFrequency2_2;
+    mapping(uint => mapping(uint => mapping(uint => uint))) public ticketFrequency2_3;
+    mapping(uint => mapping(uint => mapping(uint => uint))) public ticketFrequency2_4;
+    mapping(uint => mapping(uint => mapping(uint => uint))) public ticketFrequency2_5;
+    mapping(uint => mapping(uint => mapping(uint => uint))) public ticketFrequency2_6;
+    mapping(uint => mapping(uint => mapping(uint => uint))) public ticketFrequency2_7;
+    mapping(uint => mapping(uint => mapping(uint => uint))) public ticketFrequency2_8;
+    mapping(uint => mapping(uint => mapping(uint => uint))) public ticketFrequency2_9;
+    mapping(uint => mapping(uint => mapping(uint => uint))) public ticketFrequency2_10;
+
+    //mapping(uint => mapping(TicketValueStruct => uint)) public ticketFrequency5;
+
+    mapping(uint => mapping(uint => mapping(uint => mapping(uint => uint)))) public ticketFrequency3_1;
+    mapping(uint => mapping(uint => mapping(uint => mapping(uint => uint)))) public ticketFrequency3_2;
+    mapping(uint => mapping(uint => mapping(uint => mapping(uint => uint)))) public ticketFrequency3_3;
+    mapping(uint => mapping(uint => mapping(uint => mapping(uint => uint)))) public ticketFrequency3_4;
+    mapping(uint => mapping(uint => mapping(uint => mapping(uint => uint)))) public ticketFrequency3_5;
+    mapping(uint => mapping(uint => mapping(uint => mapping(uint => uint)))) public ticketFrequency3_6;
+    mapping(uint => mapping(uint => mapping(uint => mapping(uint => uint)))) public ticketFrequency3_7;
+    mapping(uint => mapping(uint => mapping(uint => mapping(uint => uint)))) public ticketFrequency3_8;
+    mapping(uint => mapping(uint => mapping(uint => mapping(uint => uint)))) public ticketFrequency3_9;
+    mapping(uint => mapping(uint => mapping(uint => mapping(uint => uint)))) public ticketFrequency3_10;
+
+
+    mapping(uint => mapping(uint => mapping(uint => mapping(uint => mapping(uint => uint))))) public ticketFrequency4_1;
+    mapping(uint => mapping(uint => mapping(uint => mapping(uint => mapping(uint => uint))))) public ticketFrequency4_2;
+    mapping(uint => mapping(uint => mapping(uint => mapping(uint => mapping(uint => uint))))) public ticketFrequency4_3;
+    mapping(uint => mapping(uint => mapping(uint => mapping(uint => mapping(uint => uint))))) public ticketFrequency4_4;
+    mapping(uint => mapping(uint => mapping(uint => mapping(uint => mapping(uint => uint))))) public ticketFrequency4_5;
+
+
+    mapping(uint => mapping(uint => mapping(uint => mapping(uint => mapping(uint => mapping(uint => uint)))))) public ticketFrequency5;
+  
 
     // Arrays
     TicketIDStruct [] public myTickets;
@@ -83,14 +121,7 @@ contract TicketCore {
             ticketId: _gameTickets
         }));
 
-        // increase frequencies
-        ticketFrequency1[_gameRounds][ticket.value1]++;
-        ticketFrequency2[_gameRounds][ticket.value2]++;
-        ticketFrequency3[_gameRounds][ticket.value3]++;
-        ticketFrequency4[_gameRounds][ticket.value4]++;
-        ticketFrequency5[_gameRounds][ticket.value5]++;
-
-        // 
+        _increaseFrequencies(ticket);
 
     }
 
@@ -102,6 +133,51 @@ contract TicketCore {
     function _newRound() private {
         gameRounds++;
         gameTickets = 1;
+    }
+
+
+    function _increaseFrequencies(TicketValueStruct calldata ticket) internal {
+
+        ++ticketFrequency1_1[gameRounds][ticket.value1];
+        ++ticketFrequency1_2[gameRounds][ticket.value2];
+        ++ticketFrequency1_3[gameRounds][ticket.value3];
+        ++ticketFrequency1_4[gameRounds][ticket.value4];
+        ++ticketFrequency1_5[gameRounds][ticket.value5];
+
+
+        ++ticketFrequency2_1[gameRounds][ticket.value1][ticket.value2];
+        ++ticketFrequency2_2[gameRounds][ticket.value1][ticket.value3];
+        ++ticketFrequency2_3[gameRounds][ticket.value1][ticket.value4];
+        ++ticketFrequency2_4[gameRounds][ticket.value1][ticket.value5];
+        ++ticketFrequency2_5[gameRounds][ticket.value2][ticket.value3];
+        ++ticketFrequency2_6[gameRounds][ticket.value2][ticket.value4];
+        ++ticketFrequency2_7[gameRounds][ticket.value2][ticket.value5];
+        ++ticketFrequency2_8[gameRounds][ticket.value3][ticket.value4];
+        ++ticketFrequency2_9[gameRounds][ticket.value3][ticket.value5];
+        ++ticketFrequency2_10[gameRounds][ticket.value4][ticket.value5];
+
+
+        ++ticketFrequency3_1[gameRounds][ticket.value1][ticket.value2][ticket.value3];
+        ++ticketFrequency3_2[gameRounds][ticket.value1][ticket.value2][ticket.value4];
+        ++ticketFrequency3_3[gameRounds][ticket.value1][ticket.value2][ticket.value5];
+        ++ticketFrequency3_4[gameRounds][ticket.value1][ticket.value3][ticket.value4];
+        ++ticketFrequency3_5[gameRounds][ticket.value1][ticket.value3][ticket.value5];
+        ++ticketFrequency3_6[gameRounds][ticket.value1][ticket.value4][ticket.value5];
+        ++ticketFrequency3_7[gameRounds][ticket.value2][ticket.value3][ticket.value4];
+        ++ticketFrequency3_8[gameRounds][ticket.value2][ticket.value3][ticket.value5];
+        ++ticketFrequency3_9[gameRounds][ticket.value2][ticket.value4][ticket.value5];
+        ++ticketFrequency3_10[gameRounds][ticket.value3][ticket.value4][ticket.value5];
+
+
+        ++ticketFrequency4_1[gameRounds][ticket.value1][ticket.value2][ticket.value3][ticket.value4];
+        ++ticketFrequency4_2[gameRounds][ticket.value1][ticket.value2][ticket.value3][ticket.value5];
+        ++ticketFrequency4_3[gameRounds][ticket.value1][ticket.value2][ticket.value4][ticket.value5];
+        ++ticketFrequency4_4[gameRounds][ticket.value1][ticket.value3][ticket.value4][ticket.value5];
+        ++ticketFrequency4_5[gameRounds][ticket.value2][ticket.value3][ticket.value4][ticket.value5];
+
+        ++ticketFrequency5[gameRounds][ticket.value1][ticket.value2][ticket.value3][ticket.value4][ticket.value5];
+
+
     }
 
 

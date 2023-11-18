@@ -6,17 +6,16 @@ import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "./interface/IJackpot.sol";
 import "./CloneFactory.sol";
 import "./TicketCore.sol";
-import './Authorization.sol';
+import './Chainlink.sol';
 import "./LendingProtocol.sol";
 import './interface/IVault.sol';
 
 
-contract JackpotBase is IJackpot, TicketCore, CloneFactory {
-
-    uint constant PERCENT = 100;
+contract JackpotBase is IJackpot, Chainlink, TicketCore, CloneFactory {
 
     using SafeERC20 for IERC20;
 
+    uint constant PERCENT = 100;
 
     // vaults contract address
     struct VaultAddressStruct {
@@ -47,7 +46,7 @@ contract JackpotBase is IJackpot, TicketCore, CloneFactory {
     // mapping of game rounds to pots
     mapping(uint => PotAddressStruct) public potAddressess;
 
-    constructor (address _lendingProtocolAddress, address _vaultFactoryAddress, address tokenAddress, uint amount) {
+    constructor (address _linkAddress, address _wrapperAddress, address _lendingProtocolAddress, address _vaultFactoryAddress, address tokenAddress, uint amount)  Chainlink(_linkAddress, _wrapperAddress) {
         
         acceptedTokenPrize[tokenAddress] = amount;
 
@@ -98,18 +97,6 @@ contract JackpotBase is IJackpot, TicketCore, CloneFactory {
     }
 
 
-    //     function fulfillRandomWords(
-    //     uint256 _requestId,
-    //     uint256[] memory _randomWords
-    // ) internal override {
-    //     RequestStatus storage request = s_requests[_requestId];
-    //     if (request.paid == 0) revert RequestNotFound(_requestId);
-    //     request.fulfilled = true;
-    //     request.randomWords = _randomWords;
-    //     emit RequestFulfilled(_requestId, _randomWords, request.paid);
-    // }
-
-
     function getTicketPrize (address token) public view returns (uint tokenPrize) {
         tokenPrize = acceptedTokenPrize[token];
         if (tokenPrize == 0) revert UnAcceptedERC20Token();
@@ -134,21 +121,9 @@ contract JackpotBase is IJackpot, TicketCore, CloneFactory {
 
     // Governance functions
 
-    function updateAcceptedToken(address tokenAddress, uint amount) private {
+    function updateAcceptedToken(address tokenAddress, uint amount) external onlyGovernor {
         acceptedTokenPrize[tokenAddress] = amount;
     }
-
-    // function _updatevaults(address vaultFactoryAddress) private returns(VaultAddressStruct memory) {
-    //     vaultFactoryAddress = VaultAddressStruct(
-    //         createClone(vaultFactoryAddress),
-    //         createClone(vaultFactoryAddress),
-    //         createClone(vaultFactoryAddress),
-    //         createClone(vaultFactoryAddress),
-    //         createClone(vaultFactoryAddress),
-    //         createClone(vaultFactoryAddress)
-    //     );
-    //     return vaultFactoryAddress;
-    // }
 
     function _createPot(bool pot1, bool pot2, bool pot3, bool pot4, bool pot5) private returns(PotAddressStruct memory) {
                

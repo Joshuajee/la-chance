@@ -13,14 +13,16 @@
     "@types/mocha": ">=9.1.0",
     "@types/node": ">=16.0.0",
     "chai": "^4.2.0",
+    "ganache": "^7.9.1",
     "hardhat": "^2.19.0",
     "hardhat-gas-reporter": "^1.0.8",
-    "solidity-coverage": "^0.8.0",
+    "solidity-coverage": "^0.8.5",
     "ts-node": ">=8.0.0",
     "typescript": "~5.0.4",
     "viem": "^1.15.1"
   },
   "dependencies": {
+    "@chainlink/contracts": "^0.8.0",
     "@openzeppelin/contracts": "^5.0.0"
   }
 }
