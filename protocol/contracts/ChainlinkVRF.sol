@@ -7,7 +7,7 @@ import "@chainlink/contracts/src/v0.8/vrf/VRFV2WrapperConsumerBase.sol";
 import './Authorization.sol';
 import "hardhat/console.sol";
 
-abstract contract Chainlink is VRFV2WrapperConsumerBase, Authorization {
+abstract contract ChainlinkVRF is VRFV2WrapperConsumerBase, Authorization {
 
     event RandomRequestSent(uint256 requestId, uint32 numWords, uint256 paid);
     event RandomRequestFulfilled(uint256 requestId, uint256[] randomWords, uint256 payment);
@@ -54,7 +54,7 @@ abstract contract Chainlink is VRFV2WrapperConsumerBase, Authorization {
         emit RandomRequestFulfilled(_requestId, _randomWords, request.paid);
     }
 
-    function getNumberOfRequests() external view returns (uint256) {
+    function getNumberOfRandomRequests() external view returns (uint256) {
         return randomRequestIds.length;
     }
 

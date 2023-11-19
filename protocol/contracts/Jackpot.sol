@@ -3,21 +3,20 @@ pragma solidity ^0.8.19;
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
+
 import "./interface/IJackpot.sol";
 import "./CloneFactory.sol";
-import "./TicketCore.sol";
-import './Chainlink.sol';
+import "./JackpotCore.sol";
+import './ChainlinkVRF.sol';
 import "./LendingProtocol.sol";
 import './interface/IVault.sol';
 
-import "hardhat/console.sol";
+//import "hardhat/console.sol";
 
 
-contract JackpotBase is IJackpot, Chainlink, TicketCore, CloneFactory {
+contract Jackpot is IJackpot, ChainlinkVRF, JackpotCore, CloneFactory {
 
     using SafeERC20 for IERC20;
-
-    uint constant PERCENT = 100;
 
     // vaults contract address
     struct VaultAddressStruct {
@@ -48,8 +47,14 @@ contract JackpotBase is IJackpot, Chainlink, TicketCore, CloneFactory {
     // mapping of game rounds to pots
     mapping(uint => PotAddressStruct) public potAddressess;
 
-    constructor (address _linkAddress, address _wrapperAddress, address _lendingProtocolAddress, address _vaultFactoryAddress, address tokenAddress, uint amount)  Chainlink(_linkAddress, _wrapperAddress) {
+    constructor (address _linkAddress, address _wrapperAddress, address _lendingProtocolAddress, address _vaultFactoryAddress, address tokenAddress, uint amount)  ChainlinkVRF(_linkAddress, _wrapperAddress) {
         
+        _isAddressZero(_linkAddress);
+        _isAddressZero(_wrapperAddress);
+        _isAddressZero(_lendingProtocolAddress);
+        _isAddressZero(_vaultFactoryAddress);
+        _isAddressZero(tokenAddress);
+
         acceptedTokenPrize[tokenAddress] = amount;
 
         lendingProtocolAddress = _lendingProtocolAddress;
@@ -75,22 +80,43 @@ contract JackpotBase is IJackpot, Chainlink, TicketCore, CloneFactory {
         Authorization(vaultAddresses.vault5).initFactory(address(this));
         Authorization(vaultAddresses.daoVault).initFactory(address(this));
 
+        // Initialize Lending protocol
+
+        LendingProtocol(_lendingProtocolAddress).initialize(
+            [
+                vaultAddresses.vault1,
+                vaultAddresses.vault2,
+                vaultAddresses.vault3,
+                vaultAddresses.vault4,
+                vaultAddresses.vault5,
+                vaultAddresses.daoVault
+            ],
+            [
+                vaultShare.vault1,
+                vaultShare.vault2,
+                vaultShare.vault3,
+                vaultShare.vault4,
+                vaultShare.vault5,
+                vaultShare.daoVault
+            ]
+        );
+
     }
 
 
-    function buyTickets(address asset, TicketValueStruct [] calldata tickets) external {
+    function buyTickets(address token, TicketValueStruct [] calldata tickets) external {
 
         VaultShare memory _vaultShare = vaultShare;
         
-        uint pricePerTicket = getTicketPrize(asset);
+        uint pricePerTicket = getTicketPrize(token);
 
         uint8 length = uint8(tickets.length);
 
         uint amount = pricePerTicket * length;
 
-        IERC20(asset).safeTransferFrom(msg.sender, lendingProtocolAddress, amount);
+        IERC20(token).safeTransferFrom(msg.sender, lendingProtocolAddress, amount);
 
-        _splitStakeTovaults(asset, amount);
+        _splitStakeTovaults(token, amount);
 
         for (uint8 i = 0; i < length; i++) {
             _saveTicket(tickets[i], _vaultShare, pricePerTicket);
@@ -114,11 +140,11 @@ contract JackpotBase is IJackpot, Chainlink, TicketCore, CloneFactory {
         uint256[] memory _randomWords
     ) internal override {
         TicketValueStruct memory result = TicketValueStruct({
-            value1: _randomWords[0] % PERCENT + 1,
-            value2: _randomWords[1] % PERCENT + 1,
-            value3: _randomWords[2] % PERCENT + 1,
-            value4: _randomWords[3] % PERCENT + 1,
-            value5: _randomWords[4] % PERCENT + 1
+            value1: _increaseRandomness(_randomWords[0]),
+            value2: _increaseRandomness(_randomWords[1]),
+            value3: _increaseRandomness(_randomWords[2]),
+            value4: _increaseRandomness(_randomWords[3]),
+            value5: _increaseRandomness(_randomWords[4])
         });
 
         _saveResult(result);
@@ -127,18 +153,18 @@ contract JackpotBase is IJackpot, Chainlink, TicketCore, CloneFactory {
 
     // Internal functions
 
-    function _splitStakeTovaults(address asset, uint amount) internal {
+    function _splitStakeTovaults(address token, uint amount) internal {
 
         VaultShare memory _vaultShare = vaultShare;
 
         VaultAddressStruct memory _vaultAddresses = vaultAddresses;
 
-        IVault(_vaultAddresses.vault1).increaseBalance(asset, amount * _vaultShare.vault1 / PERCENT);
-        IVault(_vaultAddresses.vault2).increaseBalance(asset, amount * _vaultShare.vault2 / PERCENT);
-        IVault(_vaultAddresses.vault3).increaseBalance(asset, amount * _vaultShare.vault3 / PERCENT);
-        IVault(_vaultAddresses.vault4).increaseBalance(asset, amount * _vaultShare.vault4 / PERCENT);
-        IVault(_vaultAddresses.vault5).increaseBalance(asset, amount * _vaultShare.vault5 / PERCENT);
-        IVault(_vaultAddresses.daoVault).increaseBalance(asset, amount * _vaultShare.daovault / PERCENT);
+        IVault(_vaultAddresses.vault1).increaseBalance(token, amount * _vaultShare.vault1 / PERCENT);
+        IVault(_vaultAddresses.vault2).increaseBalance(token, amount * _vaultShare.vault2 / PERCENT);
+        IVault(_vaultAddresses.vault3).increaseBalance(token, amount * _vaultShare.vault3 / PERCENT);
+        IVault(_vaultAddresses.vault4).increaseBalance(token, amount * _vaultShare.vault4 / PERCENT);
+        IVault(_vaultAddresses.vault5).increaseBalance(token, amount * _vaultShare.vault5 / PERCENT);
+        IVault(_vaultAddresses.daoVault).increaseBalance(token, amount * _vaultShare.daoVault / PERCENT);
     }
 
 

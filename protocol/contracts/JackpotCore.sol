@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.9;
 
-// import "./TicketBase.sol";
 
-abstract contract TicketCore {
+abstract contract JackpotCore {
+    
 
     struct TicketIDStruct {
         uint round;
@@ -15,7 +15,7 @@ abstract contract TicketCore {
         uint8 vault3;
         uint8 vault4;
         uint8 vault5;
-        uint8 daovault;
+        uint8 daoVault;
     }
     
     struct TicketValueStruct {
@@ -34,6 +34,8 @@ abstract contract TicketCore {
         TicketValueStruct ticketValue;
         VaultShare vaultShare;
     }
+
+    uint constant PERCENT = 100;
 
     uint public gameRounds = 1;
     uint public gameTickets = 1;
@@ -177,6 +179,14 @@ abstract contract TicketCore {
 
         ++ticketFrequency5[gameRounds][ticket.value1][ticket.value2][ticket.value3][ticket.value4][ticket.value5];
 
+
+    }
+
+
+    function _increaseRandomness(uint word) view internal returns(uint) {
+        unchecked {
+            return  word * block.timestamp  * block.number % PERCENT + 1;   
+        }
 
     }
 

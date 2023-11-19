@@ -19,8 +19,8 @@ const flatFee = pointOneLink
 
 
 // This should match implementation in VRFV2Wrapper::calculateGasPriceInternal
-const calculatePrice = (
-  gasLimit,
+export const calculatePrice = (
+  gasLimit: any,
   _wrapperGasOverhead = wrapperGasOverhead,
   _coordinatorGasOverhead = coordinatorGasOverhead,
   _gasPriceWei = oneHundredGwei,
@@ -85,12 +85,12 @@ export async function deploy() {
 
   const LendingProtocol = await hre.viem.deployContract("LendingProtocol");
 
-  const JackpotBase = await hre.viem.deployContract("JackpotBase", [TUSDC.address, TUSDC.address, LendingProtocol.address, Vault.address, TUSDC.address, testUSDCPrice.toBigInt()]);
+  const Jackpot = await hre.viem.deployContract("Jackpot", [TUSDC.address, TUSDC.address, LendingProtocol.address, Vault.address, TUSDC.address, testUSDCPrice.toBigInt()]);
 
   const publicClient = await hre.viem.getPublicClient();
 
   return {
-    JackpotBase,
+    Jackpot,
     LendingProtocol,
     user1,
     user2,
@@ -113,14 +113,14 @@ export async function deployTest() {
 
   const { LinkToken, VRFCoordinatorV2Mock, MockV3Aggregator, VRFV2Wrapper } = await chainLinkConfig()
 
-  const JackpotBase = await hre.viem.deployContract("JackpotBase", [LinkToken.address, VRFV2Wrapper.address, LendingProtocol.address, Vault.address, TUSDC.address, testUSDCPrice.toBigInt()]);
+  const Jackpot = await hre.viem.deployContract("Jackpot", [LinkToken.address, VRFV2Wrapper.address, LendingProtocol.address, Vault.address, TUSDC.address, testUSDCPrice.toBigInt()]);
 
-  await LinkToken.write.transfer([JackpotBase.address, oneHundredLink])
+  await LinkToken.write.transfer([Jackpot.address, oneHundredLink.toBigInt()])
 
   const publicClient = await hre.viem.getPublicClient();
 
   return {
-    JackpotBase,
+    Jackpot,
     LendingProtocol,
     user1,
     user2,
@@ -130,19 +130,35 @@ export async function deployTest() {
   };
 }
 
-export async function deployAndAddAcceptedToken() {
 
-    const { JackpotBase, user1, user2, publicClient, TUSDC} = await loadFixture(deploy);
+export async function deployLendingProtocol() {
 
-    //await JackpotBase.write.
+  // Contracts are deployed using the first signer/account by default
+  const [user1, user2] = await hre.viem.getWalletClients();
 
-    return {
-      JackpotBase,
-      user1,
-      user2,
-      publicClient,
-      TUSDC
-    };
+  const TUSDC = await hre.viem.deployContract("TestUSDC");
+
+  const Vault = await hre.viem.deployContract("Vault");
+
+  const LendingProtocol = await hre.viem.deployContract("LendingProtocol");
+
+  const { LinkToken, VRFCoordinatorV2Mock, MockV3Aggregator, VRFV2Wrapper } = await chainLinkConfig()
+
+  const Jackpot = await hre.viem.deployContract("Jackpot", [LinkToken.address, VRFV2Wrapper.address, LendingProtocol.address, Vault.address, TUSDC.address, testUSDCPrice.toBigInt()]);
+
+  await LinkToken.write.transfer([Jackpot.address, oneHundredLink.toBigInt()])
+
+  const publicClient = await hre.viem.getPublicClient();
+
+  return {
+    Jackpot,
+    LendingProtocol,
+    user1,
+    user2,
+    TUSDC,
+    LinkToken, VRFCoordinatorV2Mock, MockV3Aggregator, VRFV2Wrapper,
+    publicClient,
+  };
 }
 
 export const ticket = (value1: number, value2: number,value3: number,value4: number,value5: number,) => {
