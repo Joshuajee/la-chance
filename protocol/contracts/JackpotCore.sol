@@ -40,7 +40,7 @@ abstract contract JackpotCore {
     uint public gameRounds = 1;
     uint public gameTickets = 1;
 
-    VaultShare public vaultShare = VaultShare(25, 20, 15, 15, 15, 10);
+    VaultShare public vaultShare = VaultShare(30, 15, 15, 15, 15, 10);
 
     // mapping of rounds to ticket value
     mapping(uint => TicketValueStruct) public results;

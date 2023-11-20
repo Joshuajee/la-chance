@@ -10,10 +10,19 @@ import './interface/IVault.sol';
 
 contract Vault is CloneFactory, Authorization, IVault {
 
+    error CallerIsNotLendingProtocol();
+
     uint8 public vaultShare;
 
     mapping(address => uint) public tokenBalance;
     mapping(address => uint) public tokenInterest;
+
+    address public lendingProtocolAddress;
+
+
+    function initialize (address _lendingProtocolAddress) external onlyOnInitalization {
+        lendingProtocolAddress = _lendingProtocolAddress;
+    }
 
 
     function increaseBalance(address token, uint amount) external onlyFactory {
@@ -24,12 +33,18 @@ contract Vault is CloneFactory, Authorization, IVault {
         tokenBalance[token] -= amount;
     }
 
-    function addInterest(address token, uint amount) external  {
-        tokenBalance[token] += amount;
+    function addInterest(address token, uint amount) external onlyLendingProtocol  {
+        tokenInterest[token] += amount;
     }
 
     function updateVaultShare(uint8 _vaultShare) external onlyFactory {
         vaultShare = _vaultShare;
+    }
+
+
+    modifier onlyLendingProtocol() {
+        if (msg.sender != lendingProtocolAddress) revert CallerIsNotLendingProtocol();
+        _;
     }
 
 }

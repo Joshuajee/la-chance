@@ -101,6 +101,15 @@ contract Jackpot is IJackpot, ChainlinkVRF, JackpotCore, CloneFactory {
             ]
         );
 
+
+
+        Vault(vaultAddresses.vault1).initialize(_lendingProtocolAddress);
+        Vault(vaultAddresses.vault2).initialize(_lendingProtocolAddress);
+        Vault(vaultAddresses.vault3).initialize(_lendingProtocolAddress);
+        Vault(vaultAddresses.vault4).initialize(_lendingProtocolAddress);
+        Vault(vaultAddresses.vault5).initialize(_lendingProtocolAddress);
+        Vault(vaultAddresses.daoVault).initialize(_lendingProtocolAddress);
+
     }
 
 

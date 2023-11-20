@@ -1,6 +1,8 @@
-import { loadFixture } from "@nomicfoundation/hardhat-network-helpers";
 import hre from "hardhat";
 import { ethers } from "ethers";
+
+
+export const vaultShare = [BigInt(30), BigInt(15), BigInt(15), BigInt(15), BigInt(15), BigInt(10)]
 
 export const testUSDCPrice = ethers.utils.parseUnits("10","ether")
 
@@ -138,32 +140,83 @@ export async function deployLendingProtocol() {
 
   const TUSDC = await hre.viem.deployContract("TestUSDC");
 
-  const Vault = await hre.viem.deployContract("Vault");
+  const Vault1 = await hre.viem.deployContract("Vault");
+
+  const Vault2 = await hre.viem.deployContract("Vault");
+
+  const Vault3 = await hre.viem.deployContract("Vault");
+
+  const Vault4 = await hre.viem.deployContract("Vault");
+
+  const Vault5 = await hre.viem.deployContract("Vault");
+
+  const DAOVault = await hre.viem.deployContract("DAOVault");
 
   const LendingProtocol = await hre.viem.deployContract("LendingProtocol");
 
-  const { LinkToken, VRFCoordinatorV2Mock, MockV3Aggregator, VRFV2Wrapper } = await chainLinkConfig()
-
-  const Jackpot = await hre.viem.deployContract("Jackpot", [LinkToken.address, VRFV2Wrapper.address, LendingProtocol.address, Vault.address, TUSDC.address, testUSDCPrice.toBigInt()]);
-
-  await LinkToken.write.transfer([Jackpot.address, oneHundredLink.toBigInt()])
+  await LendingProtocol.write.initialize([
+    [Vault1.address, Vault2.address, Vault3.address, Vault4.address, Vault5.address, DAOVault.address],
+    vaultShare
+  ])
 
   const publicClient = await hre.viem.getPublicClient();
 
   return {
-    Jackpot,
     LendingProtocol,
     user1,
     user2,
     TUSDC,
-    LinkToken, VRFCoordinatorV2Mock, MockV3Aggregator, VRFV2Wrapper,
+    Vault1,
+    Vault2,
+    Vault3,
+    Vault4,
+    Vault5,
+    DAOVault,
+    publicClient,
+  };
+}
+
+
+export async function deployLendingProtocolInitVaults() {
+
+  const {
+    LendingProtocol,
+    user1,
+    user2,
+    TUSDC,
+    Vault1,
+    Vault2,
+    Vault3,
+    Vault4,
+    Vault5,
+    DAOVault,
+    publicClient,
+  } = await deployLendingProtocol()
+
+  await Vault1.write.initialize([LendingProtocol.address])
+  await Vault2.write.initialize([LendingProtocol.address])
+  await Vault3.write.initialize([LendingProtocol.address])
+  await Vault4.write.initialize([LendingProtocol.address])
+  await Vault5.write.initialize([LendingProtocol.address])
+  await DAOVault.write.initialize([LendingProtocol.address])
+
+
+  return {
+    LendingProtocol,
+    user1,
+    user2,
+    TUSDC,
+    Vault1,
+    Vault2,
+    Vault3,
+    Vault4,
+    Vault5,
+    DAOVault,
     publicClient,
   };
 }
 
 export const ticket = (value1: number, value2: number,value3: number,value4: number,value5: number,) => {
-
   return [{ value1: BigInt(value1) , value2: BigInt(value2), value3: BigInt(value3), value4: BigInt(value4), value5: BigInt(value5) }]
-    //return [BigInt(value1), BigInt(value2), BigInt(value3), BigInt(value4), BigInt(value5)]
 }
 

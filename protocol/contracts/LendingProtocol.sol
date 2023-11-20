@@ -7,7 +7,7 @@ import './Authorization.sol';
 import './Vault.sol';
 import './interface/IFlashBorrower.sol';
 // Uncomment this line to use console.log
-// import "hardhat/console.sol";
+import "hardhat/console.sol";
 
 
 contract LendingProtocol is  Authorization {
@@ -82,8 +82,7 @@ contract LendingProtocol is  Authorization {
         uint interest = _amount * interestRate / PERCENT;
         uint debt = _amount + interest;
 
-        IERC20(_token).approve(_contract, _amount);
-        IERC20(_token).safeTransferFrom(address(this), _contract, _amount);
+        IERC20(_token).safeTransfer(_contract, _amount);
 
         uint balanceAfterLending = IERC20(_token).balanceOf(address(this));
 
@@ -98,8 +97,12 @@ contract LendingProtocol is  Authorization {
 
 
     function _shareInterestToVaults (address _token, uint interest) internal {
-        //Vault(vaults1).addInterest(_token);
-
+        Vault(vaults1).addInterest(_token, interest * vaultShare1 / PERCENT);
+        Vault(vaults2).addInterest(_token, interest * vaultShare2 / PERCENT);
+        Vault(vaults3).addInterest(_token, interest * vaultShare3 / PERCENT);
+        Vault(vaults4).addInterest(_token, interest * vaultShare4 / PERCENT);
+        Vault(vaults5).addInterest(_token, interest * vaultShare5 / PERCENT);
+        Vault(daoVault).addInterest(_token, interest * daoVaultShare / PERCENT);
     }
 
 
