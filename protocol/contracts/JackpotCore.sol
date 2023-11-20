@@ -3,12 +3,15 @@ pragma solidity ^0.8.9;
 
 
 abstract contract JackpotCore {
-    
+
+    error StakingPeriodIsNotOver();
+
 
     struct TicketIDStruct {
         uint round;
         uint ticketId;
     }
+
     struct VaultShare {
         uint8 vault1;
         uint8 vault2;
@@ -35,10 +38,21 @@ abstract contract JackpotCore {
         VaultShare vaultShare;
     }
 
+
+    event BuyTicket(address indexed staker, uint indexed gameRound, uint indexed ticketID, TicketValueStruct value);
+    event GameResult(uint indexed gameRound, TicketValueStruct result);
+
     uint constant PERCENT = 100;
 
     uint public gameRounds = 1;
-    uint public gameTickets = 1;
+    uint public gameTickets = 0;
+
+    // store duration for game and stake holding period
+    uint public gameDuration = 3600; // 1 hour for testing
+    uint public stakingDuration = 14400; // 4 hour for testing
+
+    //The period in which game can't receiver result
+    uint public gamePeriod = block.timestamp + gameDuration;
 
     VaultShare public vaultShare = VaultShare(30, 15, 15, 15, 15, 10);
 
@@ -96,12 +110,19 @@ abstract contract JackpotCore {
     TicketIDStruct [] public myTickets;
     TicketIDStruct [] public myOpenTickets;
 
+    /**
+     *        Public Functions
+     */
+
+
 
     function returnWonPots(uint gameRound, TicketStruct memory result) public {
         
     }
 
-
+    function _gamePeriodHasElasped() internal view returns (bool) {
+        return block.timestamp > gamePeriod;
+    }
 
     function _saveTicket(TicketValueStruct calldata ticket, VaultShare memory _vaultShare, uint pricePerTicket) internal {
 
@@ -125,16 +146,19 @@ abstract contract JackpotCore {
 
         _increaseFrequencies(ticket);
 
+        emit BuyTicket(msg.sender, gameRounds, _gameTickets, ticket);
     }
 
     function _saveResult(TicketValueStruct memory ticket) internal {
         results[gameRounds] = ticket;
+        emit GameResult(gameRounds, ticket);
         _newRound();
     }
 
     function _newRound() private {
-        gameRounds++;
-        gameTickets = 1;
+        ++gameRounds;
+        gameTickets = 0;
+        gamePeriod = block.timestamp + gameDuration;
     }
 
 
@@ -192,7 +216,10 @@ abstract contract JackpotCore {
 
 
 
-
+    modifier canRequestVRF() {
+        if (!_gamePeriodHasElasped()) revert StakingPeriodIsNotOver();
+        _;
+    }
 
 
 }

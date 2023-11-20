@@ -140,7 +140,7 @@ contract Jackpot is IJackpot, ChainlinkVRF, JackpotCore, CloneFactory {
     }
 
 
-    function randomRequestRandomWords(uint32 _callbackGasLimit) external returns (uint256 randomRequestId) {
+    function randomRequestRandomWords(uint32 _callbackGasLimit) external canRequestVRF returns (uint256 randomRequestId) {
         return _randomRequestRandomWords(_callbackGasLimit);
     }
 

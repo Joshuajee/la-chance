@@ -4,15 +4,9 @@ pragma solidity ^0.8.19;
 // Uncomment this line to use console.log
 // import "hardhat/console.sol";
 
-abstract contract Authorization {
+import "./interface/IAuthorization.sol";
 
-    error CallerIsNotFactory();
-    error CallerIsNotGovernor();
-    error FactoryAlreadyInitialized();
-    error GovernorAlreadyInitialized();
-
-    error AddressZeroNotAllowed();
-    error AlreadyInitialized();
+abstract contract Authorization is IAuthorization {
 
     bool initialized = false;
 

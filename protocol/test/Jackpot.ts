@@ -44,16 +44,9 @@ describe("Jackpot", function () {
       await Jackpot.write.buyTickets([TUSDC.address, ticket1]);
 
       expect(await Jackpot.read.gameRounds()).to.be.equal(1n);
-      expect(await Jackpot.read.gameTickets()).to.be.equal(2n);
-
-      // expect(await Jackpot.read.ticketFrequency1([1n, ticket1[0].value1])).to.be.equal(1n);
-      // expect(await Jackpot.read.ticketFrequency2([1n, ticket1[0].value2])).to.be.equal(1n);
-      // expect(await Jackpot.read.ticketFrequency3([1n, ticket1[0].value3])).to.be.equal(1n);
-      // expect(await Jackpot.read.ticketFrequency4([1n, ticket1[0].value4])).to.be.equal(1n);
-      // expect(await Jackpot.read.ticketFrequency5([1n, ticket1[0].value5])).to.be.equal(1n);
+      expect(await Jackpot.read.gameTickets()).to.be.equal(1n);
 
     });
-
 
     it("All ticket funds should go to the lending protocol", async function () {
 
@@ -168,6 +161,18 @@ describe("Jackpot", function () {
 
     });
 
+
+    it("Should emit BuyTicket event", async function () {
+
+      const { Jackpot, TUSDC } = await loadFixture(deployTest);
+
+      await TUSDC.write.approve([Jackpot.address, BigInt(testUSDCPrice.toString())])
+
+      //expect(Jackpot.write.buyTickets([TUSDC.address, ticket1])).
+
+
+    });
+
   });
 
 
@@ -177,6 +182,19 @@ describe("Jackpot", function () {
 
   describe("Handle Results", function () {
 
+    it("Should revert if Game Period has not elasped", async function () {
+
+      const { Jackpot, TUSDC } = await loadFixture(deployTest);
+
+      await TUSDC.write.approve([Jackpot.address, BigInt(10e40)])
+
+      await Jackpot.write.buyTickets([TUSDC.address, ticket1]);
+
+      await expect(Jackpot.write.randomRequestRandomWords([300_000])).to.be.rejectedWith("StakingPeriodIsNotOver()");
+
+    });
+
+
     it("Should make random request and state should be updated accordily", async function () {
 
       const { Jackpot, TUSDC } = await loadFixture(deployTest);
@@ -184,6 +202,9 @@ describe("Jackpot", function () {
       await TUSDC.write.approve([Jackpot.address, BigInt(10e40)])
 
       await Jackpot.write.buyTickets([TUSDC.address, ticket1]);
+
+      // Increase Time by 1hr 1 min
+      await hre.network.provider.send("hardhat_mine", ["0x3D", "0x3c"]);
 
       await Jackpot.write.randomRequestRandomWords([300_000]);
 
@@ -193,10 +214,10 @@ describe("Jackpot", function () {
 
       expect(await Jackpot.read.results([1n])).to.be.deep.equal([0n, 0n, 0n, 0n, 0n])
 
-      // gameRounds should be 2 and gameTickets should be 1
+      // gameRounds should be 1 and gameTickets should be 1
       expect(await Jackpot.read.gameRounds()).to.be.equal(1n)
 
-      expect(await Jackpot.read.gameTickets()).to.be.equal(2n)
+      expect(await Jackpot.read.gameTickets()).to.be.equal(1n)
 
       expect(await Jackpot.read.getNumberOfRandomRequests()).to.be.equal(1n)
       
@@ -211,6 +232,9 @@ describe("Jackpot", function () {
 
       await Jackpot.write.buyTickets([TUSDC.address, ticket1]);
 
+      // Increase Time by 1hr 1 min
+      await hre.network.provider.send("hardhat_mine", ["0x3D", "0x3c"]);
+
       await Jackpot.write.randomRequestRandomWords([300_000]);
 
       await VRFCoordinatorV2Mock.write.fulfillRandomWords([1n, VRFV2Wrapper.address])
@@ -223,7 +247,7 @@ describe("Jackpot", function () {
 
       expect(await Jackpot.read.gameRounds()).to.be.equal(2n)
 
-      expect(await Jackpot.read.gameTickets()).to.be.equal(1n)
+      expect(await Jackpot.read.gameTickets()).to.be.equal(0n)
       
     });
 
