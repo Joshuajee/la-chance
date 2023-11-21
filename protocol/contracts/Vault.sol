@@ -12,16 +12,18 @@ contract Vault is CloneFactory, Authorization, IVault {
 
     error CallerIsNotLendingProtocol();
 
-    uint8 public vaultShare;
+    uint public vaultShare;
 
     mapping(address => uint) public tokenBalance;
     mapping(address => uint) public tokenInterest;
 
     address public lendingProtocolAddress;
+    address public potFactoryAddress;
 
 
-    function initialize (address _lendingProtocolAddress) external onlyOnInitalization {
+    function initialize (address _lendingProtocolAddress, address _potFactoryAddress) external onlyOnInitalization {
         lendingProtocolAddress = _lendingProtocolAddress;
+        createClone(_potFactoryAddress);
     }
 
 
@@ -37,7 +39,7 @@ contract Vault is CloneFactory, Authorization, IVault {
         tokenInterest[token] += amount;
     }
 
-    function updateVaultShare(uint8 _vaultShare) external onlyFactory {
+    function updateVaultShare(uint _vaultShare) external onlyFactory {
         vaultShare = _vaultShare;
     }
 

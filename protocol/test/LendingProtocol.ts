@@ -1,7 +1,7 @@
 import {loadFixture } from "@nomicfoundation/hardhat-toolbox-viem/network-helpers";
 import { expect } from "chai";
 import hre from "hardhat";
-import { deployLendingProtocol, deployLendingProtocolInitVaults, testUSDCPrice, ticket, vaultShare } from "../scripts/helper";
+import { deployLendingProtocol, deployLendingProtocolInitVaults, vaultShare } from "../scripts/helper";
 import { ethers } from "ethers";
 
 describe("LendingProtocol", function () {

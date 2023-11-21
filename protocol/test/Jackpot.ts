@@ -1,7 +1,7 @@
 import {loadFixture } from "@nomicfoundation/hardhat-toolbox-viem/network-helpers";
 import { expect } from "chai";
 import hre from "hardhat";
-import { deployTest, testUSDCPrice, ticket } from "../scripts/helper";
+import { deployTest, deployTestAfterGame, testUSDCPrice, ticket } from "../scripts/helper";
 
 
 describe("Jackpot", function () {
@@ -10,7 +10,7 @@ describe("Jackpot", function () {
   // and reset Hardhat Network to that snapshot in every test.
   
 
-  const ticket1 = ticket(10, 12, 40, 50, 20)
+  const ticket1 = [ticket(10, 12, 40, 50, 20)]
 
   // describe("deployTestment", function () {
     
@@ -250,6 +250,227 @@ describe("Jackpot", function () {
       expect(await Jackpot.read.gameTickets()).to.be.equal(0n)
       
     });
+
+    
+
+  });
+
+
+
+  describe("Testing Results", function () {
+
+
+    it("Should Return true on pot1 when one prediction matches the results", async function () {
+
+      const { Jackpot, VRFCoordinatorV2Mock, VRFV2Wrapper, TUSDC } = await loadFixture(deployTest);
+
+
+      const tickets = [
+        ticket(11, 12, 30, 50, 20),
+        ticket(10, 20, 30, 50, 20),
+        ticket(10, 10, 40, 50, 20),
+        ticket(10, 10, 30, 91, 20),
+        ticket(10, 10, 30, 50, 100),
+      ]
+
+      await TUSDC.write.approve([Jackpot.address, BigInt(10e40)])
+    
+      await Jackpot.write.buyTickets([TUSDC.address, tickets]);
+    
+      // Increase Time by 1hr 1 min
+      await hre.network.provider.send("hardhat_mine", ["0x3D", "0x3c"]);
+    
+      await Jackpot.write.randomRequestRandomWords([300_000]);
+
+      await VRFCoordinatorV2Mock.write.fulfillRandomWordsWithOverride([
+        1n, VRFV2Wrapper.address, [10, 19, 39, 90, 99]
+      ]);
+
+      expect(await Jackpot.read.getPotsWon([1n, 1n])).to.be.deep.equal([true, false, false, false, false])
+
+      expect(await Jackpot.read.getPotsWon([1n, 2n])).to.be.deep.equal([true, false, false, false, false])
+
+      expect(await Jackpot.read.getPotsWon([1n, 3n])).to.be.deep.equal([true, false, false, false, false])
+
+      expect(await Jackpot.read.getPotsWon([1n, 4n])).to.be.deep.equal([true, false, false, false, false])
+
+      expect(await Jackpot.read.getPotsWon([1n, 5n])).to.be.deep.equal([true, false, false, false, false])
+
+    });
+
+    it("Should Return true on pot1 and pot2 when two prediction matches the results", async function () {
+
+      const { Jackpot, VRFCoordinatorV2Mock, VRFV2Wrapper, TUSDC } = await loadFixture(deployTest);
+
+      const tickets = [
+        ticket(11, 20, 1, 1, 1),
+        ticket(11, 1, 40, 1, 1),
+        ticket(11, 1, 1, 91, 1),
+        ticket(11, 1, 1, 1, 100),
+        ticket(1, 20, 40, 1, 1),
+        ticket(1, 20, 1, 91, 1),
+        ticket(1, 20, 1, 1, 100),
+        ticket(1, 1, 40, 91, 1),
+        ticket(1, 1, 40, 1, 100),
+        ticket(1, 1, 1, 91, 100),
+      ]
+
+      await TUSDC.write.approve([Jackpot.address, BigInt(10e40)])
+    
+      await Jackpot.write.buyTickets([TUSDC.address, tickets]);
+    
+      // Increase Time by 1hr 1 min
+      await hre.network.provider.send("hardhat_mine", ["0x3D", "0x3c"]);
+    
+      await Jackpot.write.randomRequestRandomWords([300_000]);
+
+      await VRFCoordinatorV2Mock.write.fulfillRandomWordsWithOverride([
+        1n, VRFV2Wrapper.address, [10, 19, 39, 90, 99]
+      ]);
+
+      expect(await Jackpot.read.getPotsWon([1n, 1n])).to.be.deep.equal([true, true, false, false, false])
+
+      expect(await Jackpot.read.getPotsWon([1n, 2n])).to.be.deep.equal([true, true, false, false, false])
+
+      expect(await Jackpot.read.getPotsWon([1n, 3n])).to.be.deep.equal([true, true, false, false, false])
+
+      expect(await Jackpot.read.getPotsWon([1n, 4n])).to.be.deep.equal([true, true, false, false, false])
+
+      expect(await Jackpot.read.getPotsWon([1n, 5n])).to.be.deep.equal([true, true, false, false, false])
+
+      expect(await Jackpot.read.getPotsWon([1n, 6n])).to.be.deep.equal([true, true, false, false, false])
+
+      expect(await Jackpot.read.getPotsWon([1n, 7n])).to.be.deep.equal([true, true, false, false, false])
+
+      expect(await Jackpot.read.getPotsWon([1n, 8n])).to.be.deep.equal([true, true, false, false, false])
+
+      expect(await Jackpot.read.getPotsWon([1n, 9n])).to.be.deep.equal([true, true, false, false, false])
+
+      expect(await Jackpot.read.getPotsWon([1n, 10n])).to.be.deep.equal([true, true, false, false, false])
+
+    });
+
+
+    it("Should Return true on pot1, pot2, and pot3 when three prediction matches the results", async function () {
+
+      const { Jackpot, VRFCoordinatorV2Mock, VRFV2Wrapper, TUSDC } = await loadFixture(deployTest);
+
+      const tickets = [
+        ticket(11, 20, 40, 1, 1),
+        ticket(11, 20, 1, 91, 1),
+        ticket(11, 20, 1, 1, 100),
+        ticket(11, 1, 40, 91, 1),
+        ticket(11, 1, 40, 1, 100),
+        ticket(11, 1, 1, 91, 100),
+        ticket(1, 20, 40, 91, 1),
+        ticket(1, 20, 40, 1, 100),
+        ticket(1, 20, 1, 91, 100),
+        ticket(1, 1, 40, 91, 100),
+      ]
+
+      await TUSDC.write.approve([Jackpot.address, BigInt(10e40)])
+    
+      await Jackpot.write.buyTickets([TUSDC.address, tickets]);
+    
+      // Increase Time by 1hr 1 min
+      await hre.network.provider.send("hardhat_mine", ["0x3D", "0x3c"]);
+    
+      await Jackpot.write.randomRequestRandomWords([300_000]);
+
+      await VRFCoordinatorV2Mock.write.fulfillRandomWordsWithOverride([
+        1n, VRFV2Wrapper.address, [10, 19, 39, 90, 99]
+      ]);
+
+      expect(await Jackpot.read.getPotsWon([1n, 1n])).to.be.deep.equal([true, true, true, false, false])
+
+      expect(await Jackpot.read.getPotsWon([1n, 2n])).to.be.deep.equal([true, true, true, false, false])
+
+      expect(await Jackpot.read.getPotsWon([1n, 3n])).to.be.deep.equal([true, true, true, false, false])
+
+      expect(await Jackpot.read.getPotsWon([1n, 4n])).to.be.deep.equal([true, true, true, false, false])
+
+      expect(await Jackpot.read.getPotsWon([1n, 5n])).to.be.deep.equal([true, true, true, false, false])
+
+      expect(await Jackpot.read.getPotsWon([1n, 6n])).to.be.deep.equal([true, true, true, false, false])
+
+      expect(await Jackpot.read.getPotsWon([1n, 7n])).to.be.deep.equal([true, true, true, false, false])
+
+      expect(await Jackpot.read.getPotsWon([1n, 8n])).to.be.deep.equal([true, true, true, false, false])
+
+      expect(await Jackpot.read.getPotsWon([1n, 9n])).to.be.deep.equal([true, true, true, false, false])
+
+      expect(await Jackpot.read.getPotsWon([1n, 10n])).to.be.deep.equal([true, true, true, false, false])
+
+    });
+
+
+    it("Should Return true on pot1, pot2, pot3, and pot4 when four prediction matches the results", async function () {
+
+      const { Jackpot, VRFCoordinatorV2Mock, VRFV2Wrapper, TUSDC } = await loadFixture(deployTest);
+
+      const tickets = [
+        ticket(11, 20, 40, 91, 1),
+        ticket(11, 20, 40, 1, 100),
+        ticket(11, 20, 1, 91, 100),
+        ticket(11, 1, 40, 91, 100),
+        ticket(1, 20, 40, 91, 100),
+      ]
+
+      await TUSDC.write.approve([Jackpot.address, BigInt(10e40)])
+    
+      await Jackpot.write.buyTickets([TUSDC.address, tickets]);
+    
+      // Increase Time by 1hr 1 min
+      await hre.network.provider.send("hardhat_mine", ["0x3D", "0x3c"]);
+    
+      await Jackpot.write.randomRequestRandomWords([300_000]);
+
+      await VRFCoordinatorV2Mock.write.fulfillRandomWordsWithOverride([
+        1n, VRFV2Wrapper.address, [10, 19, 39, 90, 99]
+      ]);
+
+      expect(await Jackpot.read.getPotsWon([1n, 1n])).to.be.deep.equal([true, true, true, true, false])
+
+      expect(await Jackpot.read.getPotsWon([1n, 2n])).to.be.deep.equal([true, true, true, true, false])
+
+      expect(await Jackpot.read.getPotsWon([1n, 3n])).to.be.deep.equal([true, true, true, true, false])
+
+      expect(await Jackpot.read.getPotsWon([1n, 4n])).to.be.deep.equal([true, true, true, true, false])
+
+      expect(await Jackpot.read.getPotsWon([1n, 5n])).to.be.deep.equal([true, true, true, true, false])
+
+    });
+
+
+    it("Should Return true on all pots when prediction matches all results", async function () {
+
+      const { Jackpot, VRFCoordinatorV2Mock, VRFV2Wrapper, TUSDC } = await loadFixture(deployTest);
+
+      const tickets = [
+        ticket(11, 20, 40, 91, 100),
+        ticket(10, 90, 30, 50, 20),
+
+      ]
+
+      await TUSDC.write.approve([Jackpot.address, BigInt(10e40)])
+    
+      await Jackpot.write.buyTickets([TUSDC.address, tickets]);
+    
+      // Increase Time by 1hr 1 min
+      await hre.network.provider.send("hardhat_mine", ["0x3D", "0x3c"]);
+    
+      await Jackpot.write.randomRequestRandomWords([300_000]);
+
+      await VRFCoordinatorV2Mock.write.fulfillRandomWordsWithOverride([
+        1n, VRFV2Wrapper.address, [10, 19, 39, 90, 99]
+      ]);
+
+      console.log(await Jackpot.read.getPotsWon([1n, 1n]))
+
+      expect(await Jackpot.read.getPotsWon([1n, 1n])).to.be.deep.equal([true, true, true, true, true])
+
+    });
+
 
     
 

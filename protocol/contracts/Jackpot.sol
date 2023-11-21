@@ -16,6 +16,8 @@ import './interface/IVault.sol';
 
 contract Jackpot is IJackpot, ChainlinkVRF, JackpotCore, CloneFactory {
 
+    error TicketAlreadyClaimed(uint round, uint ticketId);
+
     using SafeERC20 for IERC20;
 
     // vaults contract address
@@ -28,13 +30,6 @@ contract Jackpot is IJackpot, ChainlinkVRF, JackpotCore, CloneFactory {
         address daoVault;
     }
 
-    struct PotAddressStruct {
-        address pot1;
-        address pot2;
-        address pot3;
-        address pot4;
-        address pot5;
-    }
 
     address public lendingProtocolAddress;
     address public vaultFactoryAddress; 
@@ -45,9 +40,9 @@ contract Jackpot is IJackpot, ChainlinkVRF, JackpotCore, CloneFactory {
     mapping(address => uint) public acceptedTokenPrize;
 
     // mapping of game rounds to pots
-    mapping(uint => PotAddressStruct) public potAddressess;
+    //mapping(uint => PotAddressStruct) public potAddressess;
 
-    constructor (address _linkAddress, address _wrapperAddress, address _lendingProtocolAddress, address _vaultFactoryAddress, address tokenAddress, uint amount)  ChainlinkVRF(_linkAddress, _wrapperAddress) {
+    constructor (address _linkAddress, address _wrapperAddress, address _lendingProtocolAddress, address _vaultFactoryAddress, address _potFactoryAddress, address tokenAddress, uint amount)  ChainlinkVRF(_linkAddress, _wrapperAddress) {
         
         _isAddressZero(_linkAddress);
         _isAddressZero(_wrapperAddress);
@@ -73,12 +68,12 @@ contract Jackpot is IJackpot, ChainlinkVRF, JackpotCore, CloneFactory {
 
 
         // Initailized vault Factory
-        Authorization(vaultAddresses.vault1).initFactory(address(this));
-        Authorization(vaultAddresses.vault2).initFactory(address(this));
-        Authorization(vaultAddresses.vault3).initFactory(address(this));
-        Authorization(vaultAddresses.vault4).initFactory(address(this));
-        Authorization(vaultAddresses.vault5).initFactory(address(this));
-        Authorization(vaultAddresses.daoVault).initFactory(address(this));
+        IAuthorization(vaultAddresses.vault1).initFactory(address(this));
+        IAuthorization(vaultAddresses.vault2).initFactory(address(this));
+        IAuthorization(vaultAddresses.vault3).initFactory(address(this));
+        IAuthorization(vaultAddresses.vault4).initFactory(address(this));
+        IAuthorization(vaultAddresses.vault5).initFactory(address(this));
+        IAuthorization(vaultAddresses.daoVault).initFactory(address(this));
 
         // Initialize Lending protocol
 
@@ -103,12 +98,12 @@ contract Jackpot is IJackpot, ChainlinkVRF, JackpotCore, CloneFactory {
 
 
 
-        Vault(vaultAddresses.vault1).initialize(_lendingProtocolAddress);
-        Vault(vaultAddresses.vault2).initialize(_lendingProtocolAddress);
-        Vault(vaultAddresses.vault3).initialize(_lendingProtocolAddress);
-        Vault(vaultAddresses.vault4).initialize(_lendingProtocolAddress);
-        Vault(vaultAddresses.vault5).initialize(_lendingProtocolAddress);
-        Vault(vaultAddresses.daoVault).initialize(_lendingProtocolAddress);
+        Vault(vaultAddresses.vault1).initialize(_lendingProtocolAddress, _potFactoryAddress);
+        Vault(vaultAddresses.vault2).initialize(_lendingProtocolAddress, _potFactoryAddress);
+        Vault(vaultAddresses.vault3).initialize(_lendingProtocolAddress, _potFactoryAddress);
+        Vault(vaultAddresses.vault4).initialize(_lendingProtocolAddress, _potFactoryAddress);
+        Vault(vaultAddresses.vault5).initialize(_lendingProtocolAddress, _potFactoryAddress);
+        Vault(vaultAddresses.daoVault).initialize(_lendingProtocolAddress, _potFactoryAddress);
 
     }
 
@@ -119,7 +114,7 @@ contract Jackpot is IJackpot, ChainlinkVRF, JackpotCore, CloneFactory {
         
         uint pricePerTicket = getTicketPrize(token);
 
-        uint8 length = uint8(tickets.length);
+        uint length = uint(tickets.length);
 
         uint amount = pricePerTicket * length;
 
@@ -127,9 +122,42 @@ contract Jackpot is IJackpot, ChainlinkVRF, JackpotCore, CloneFactory {
 
         _splitStakeTovaults(token, amount);
 
-        for (uint8 i = 0; i < length; i++) {
+        for (uint i = 0; i < length; i++) {
             _saveTicket(tickets[i], _vaultShare, pricePerTicket);
         }
+
+    }
+
+
+    function claimTicket(uint round, uint ticketId) external {
+        
+        TicketStruct storage ticket = _tickets[round][ticketId];
+
+        if (ticket.hasClaimedPrize) revert TicketAlreadyClaimed(round, ticketId);
+
+        TicketValueStruct memory result = results[round];
+
+        uint value1 = ticket.ticketValue.value1;
+        uint value2 = ticket.ticketValue.value1;
+        uint value3 = ticket.ticketValue.value1;
+        uint value4 = ticket.ticketValue.value1;
+        uint value5 = ticket.ticketValue.value1;
+
+        getPotsWon(round, ticketId);
+
+        bool won1 = value1 == result.value1 || value2 == result.value2 || value3 == result.value3 ||
+            value4 == result.value4 || value5 == result.value5;
+
+        bool won2 = (value1 == result.value1 && value2 == result.value2) || value3 == result.value3 ||
+            value4 == result.value4 || value5 == result.value5;
+
+        // check pot 1
+        if (won1) {
+
+        } else if (won2) {
+
+        }
+
 
     }
 
@@ -140,13 +168,13 @@ contract Jackpot is IJackpot, ChainlinkVRF, JackpotCore, CloneFactory {
     }
 
 
-    function randomRequestRandomWords(uint32 _callbackGasLimit) external canRequestVRF returns (uint256 randomRequestId) {
+    function randomRequestRandomWords(uint _callbackGasLimit) external canRequestVRF returns (uint randomRequestId) {
         return _randomRequestRandomWords(_callbackGasLimit);
     }
 
     function fulfillRandomWords(
-        uint256 _requestId,
-        uint256[] memory _randomWords
+        uint _requestId,
+        uint[] memory _randomWords
     ) internal override {
         TicketValueStruct memory result = TicketValueStruct({
             value1: _increaseRandomness(_randomWords[0]),
@@ -181,20 +209,6 @@ contract Jackpot is IJackpot, ChainlinkVRF, JackpotCore, CloneFactory {
 
     function updateAcceptedToken(address tokenAddress, uint amount) external onlyGovernor {
         acceptedTokenPrize[tokenAddress] = amount;
-    }
-
-    function _createPot(bool pot1, bool pot2, bool pot3, bool pot4, bool pot5) private returns(PotAddressStruct memory) {
-               
-        PotAddressStruct memory potAddressStruct = PotAddressStruct(
-            pot1 ? createClone(potFactoryAddress) : address(0),
-            pot2 ? createClone(potFactoryAddress) : address(0),
-            pot3 ? createClone(potFactoryAddress) : address(0),
-            pot4 ? createClone(potFactoryAddress) : address(0),
-            pot5 ? createClone(potFactoryAddress) : address(0)
-        );
- 
-        return potAddressStruct;
- 
     }
 
 

@@ -16,7 +16,7 @@ contract LendingProtocol is  Authorization {
 
     using SafeERC20 for IERC20;
 
-    uint8 public interestRate = 9;
+    uint public interestRate = 9;
     uint16 constant PERCENT = 1000;
     uint32 public constant minLoanAmount = 99999999;
 
@@ -28,18 +28,18 @@ contract LendingProtocol is  Authorization {
     address public daoVault; 
 
 
-    uint8 public vaultShare1; 
-    uint8 public vaultShare2; 
-    uint8 public vaultShare3; 
-    uint8 public vaultShare4; 
-    uint8 public vaultShare5; 
-    uint8 public daoVaultShare; 
+    uint public vaultShare1; 
+    uint public vaultShare2; 
+    uint public vaultShare3; 
+    uint public vaultShare4; 
+    uint public vaultShare5; 
+    uint public daoVaultShare; 
 
-    function initialize (address [6] memory vaults, uint8[6] memory vaultShare) external onlyOnInitalization {
+    function initialize (address [6] memory vaults, uint[6] memory vaultShare) external onlyOnInitalization {
 
         initialized = true;
 
-        for (uint256 index = 0; index < 6; index++) {
+        for (uint index = 0; index < 6; index++) {
             _isAddressZero(vaults[index]);
         }
 
