@@ -12,6 +12,7 @@ abstract contract Authorization is IAuthorization {
 
     address public factoryAddress;
     address public governorAddress;
+    address public chainlinkAddress;
 
     function initFactory(address _factory) external {
         _isAddressZero(_factory);
@@ -37,6 +38,11 @@ abstract contract Authorization is IAuthorization {
 
     modifier onlyGovernor() {
         if (msg.sender != governorAddress) revert CallerIsNotGovernor();
+        _;
+    }
+
+    modifier onlyChainlink() {
+        if (msg.sender != chainlinkAddress) revert CallerIsNotChainlink();
         _;
     }
 

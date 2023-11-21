@@ -11,6 +11,11 @@
   },
   {
     "inputs": [],
+    "name": "CallerIsNotChainlink",
+    "type": "error"
+  },
+  {
+    "inputs": [],
     "name": "CallerIsNotFactory",
     "type": "error"
   },
@@ -50,6 +55,19 @@
     "name": "addInterest",
     "outputs": [],
     "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "chainlinkAddress",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
     "type": "function"
   },
   {

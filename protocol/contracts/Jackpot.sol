@@ -7,14 +7,13 @@ import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "./interface/IJackpot.sol";
 import "./CloneFactory.sol";
 import "./JackpotCore.sol";
-import './ChainlinkVRF.sol';
 import "./LendingProtocol.sol";
 import './interface/IVault.sol';
 
 //import "hardhat/console.sol";
 
 
-contract Jackpot is IJackpot, ChainlinkVRF, JackpotCore, CloneFactory {
+contract Jackpot is IJackpot, Authorization, JackpotCore, CloneFactory {
 
     error TicketAlreadyClaimed(uint round, uint ticketId);
 
@@ -42,10 +41,8 @@ contract Jackpot is IJackpot, ChainlinkVRF, JackpotCore, CloneFactory {
     // mapping of game rounds to pots
     //mapping(uint => PotAddressStruct) public potAddressess;
 
-    constructor (address _linkAddress, address _wrapperAddress, address _lendingProtocolAddress, address _vaultFactoryAddress, address _potFactoryAddress, address tokenAddress, uint amount)  ChainlinkVRF(_linkAddress, _wrapperAddress) {
+    constructor (address _lendingProtocolAddress, address _vaultFactoryAddress, address _potFactoryAddress, address tokenAddress, uint amount) {
         
-        _isAddressZero(_linkAddress);
-        _isAddressZero(_wrapperAddress);
         _isAddressZero(_lendingProtocolAddress);
         _isAddressZero(_vaultFactoryAddress);
         _isAddressZero(tokenAddress);
@@ -167,25 +164,20 @@ contract Jackpot is IJackpot, ChainlinkVRF, JackpotCore, CloneFactory {
         if (tokenPrize == 0) revert UnAcceptedERC20Token();
     }
 
-
-    function randomRequestRandomWords(uint _callbackGasLimit) external canRequestVRF returns (uint randomRequestId) {
-        return _randomRequestRandomWords(_callbackGasLimit);
+    function gamePeriodHasElasped() external view returns (bool) {
+        return block.timestamp > gamePeriod;
     }
 
-    function fulfillRandomWords(
-        uint _requestId,
-        uint[] memory _randomWords
-    ) internal override {
-        TicketValueStruct memory result = TicketValueStruct({
-            value1: _increaseRandomness(_randomWords[0]),
-            value2: _increaseRandomness(_randomWords[1]),
-            value3: _increaseRandomness(_randomWords[2]),
-            value4: _increaseRandomness(_randomWords[3]),
-            value5: _increaseRandomness(_randomWords[4])
-        });
 
+    function receiveResults(uint[5] memory _results) external {
+        TicketValueStruct memory result = TicketValueStruct({
+            value1: _results[0],
+            value2: _results[1],
+            value3: _results[2],
+            value4: _results[3],
+            value5: _results[4]
+        });
         _saveResult(result);
-        _fulfillRandomWords(_requestId, _randomWords);
     }
 
     // Internal functions

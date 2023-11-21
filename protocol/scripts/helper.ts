@@ -119,9 +119,13 @@ export async function deployTest() {
 
   const { LinkToken, VRFCoordinatorV2Mock, MockV3Aggregator, VRFV2Wrapper } = await chainLinkConfig()
 
-  const Jackpot = await hre.viem.deployContract("Jackpot", [LinkToken.address, VRFV2Wrapper.address, LendingProtocol.address, Vault.address, Pot.address, TUSDC.address, testUSDCPrice.toBigInt()]);
+  const Chainlink = await hre.viem.deployContract("Chainlink", [LinkToken.address, VRFV2Wrapper.address])
 
-  await LinkToken.write.transfer([Jackpot.address, oneHundredLink.toBigInt()])
+  const Jackpot = await hre.viem.deployContract("Jackpot", [LendingProtocol.address, Vault.address, Pot.address, TUSDC.address, testUSDCPrice.toBigInt()]);
+
+  await LinkToken.write.transfer([Chainlink.address, oneHundredLink.toBigInt()])
+
+  await Chainlink.write.initFactory([Jackpot.address])
 
   const publicClient = await hre.viem.getPublicClient();
 
@@ -132,6 +136,7 @@ export async function deployTest() {
     user2,
     TUSDC,
     LinkToken, VRFCoordinatorV2Mock, MockV3Aggregator, VRFV2Wrapper,
+    Chainlink,
     publicClient,
   };
 }

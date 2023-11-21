@@ -1,10 +1,5 @@
 [
   {
-    "inputs": [],
-    "name": "StakingPeriodIsNotOver",
-    "type": "error"
-  },
-  {
     "anonymous": false,
     "inputs": [
       {

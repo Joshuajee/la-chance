@@ -1,8 +1,10 @@
 import {loadFixture } from "@nomicfoundation/hardhat-toolbox-viem/network-helpers";
 import { expect } from "chai";
 import hre from "hardhat";
-import { deployTest, deployTestAfterGame, testUSDCPrice, ticket } from "../scripts/helper";
+import { deployTest, testUSDCPrice, ticket } from "../scripts/helper";
 
+
+const GAS_CALLBACK = BigInt(400000)
 
 describe("Jackpot", function () {
   // We define a fixture to reuse the same setup in every test.
@@ -184,20 +186,20 @@ describe("Jackpot", function () {
 
     it("Should revert if Game Period has not elasped", async function () {
 
-      const { Jackpot, TUSDC } = await loadFixture(deployTest);
+      const { Jackpot, Chainlink, TUSDC } = await loadFixture(deployTest);
 
       await TUSDC.write.approve([Jackpot.address, BigInt(10e40)])
 
       await Jackpot.write.buyTickets([TUSDC.address, ticket1]);
 
-      await expect(Jackpot.write.randomRequestRandomWords([300_000])).to.be.rejectedWith("StakingPeriodIsNotOver()");
+      await expect(Chainlink.write.randomRequestRandomWords([GAS_CALLBACK])).to.be.rejectedWith("StakingPeriodIsNotOver()");
 
     });
 
 
     it("Should make random request and state should be updated accordily", async function () {
 
-      const { Jackpot, TUSDC } = await loadFixture(deployTest);
+      const { Jackpot, Chainlink, TUSDC } = await loadFixture(deployTest);
 
       await TUSDC.write.approve([Jackpot.address, BigInt(10e40)])
 
@@ -206,9 +208,9 @@ describe("Jackpot", function () {
       // Increase Time by 1hr 1 min
       await hre.network.provider.send("hardhat_mine", ["0x3D", "0x3c"]);
 
-      await Jackpot.write.randomRequestRandomWords([300_000]);
+      await Chainlink.write.randomRequestRandomWords([GAS_CALLBACK]);
 
-      const request = (await Jackpot.read.s_requests([1n]))
+      const request = (await Chainlink.read.s_requests([1n]))
 
       expect(request[1]).to.be.equal(false)
 
@@ -219,14 +221,14 @@ describe("Jackpot", function () {
 
       expect(await Jackpot.read.gameTickets()).to.be.equal(1n)
 
-      expect(await Jackpot.read.getNumberOfRandomRequests()).to.be.equal(1n)
+      expect(await Chainlink.read.getNumberOfRandomRequests()).to.be.equal(1n)
       
     });
 
 
     it("Should make random request and receive random number, state should be updated", async function () {
 
-      const { Jackpot, TUSDC, VRFCoordinatorV2Mock, VRFV2Wrapper } = await loadFixture(deployTest);
+      const { Jackpot, Chainlink, TUSDC, VRFCoordinatorV2Mock, VRFV2Wrapper } = await loadFixture(deployTest);
 
       await TUSDC.write.approve([Jackpot.address, BigInt(10e40)])
 
@@ -235,11 +237,11 @@ describe("Jackpot", function () {
       // Increase Time by 1hr 1 min
       await hre.network.provider.send("hardhat_mine", ["0x3D", "0x3c"]);
 
-      await Jackpot.write.randomRequestRandomWords([300_000]);
+      await Chainlink.write.randomRequestRandomWords([GAS_CALLBACK]);
 
       await VRFCoordinatorV2Mock.write.fulfillRandomWords([1n, VRFV2Wrapper.address])
 
-      const request = (await Jackpot.read.s_requests([1n]))
+      const request = (await Chainlink.read.s_requests([1n]))
 
       expect(request[1]).to.be.equal(true)
 
@@ -249,12 +251,9 @@ describe("Jackpot", function () {
 
       expect(await Jackpot.read.gameTickets()).to.be.equal(0n)
       
-    });
-
-    
+    });    
 
   });
-
 
 
   describe("Testing Results", function () {
@@ -262,7 +261,7 @@ describe("Jackpot", function () {
 
     it("Should Return true on pot1 when one prediction matches the results", async function () {
 
-      const { Jackpot, VRFCoordinatorV2Mock, VRFV2Wrapper, TUSDC } = await loadFixture(deployTest);
+      const { Jackpot, Chainlink, VRFCoordinatorV2Mock, VRFV2Wrapper, TUSDC } = await loadFixture(deployTest);
 
 
       const tickets = [
@@ -280,7 +279,7 @@ describe("Jackpot", function () {
       // Increase Time by 1hr 1 min
       await hre.network.provider.send("hardhat_mine", ["0x3D", "0x3c"]);
     
-      await Jackpot.write.randomRequestRandomWords([300_000]);
+      await Chainlink.write.randomRequestRandomWords([GAS_CALLBACK]);
 
       await VRFCoordinatorV2Mock.write.fulfillRandomWordsWithOverride([
         1n, VRFV2Wrapper.address, [10, 19, 39, 90, 99]
@@ -300,7 +299,7 @@ describe("Jackpot", function () {
 
     it("Should Return true on pot1 and pot2 when two prediction matches the results", async function () {
 
-      const { Jackpot, VRFCoordinatorV2Mock, VRFV2Wrapper, TUSDC } = await loadFixture(deployTest);
+      const { Jackpot, Chainlink, VRFCoordinatorV2Mock, VRFV2Wrapper, TUSDC } = await loadFixture(deployTest);
 
       const tickets = [
         ticket(11, 20, 1, 1, 1),
@@ -322,7 +321,7 @@ describe("Jackpot", function () {
       // Increase Time by 1hr 1 min
       await hre.network.provider.send("hardhat_mine", ["0x3D", "0x3c"]);
     
-      await Jackpot.write.randomRequestRandomWords([300_000]);
+      await Chainlink.write.randomRequestRandomWords([GAS_CALLBACK]);
 
       await VRFCoordinatorV2Mock.write.fulfillRandomWordsWithOverride([
         1n, VRFV2Wrapper.address, [10, 19, 39, 90, 99]
@@ -353,7 +352,7 @@ describe("Jackpot", function () {
 
     it("Should Return true on pot1, pot2, and pot3 when three prediction matches the results", async function () {
 
-      const { Jackpot, VRFCoordinatorV2Mock, VRFV2Wrapper, TUSDC } = await loadFixture(deployTest);
+      const { Jackpot, Chainlink, VRFCoordinatorV2Mock, VRFV2Wrapper, TUSDC } = await loadFixture(deployTest);
 
       const tickets = [
         ticket(11, 20, 40, 1, 1),
@@ -375,7 +374,7 @@ describe("Jackpot", function () {
       // Increase Time by 1hr 1 min
       await hre.network.provider.send("hardhat_mine", ["0x3D", "0x3c"]);
     
-      await Jackpot.write.randomRequestRandomWords([300_000]);
+      await Chainlink.write.randomRequestRandomWords([GAS_CALLBACK]);
 
       await VRFCoordinatorV2Mock.write.fulfillRandomWordsWithOverride([
         1n, VRFV2Wrapper.address, [10, 19, 39, 90, 99]
@@ -406,7 +405,7 @@ describe("Jackpot", function () {
 
     it("Should Return true on pot1, pot2, pot3, and pot4 when four prediction matches the results", async function () {
 
-      const { Jackpot, VRFCoordinatorV2Mock, VRFV2Wrapper, TUSDC } = await loadFixture(deployTest);
+      const { Jackpot, Chainlink, VRFCoordinatorV2Mock, VRFV2Wrapper, TUSDC } = await loadFixture(deployTest);
 
       const tickets = [
         ticket(11, 20, 40, 91, 1),
@@ -423,7 +422,7 @@ describe("Jackpot", function () {
       // Increase Time by 1hr 1 min
       await hre.network.provider.send("hardhat_mine", ["0x3D", "0x3c"]);
     
-      await Jackpot.write.randomRequestRandomWords([300_000]);
+      await Chainlink.write.randomRequestRandomWords([GAS_CALLBACK]);
 
       await VRFCoordinatorV2Mock.write.fulfillRandomWordsWithOverride([
         1n, VRFV2Wrapper.address, [10, 19, 39, 90, 99]
@@ -444,7 +443,7 @@ describe("Jackpot", function () {
 
     it("Should Return true on all pots when prediction matches all results", async function () {
 
-      const { Jackpot, VRFCoordinatorV2Mock, VRFV2Wrapper, TUSDC } = await loadFixture(deployTest);
+      const { Jackpot, Chainlink, VRFCoordinatorV2Mock, VRFV2Wrapper, TUSDC } = await loadFixture(deployTest);
 
       const tickets = [
         ticket(11, 20, 40, 91, 100),
@@ -459,13 +458,11 @@ describe("Jackpot", function () {
       // Increase Time by 1hr 1 min
       await hre.network.provider.send("hardhat_mine", ["0x3D", "0x3c"]);
     
-      await Jackpot.write.randomRequestRandomWords([300_000]);
+      await Chainlink.write.randomRequestRandomWords([GAS_CALLBACK]);
 
       await VRFCoordinatorV2Mock.write.fulfillRandomWordsWithOverride([
         1n, VRFV2Wrapper.address, [10, 19, 39, 90, 99]
       ]);
-
-      console.log(await Jackpot.read.getPotsWon([1n, 1n]))
 
       expect(await Jackpot.read.getPotsWon([1n, 1n])).to.be.deep.equal([true, true, true, true, true])
 

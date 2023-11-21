@@ -35,7 +35,7 @@ const config: HardhatUserConfig = {
 		disambiguatePaths: false,
 		runOnCompile: true,
 		strict: true,
-    only: [ "Jackpot", "LendingProtocol",  "Vault",  "DAOVault", "Pot", "ChainlinkVRF" ]
+    only: [ "Jackpot", "LendingProtocol",  "Vault",  "DAOVault", "Pot", "Chainlink", "CloneFactory" ]
 	},
 	networks: {
 		polygon_zkevm: {

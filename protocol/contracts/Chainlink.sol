@@ -4,9 +4,15 @@ pragma solidity ^0.8.7;
 
 import "@chainlink/contracts/src/v0.8/vrf/VRFV2WrapperConsumerBase.sol";
 
+import './interface/IJackpot.sol';
 import './Authorization.sol';
 
-abstract contract ChainlinkVRF is VRFV2WrapperConsumerBase, Authorization {
+
+// Note the factory address for this contract is the jackpot address
+
+contract Chainlink is VRFV2WrapperConsumerBase, Authorization {
+
+    error StakingPeriodIsNotOver();
 
     event RandomRequestSent(uint requestId, uint numWords, uint paid);
     event RandomRequestFulfilled(uint requestId, uint[] randomWords, uint payment);
@@ -25,11 +31,14 @@ abstract contract ChainlinkVRF is VRFV2WrapperConsumerBase, Authorization {
     // past RandomRequests Id.
     uint[] public randomRequestIds;
     uint public lastRequestId;
+    
+    uint constant public PERCENT = 100;
+
 
     
     constructor(address _linkAddress, address _wrapperAddress) VRFV2WrapperConsumerBase(_linkAddress, _wrapperAddress) {}
 
-    function _randomRequestRandomWords(uint _callbackGasLimit) internal returns (uint randomRequestId) {
+    function randomRequestRandomWords(uint _callbackGasLimit) external canRequestVRF returns (uint randomRequestId) {
         randomRequestId = requestRandomness(uint32(_callbackGasLimit),3, 5);
         uint paid = VRF_V2_WRAPPER.calculateRequestPrice(uint32(_callbackGasLimit));
         uint balance = LINK.balanceOf(address(this));
@@ -45,11 +54,18 @@ abstract contract ChainlinkVRF is VRFV2WrapperConsumerBase, Authorization {
     }
 
 
-    function _fulfillRandomWords( uint _requestId, uint[] memory _randomWords) internal {
+    function fulfillRandomWords( uint _requestId, uint[] memory _randomWords) internal override {
         RandomRequestStatus storage request = s_requests[_requestId];
         if (request.paid == 0) revert RandomRequestNotFound(_requestId);
         request.fulfilled = true;
         request.randomWords = _randomWords;
+        IJackpot(factoryAddress).receiveResults([
+            _increaseRandomness(_randomWords[0]),
+            _increaseRandomness(_randomWords[1]),
+            _increaseRandomness(_randomWords[2]),
+            _increaseRandomness(_randomWords[3]),
+            _increaseRandomness(_randomWords[4])
+        ]);
         emit RandomRequestFulfilled(_requestId, _randomWords, request.paid);
     }
 
@@ -79,4 +95,22 @@ abstract contract ChainlinkVRF is VRFV2WrapperConsumerBase, Authorization {
                 LINK.balanceOf(address(this))
             );
     }
+
+
+
+
+    function _increaseRandomness(uint word) view internal returns(uint) {
+        return  word % PERCENT + 1;
+        // unchecked {
+        //     return  word * block.timestamp  * block.number % PERCENT + 1;   
+        // }
+    }
+
+
+
+    modifier canRequestVRF() {
+        if (!IJackpot(factoryAddress).gamePeriodHasElasped()) revert StakingPeriodIsNotOver();
+        _;
+    }
+
 }

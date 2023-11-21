@@ -4,8 +4,6 @@ pragma solidity ^0.8.9;
 
 abstract contract JackpotCore {
 
-    error StakingPeriodIsNotOver();
-
 
     struct TicketIDStruct {
         uint round;
@@ -156,10 +154,6 @@ abstract contract JackpotCore {
                     value4 == result.value4 && value5 == result.value5;
     }
 
-    function _gamePeriodHasElasped() internal view returns (bool) {
-        return block.timestamp > gamePeriod;
-    }
-
     function _saveTicket(TicketValueStruct calldata ticket, VaultShare memory _vaultShare, uint pricePerTicket) internal {
 
         uint _gameRounds = gameRounds;
@@ -242,14 +236,6 @@ abstract contract JackpotCore {
 
     }
 
-
-    function _increaseRandomness(uint word) view internal returns(uint) {
-        return  word % PERCENT + 1;
-        // unchecked {
-        //     return  word * block.timestamp  * block.number % PERCENT + 1;   
-        // }
-    }
-
     function _compareTwo(uint[2] memory values, uint[2] memory _results) internal pure returns(bool){
         return values[0] == _results[0] && values[1] == _results[1]; 
     }
@@ -260,11 +246,6 @@ abstract contract JackpotCore {
 
     function _compareFour(uint[4] memory values, uint[4] memory _results) internal pure returns(bool){
         return values[0] == _results[0] && values[1] == _results[1] && values[2] == _results[2] && values[3] == _results[3]; 
-    }
-
-    modifier canRequestVRF() {
-        if (!_gamePeriodHasElasped()) revert StakingPeriodIsNotOver();
-        _;
     }
 
 

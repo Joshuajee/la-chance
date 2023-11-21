@@ -13,6 +13,7 @@ interface IAuthorization {
 
     error AddressZeroNotAllowed();
     error AlreadyInitialized();
+    error CallerIsNotChainlink();
 
     function initFactory(address _factory) external;
     function initGovernor(address _governor) external;
