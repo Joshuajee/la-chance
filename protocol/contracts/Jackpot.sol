@@ -90,9 +90,9 @@ contract Jackpot is IJackpot, Authorization, JackpotCore, CloneFactory {
                 vaultShare.vault4,
                 vaultShare.vault5,
                 vaultShare.daoVault
-            ]
+            ],
+            tokenAddress
         );
-
 
 
         Vault(vaultAddresses.vault1).initialize(_lendingProtocolAddress, _potFactoryAddress);
@@ -101,6 +101,9 @@ contract Jackpot is IJackpot, Authorization, JackpotCore, CloneFactory {
         Vault(vaultAddresses.vault4).initialize(_lendingProtocolAddress, _potFactoryAddress);
         Vault(vaultAddresses.vault5).initialize(_lendingProtocolAddress, _potFactoryAddress);
         Vault(vaultAddresses.daoVault).initialize(_lendingProtocolAddress, _potFactoryAddress);
+
+        supportedToken[tokenAddress] = true;
+        supportedTokenArray.push(tokenAddress);
 
     }
 
@@ -183,6 +186,7 @@ contract Jackpot is IJackpot, Authorization, JackpotCore, CloneFactory {
             value4: _results[3],
             value5: _results[4]
         });
+        _createWinningPots(result);
         _saveResult(result);
     }
 
@@ -203,10 +207,17 @@ contract Jackpot is IJackpot, Authorization, JackpotCore, CloneFactory {
     }
 
 
-    function _createWinningPots() internal {
-        //if ()
-    }
+    function _createWinningPots(TicketValueStruct memory result) internal {
 
+        uint rounds = gameRounds;
+
+        VaultAddressStruct memory _vaultAddresses = vaultAddresses;
+
+        uint pot1 = potOneWinners(result);
+        if (pot1 > 0)  {
+            IVault(_vaultAddresses.vault1).createPot(rounds, pot1);
+        }
+    }
 
     // Governance functions
 

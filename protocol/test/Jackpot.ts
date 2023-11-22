@@ -1,10 +1,10 @@
 import {loadFixture } from "@nomicfoundation/hardhat-toolbox-viem/network-helpers";
 import { expect } from "chai";
 import hre from "hardhat";
-import { deployTest, testUSDCPrice, ticket } from "../scripts/helper";
+import { deployTest, flashloan, testUSDCPrice, ticket } from "../scripts/helper";
 
 
-const GAS_CALLBACK = BigInt(400000)
+const GAS_CALLBACK = 500000n
 
 describe("Jackpot", function () {
   // We define a fixture to reuse the same setup in every test.
@@ -467,8 +467,244 @@ describe("Jackpot", function () {
       expect(await Jackpot.read.getPotsWon([1n, 1n])).to.be.deep.equal([true, true, true, true, true])
 
     });
+    
+
+  });
 
 
+  describe("Testing Pot creation", function () {
+
+    it("Should Create and fund pot1 when one prediction matches the results", async function () {
+
+      const { Jackpot, Chainlink, VRFCoordinatorV2Mock, VRFV2Wrapper, TUSDC, Vaults, LendingProtocol } = await loadFixture(deployTest);
+
+
+      const tickets = [
+        ticket(11, 12, 30, 50, 20),
+        ticket(10, 20, 30, 50, 20),
+        ticket(10, 10, 40, 50, 20),
+        ticket(10, 10, 30, 91, 20),
+        ticket(10, 10, 30, 50, 100),
+      ]
+
+      await TUSDC.write.approve([Jackpot.address, BigInt(10e40)])
+    
+      await Jackpot.write.buyTickets([TUSDC.address, tickets]);
+
+      await flashloan(TUSDC, LendingProtocol)
+
+      const Vault1 = await hre.viem.getContractAt("Vault", Vaults[0])
+
+      const interest = await Vault1.read.tokenInterest([TUSDC.address])
+    
+      // Increase Time by 1hr 1 min
+      await hre.network.provider.send("hardhat_mine", ["0x3D", "0x3c"]);
+    
+      await Chainlink.write.randomRequestRandomWords([GAS_CALLBACK]);
+
+      await VRFCoordinatorV2Mock.write.fulfillRandomWordsWithOverride([
+        1n, VRFV2Wrapper.address, [10, 19, 39, 90, 99]
+      ]);
+
+      const potAddress = await Vault1.read.pots([1n])
+
+      expect(await TUSDC.read.balanceOf([potAddress])).to.be.equal(interest)
+
+    });
+
+    it("Should Create and Fund pot1 and pot2 when two prediction matches the results", async function () {
+
+      const { Jackpot, Chainlink, VRFCoordinatorV2Mock, VRFV2Wrapper, TUSDC, Vaults, LendingProtocol } = await loadFixture(deployTest);
+
+      const tickets = [
+        ticket(11, 20, 1, 1, 1),
+        ticket(11, 1, 40, 1, 1),
+        ticket(11, 1, 1, 91, 1),
+        ticket(11, 1, 1, 1, 100),
+        ticket(1, 20, 40, 1, 1),
+        ticket(1, 20, 1, 91, 1),
+        ticket(1, 20, 1, 1, 100),
+        ticket(1, 1, 40, 91, 1),
+        ticket(1, 1, 40, 1, 100),
+        ticket(1, 1, 1, 91, 100),
+      ]
+
+      await TUSDC.write.approve([Jackpot.address, BigInt(10e40)])
+    
+      await Jackpot.write.buyTickets([TUSDC.address, tickets]);
+    
+      // Increase Time by 1hr 1 min
+      await hre.network.provider.send("hardhat_mine", ["0x3D", "0x3c"]);
+      await flashloan(TUSDC, LendingProtocol)
+
+      const Vault1 = await hre.viem.getContractAt("Vault", Vaults[0])
+
+      const interest1 = await Vault1.read.tokenInterest([TUSDC.address])
+
+      const Vault2 = await hre.viem.getContractAt("Vault", Vaults[1])
+
+      const interest2 = await Vault2.read.tokenInterest([TUSDC.address])
+    
+      // Increase Time by 1hr 1 min
+      await hre.network.provider.send("hardhat_mine", ["0x3D", "0x3c"]);
+    
+      await Chainlink.write.randomRequestRandomWords([GAS_CALLBACK]);
+
+      await VRFCoordinatorV2Mock.write.fulfillRandomWordsWithOverride([
+        1n, VRFV2Wrapper.address, [10, 19, 39, 90, 99]
+      ]);
+
+      const potAddress1 = await Vault1.read.pots([1n])
+      const potAddress2 = await Vault2.read.pots([1n])
+
+      expect(await TUSDC.read.balanceOf([potAddress1])).to.be.equal(interest1)
+      expect(await TUSDC.read.balanceOf([potAddress2])).to.be.equal(interest2)
+
+
+    });
+
+
+    it("Should create and fund pot1, pot2, and pot3 when three prediction matches the results", async function () {
+
+      const { Jackpot, Chainlink, VRFCoordinatorV2Mock, VRFV2Wrapper, TUSDC, Vaults, LendingProtocol } = await loadFixture(deployTest);
+
+      const tickets = [
+        ticket(11, 20, 40, 1, 1),
+        ticket(11, 20, 1, 91, 1),
+        ticket(11, 20, 1, 1, 100),
+        ticket(11, 1, 40, 91, 1),
+        ticket(11, 1, 40, 1, 100),
+        ticket(11, 1, 1, 91, 100),
+        ticket(1, 20, 40, 91, 1),
+        ticket(1, 20, 40, 1, 100),
+        ticket(1, 20, 1, 91, 100),
+        ticket(1, 1, 40, 91, 100),
+      ]
+
+      await TUSDC.write.approve([Jackpot.address, BigInt(10e40)])
+    
+      await Jackpot.write.buyTickets([TUSDC.address, tickets]);
+    
+      // Increase Time by 1hr 1 min
+      await hre.network.provider.send("hardhat_mine", ["0x3D", "0x3c"]);
+      await flashloan(TUSDC, LendingProtocol)
+
+      const Vault1 = await hre.viem.getContractAt("Vault", Vaults[0])
+
+      const interest1 = await Vault1.read.tokenInterest([TUSDC.address])
+
+      const Vault2 = await hre.viem.getContractAt("Vault", Vaults[1])
+
+      const interest2 = await Vault2.read.tokenInterest([TUSDC.address])
+    
+      // Increase Time by 1hr 1 min
+      await hre.network.provider.send("hardhat_mine", ["0x3D", "0x3c"]);
+    
+      await Chainlink.write.randomRequestRandomWords([GAS_CALLBACK]);
+
+      await VRFCoordinatorV2Mock.write.fulfillRandomWordsWithOverride([
+        1n, VRFV2Wrapper.address, [10, 19, 39, 90, 99]
+      ]);
+
+      const potAddress1 = await Vault1.read.pots([1n])
+      const potAddress2 = await Vault2.read.pots([1n])
+
+      expect(await TUSDC.read.balanceOf([potAddress1])).to.be.equal(interest1)
+      expect(await TUSDC.read.balanceOf([potAddress2])).to.be.equal(interest2)
+
+    });
+
+
+    it("Should create and fund pot1, pot2, pot3, and pot4 when four prediction matches the results", async function () {
+
+      const { Jackpot, Chainlink, VRFCoordinatorV2Mock, VRFV2Wrapper, TUSDC, Vaults, LendingProtocol } = await loadFixture(deployTest);
+
+      const tickets = [
+        ticket(11, 20, 40, 91, 1),
+        ticket(11, 20, 40, 1, 100),
+        ticket(11, 20, 1, 91, 100),
+        ticket(11, 1, 40, 91, 100),
+        ticket(1, 20, 40, 91, 100),
+      ]
+
+      await TUSDC.write.approve([Jackpot.address, BigInt(10e40)])
+    
+      await Jackpot.write.buyTickets([TUSDC.address, tickets]);
+    
+      // Increase Time by 1hr 1 min
+      await hre.network.provider.send("hardhat_mine", ["0x3D", "0x3c"]);
+      await flashloan(TUSDC, LendingProtocol)
+
+      const Vault1 = await hre.viem.getContractAt("Vault", Vaults[0])
+
+      const interest1 = await Vault1.read.tokenInterest([TUSDC.address])
+
+      const Vault2 = await hre.viem.getContractAt("Vault", Vaults[1])
+
+      const interest2 = await Vault2.read.tokenInterest([TUSDC.address])
+    
+      // Increase Time by 1hr 1 min
+      await hre.network.provider.send("hardhat_mine", ["0x3D", "0x3c"]);
+    
+      await Chainlink.write.randomRequestRandomWords([GAS_CALLBACK]);
+
+      await VRFCoordinatorV2Mock.write.fulfillRandomWordsWithOverride([
+        1n, VRFV2Wrapper.address, [10, 19, 39, 90, 99]
+      ]);
+
+      const potAddress1 = await Vault1.read.pots([1n])
+      const potAddress2 = await Vault2.read.pots([1n])
+
+      expect(await TUSDC.read.balanceOf([potAddress1])).to.be.equal(interest1)
+      expect(await TUSDC.read.balanceOf([potAddress2])).to.be.equal(interest2)
+    
+      
+    });
+
+
+    it("Should create and pots when prediction matches all results", async function () {
+
+      const { Jackpot, Chainlink, VRFCoordinatorV2Mock, VRFV2Wrapper, TUSDC, Vaults, LendingProtocol } = await loadFixture(deployTest);
+
+      const tickets = [
+        ticket(11, 20, 40, 91, 100),
+        ticket(10, 90, 30, 50, 20),
+
+      ]
+
+      await TUSDC.write.approve([Jackpot.address, BigInt(10e40)])
+    
+      await Jackpot.write.buyTickets([TUSDC.address, tickets]);
+    
+      // Increase Time by 1hr 1 min
+      await hre.network.provider.send("hardhat_mine", ["0x3D", "0x3c"]);
+      await flashloan(TUSDC, LendingProtocol)
+
+      const Vault1 = await hre.viem.getContractAt("Vault", Vaults[0])
+
+      const interest1 = await Vault1.read.tokenInterest([TUSDC.address])
+
+      const Vault2 = await hre.viem.getContractAt("Vault", Vaults[1])
+
+      const interest2 = await Vault2.read.tokenInterest([TUSDC.address])
+    
+      // Increase Time by 1hr 1 min
+      await hre.network.provider.send("hardhat_mine", ["0x3D", "0x3c"]);
+    
+      await Chainlink.write.randomRequestRandomWords([GAS_CALLBACK]);
+
+      await VRFCoordinatorV2Mock.write.fulfillRandomWordsWithOverride([
+        1n, VRFV2Wrapper.address, [10, 19, 39, 90, 99]
+      ]);
+
+      const potAddress1 = await Vault1.read.pots([1n])
+      const potAddress2 = await Vault2.read.pots([1n])
+
+      expect(await TUSDC.read.balanceOf([potAddress1])).to.be.equal(interest1)
+      expect(await TUSDC.read.balanceOf([potAddress2])).to.be.equal(interest2)
+
+
+    });
     
 
   });

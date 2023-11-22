@@ -1,5 +1,7 @@
 import hre from "hardhat";
 import { ethers } from "ethers";
+import { TestUSDC$Type } from "../artifacts/contracts/mocks/TestUSDC.sol/TestUSDC";
+import { LendingProtocol$Type } from "../artifacts/contracts/LendingProtocol.sol/LendingProtocol";
 
 
 export const vaultShare = [BigInt(30), BigInt(15), BigInt(15), BigInt(15), BigInt(15), BigInt(10)]
@@ -127,6 +129,8 @@ export async function deployTest() {
 
   await Chainlink.write.initFactory([Jackpot.address])
 
+  const Vaults = await Jackpot.read.vaultAddresses()
+
   const publicClient = await hre.viem.getPublicClient();
 
   return {
@@ -137,6 +141,7 @@ export async function deployTest() {
     TUSDC,
     LinkToken, VRFCoordinatorV2Mock, MockV3Aggregator, VRFV2Wrapper,
     Chainlink,
+    Vaults,
     publicClient,
   };
 }
@@ -205,7 +210,8 @@ export async function deployLendingProtocol() {
 
   await LendingProtocol.write.initialize([
     [Vault1.address, Vault2.address, Vault3.address, Vault4.address, Vault5.address, DAOVault.address],
-    vaultShare
+    vaultShare,
+    TUSDC.address
   ])
 
   const publicClient = await hre.viem.getPublicClient();
@@ -271,3 +277,16 @@ export const ticket = (value1: number, value2: number,value3: number,value4: num
   return { value1: BigInt(value1) , value2: BigInt(value2), value3: BigInt(value3), value4: BigInt(value4), value5: BigInt(value5) }
 }
 
+
+
+
+
+export async function flashloan(TUSDC: any, LendingProtocol: any) {
+
+  const BorrowerContract = await hre.viem.deployContract("FlashBorrowerExample")
+
+  await TUSDC.write.transfer([BorrowerContract.address,  BigInt(10e20)])
+
+  await LendingProtocol.write.flashLoan([TUSDC.address, BorrowerContract.address, testUSDCPrice])
+
+}

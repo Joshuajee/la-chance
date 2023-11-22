@@ -14,6 +14,9 @@ abstract contract Authorization is IAuthorization {
     address public governorAddress;
     address public chainlinkAddress;
 
+    mapping(address => bool) public supportedToken;
+    address [] public supportedTokenArray;
+
     function initFactory(address _factory) external {
         _isAddressZero(_factory);
         if (factoryAddress != address(0)) revert FactoryAlreadyInitialized(); 
@@ -24,6 +27,16 @@ abstract contract Authorization is IAuthorization {
         _isAddressZero(_governor);
         if (governorAddress != address(0)) revert GovernorAlreadyInitialized(); 
         governorAddress = _governor;
+    }
+
+
+    function addSupportedToken(address token) external onlyFactory  {
+        supportedToken[token] = true;
+        supportedTokenArray.push(token);
+    }
+
+    function removeSupportedToken(address token) external onlyFactory  {
+        delete supportedToken[token];
     }
 
     function _isAddressZero(address _address) internal pure {

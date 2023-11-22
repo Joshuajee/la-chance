@@ -7,16 +7,14 @@ pragma solidity ^0.8.19;
 import './CloneFactory.sol';
 import './Authorization.sol';
 import './interface/IVault.sol';
+import './interface/IPot.sol';
+import './interface/ILendingInterface.sol';
 
 contract Vault is CloneFactory, Authorization, IVault {
 
     error CallerIsNotLendingProtocol();
 
     uint public vaultShare;
-
-    // parallel datastructure
-    mapping(address => bool) public supportedToken;
-    address [] public supportedTokenArray;
 
     mapping(address => uint) public tokenBalance;
     mapping(address => uint) public tokenInterest;
@@ -41,26 +39,22 @@ contract Vault is CloneFactory, Authorization, IVault {
         tokenBalance[token] -= amount;
     }
 
-    function addSupportedToken(address token) external onlyFactory  {
-        supportedToken[token] = true;
-        supportedTokenArray.push(token);
-    }
-
-    function removeSupportedToken(address token) external onlyFactory  {
-        delete supportedToken[token];
-    }
-
     function addInterest(address token, uint amount) external onlyLendingProtocol  {
         tokenInterest[token] += amount;
+    }
+
+    function clearInterest(address token) external onlyLendingProtocol  {
+        tokenInterest[token] = 0;
     }
 
     function updateVaultShare(uint _vaultShare) external onlyFactory {
         vaultShare = _vaultShare;
     }
 
-    function createPot(uint round) external onlyFactory {
+    function createPot(uint round, uint winners) external onlyFactory {
         address pot = createClone(potFactoryAddress);
-        
+        Authorization(pot).initFactory(address(this));
+        ILendingInterface(lendingProtocolAddress).withdraw(pot);
         pots[round] = pot;
     }
 

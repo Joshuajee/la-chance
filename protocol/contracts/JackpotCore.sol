@@ -155,13 +155,23 @@ abstract contract JackpotCore {
     }
 
 
-    // function wonPotOne(uint rounds, TicketValueStruct result) {
-    //     return 
-    //         ticketFrequency1_1[_rounds][result.value1][result.value2] + 
-    //         ticketFrequency1_2[_rounds][result.value1][result.value3] +
-    //         ticketFrequency1_3[_rounds][result.value1][result.value4] +
-    //         ticketFrequency1_4[_rounds][result.value1][result.value5];
-    // }
+    function potOneWinners(TicketValueStruct memory result) public view returns (uint) {
+        uint rounds = gameRounds;
+        return ( 
+            ticketFrequency1_1[rounds][result.value1] + ticketFrequency1_2[rounds][result.value2] +
+            ticketFrequency1_3[rounds][result.value3] + ticketFrequency1_4[rounds][result.value4] +
+            ticketFrequency1_4[rounds][result.value5]
+        );
+    }
+
+    function potTwoWinners(TicketValueStruct memory result) public view returns (uint) {
+        uint rounds = gameRounds;
+        return ( 
+            ticketFrequency1_1[rounds][result.value1] + ticketFrequency1_2[rounds][result.value2] +
+            ticketFrequency1_3[rounds][result.value3] + ticketFrequency1_4[rounds][result.value4] +
+            ticketFrequency1_4[rounds][result.value5]
+        );
+    }
 
     function _saveTicket(TicketValueStruct calldata ticket, VaultShare memory _vaultShare, uint pricePerTicket) internal {
 
