@@ -154,6 +154,15 @@ abstract contract JackpotCore {
                     value4 == result.value4 && value5 == result.value5;
     }
 
+
+    // function wonPotOne(uint rounds, TicketValueStruct result) {
+    //     return 
+    //         ticketFrequency1_1[_rounds][result.value1][result.value2] + 
+    //         ticketFrequency1_2[_rounds][result.value1][result.value3] +
+    //         ticketFrequency1_3[_rounds][result.value1][result.value4] +
+    //         ticketFrequency1_4[_rounds][result.value1][result.value5];
+    // }
+
     function _saveTicket(TicketValueStruct calldata ticket, VaultShare memory _vaultShare, uint pricePerTicket) internal {
 
         uint _gameRounds = gameRounds;
@@ -247,6 +256,7 @@ abstract contract JackpotCore {
     function _compareFour(uint[4] memory values, uint[4] memory _results) internal pure returns(bool){
         return values[0] == _results[0] && values[1] == _results[1] && values[2] == _results[2] && values[3] == _results[3]; 
     }
+
 
 
 }

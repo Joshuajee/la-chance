@@ -117,7 +117,7 @@ contract Jackpot is IJackpot, Authorization, JackpotCore, CloneFactory {
 
         IERC20(token).safeTransferFrom(msg.sender, lendingProtocolAddress, amount);
 
-        _splitStakeTovaults(token, amount);
+        _splitStakeToVaults(token, amount);
 
         for (uint i = 0; i < length; i++) {
             _saveTicket(tickets[i], _vaultShare, pricePerTicket);
@@ -132,29 +132,35 @@ contract Jackpot is IJackpot, Authorization, JackpotCore, CloneFactory {
 
         if (ticket.hasClaimedPrize) revert TicketAlreadyClaimed(round, ticketId);
 
-        TicketValueStruct memory result = results[round];
+        uint rounds = gameRounds;
 
-        uint value1 = ticket.ticketValue.value1;
-        uint value2 = ticket.ticketValue.value1;
-        uint value3 = ticket.ticketValue.value1;
-        uint value4 = ticket.ticketValue.value1;
-        uint value5 = ticket.ticketValue.value1;
+        address owner = ticket.owner;
 
-        getPotsWon(round, ticketId);
+        VaultAddressStruct memory _vaultAddresses  = vaultAddresses;
 
-        bool won1 = value1 == result.value1 || value2 == result.value2 || value3 == result.value3 ||
-            value4 == result.value4 || value5 == result.value5;
-
-        bool won2 = (value1 == result.value1 && value2 == result.value2) || value3 == result.value3 ||
-            value4 == result.value4 || value5 == result.value5;
+        (bool one, bool two, bool three, bool four, bool five) = getPotsWon(round, ticketId);
 
         // check pot 1
-        if (won1) {
-
-        } else if (won2) {
-
+        if (one) {
+            //IVault(_vaultAddresses.vault1).withdrawStake(owner, rounds);
+            IVault(_vaultAddresses.vault1).withdraw(owner, rounds);
         }
 
+        if (two) {
+            IVault(_vaultAddresses.vault2).withdraw(owner, rounds);
+        }
+
+        if (three) {
+            IVault(_vaultAddresses.vault3).withdraw(owner, rounds);
+        }
+
+        if (four) {
+            IVault(_vaultAddresses.vault4).withdraw(owner, rounds);
+        }
+
+        if (five) {
+            IVault(_vaultAddresses.vault5).withdraw(owner, rounds);
+        }
 
     }
 
@@ -182,7 +188,7 @@ contract Jackpot is IJackpot, Authorization, JackpotCore, CloneFactory {
 
     // Internal functions
 
-    function _splitStakeTovaults(address token, uint amount) internal {
+    function _splitStakeToVaults(address token, uint amount) internal {
 
         VaultShare memory _vaultShare = vaultShare;
 
@@ -194,6 +200,11 @@ contract Jackpot is IJackpot, Authorization, JackpotCore, CloneFactory {
         IVault(_vaultAddresses.vault4).increaseBalance(token, amount * _vaultShare.vault4 / PERCENT);
         IVault(_vaultAddresses.vault5).increaseBalance(token, amount * _vaultShare.vault5 / PERCENT);
         IVault(_vaultAddresses.daoVault).increaseBalance(token, amount * _vaultShare.daoVault / PERCENT);
+    }
+
+
+    function _createWinningPots() internal {
+        //if ()
     }
 
 

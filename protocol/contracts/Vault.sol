@@ -14,8 +14,15 @@ contract Vault is CloneFactory, Authorization, IVault {
 
     uint public vaultShare;
 
+    // parallel datastructure
+    mapping(address => bool) public supportedToken;
+    address [] public supportedTokenArray;
+
     mapping(address => uint) public tokenBalance;
     mapping(address => uint) public tokenInterest;
+
+    // mapping of rounds to pot address
+    mapping(uint => address) public pots;
 
     address public lendingProtocolAddress;
     address public potFactoryAddress;
@@ -23,16 +30,24 @@ contract Vault is CloneFactory, Authorization, IVault {
 
     function initialize (address _lendingProtocolAddress, address _potFactoryAddress) external onlyOnInitalization {
         lendingProtocolAddress = _lendingProtocolAddress;
-        createClone(_potFactoryAddress);
+        potFactoryAddress = _potFactoryAddress;
     }
-
 
     function increaseBalance(address token, uint amount) external onlyFactory {
         tokenBalance[token] += amount;
     }
 
-    function decreaseBalance(address token, uint amount) external onlyFactory() {
+    function decreaseBalance(address token, uint amount) external onlyFactory {
         tokenBalance[token] -= amount;
+    }
+
+    function addSupportedToken(address token) external onlyFactory  {
+        supportedToken[token] = true;
+        supportedTokenArray.push(token);
+    }
+
+    function removeSupportedToken(address token) external onlyFactory  {
+        delete supportedToken[token];
     }
 
     function addInterest(address token, uint amount) external onlyLendingProtocol  {
@@ -43,6 +58,19 @@ contract Vault is CloneFactory, Authorization, IVault {
         vaultShare = _vaultShare;
     }
 
+    function createPot(uint round) external onlyFactory {
+        address pot = createClone(potFactoryAddress);
+        
+        pots[round] = pot;
+    }
+
+    function withdraw(address owner, uint rounds) external onlyFactory {
+
+    }
+
+    function withdrawStake(address owner, uint rounds) external onlyFactory {
+        
+    }
 
     modifier onlyLendingProtocol() {
         if (msg.sender != lendingProtocolAddress) revert CallerIsNotLendingProtocol();
