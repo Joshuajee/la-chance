@@ -1,6 +1,10 @@
-import { loadFixture } from "@nomicfoundation/hardhat-network-helpers";
 import hre from "hardhat";
 import { ethers } from "ethers";
+import { TestUSDC$Type } from "../artifacts/contracts/mocks/TestUSDC.sol/TestUSDC";
+import { LendingProtocol$Type } from "../artifacts/contracts/LendingProtocol.sol/LendingProtocol";
+
+
+export const vaultShare = [BigInt(30), BigInt(15), BigInt(15), BigInt(15), BigInt(15), BigInt(10)]
 
 export const testUSDCPrice = ethers.utils.parseUnits("10","ether")
 
@@ -83,9 +87,11 @@ export async function deploy() {
 
   const Vault = await hre.viem.deployContract("Vault");
 
+  const Pot = await hre.viem.deployContract("Pot");
+
   const LendingProtocol = await hre.viem.deployContract("LendingProtocol");
 
-  const Jackpot = await hre.viem.deployContract("Jackpot", [TUSDC.address, TUSDC.address, LendingProtocol.address, Vault.address, TUSDC.address, testUSDCPrice.toBigInt()]);
+  const Jackpot = await hre.viem.deployContract("Jackpot", [TUSDC.address, TUSDC.address, LendingProtocol.address, Vault.address, Pot.address, TUSDC.address, testUSDCPrice.toBigInt()]);
 
   const publicClient = await hre.viem.getPublicClient();
 
@@ -109,13 +115,21 @@ export async function deployTest() {
 
   const Vault = await hre.viem.deployContract("Vault");
 
+  const Pot = await hre.viem.deployContract("Pot");
+
   const LendingProtocol = await hre.viem.deployContract("LendingProtocol");
 
   const { LinkToken, VRFCoordinatorV2Mock, MockV3Aggregator, VRFV2Wrapper } = await chainLinkConfig()
 
-  const Jackpot = await hre.viem.deployContract("Jackpot", [LinkToken.address, VRFV2Wrapper.address, LendingProtocol.address, Vault.address, TUSDC.address, testUSDCPrice.toBigInt()]);
+  const Chainlink = await hre.viem.deployContract("Chainlink", [LinkToken.address, VRFV2Wrapper.address])
 
-  await LinkToken.write.transfer([Jackpot.address, oneHundredLink.toBigInt()])
+  const Jackpot = await hre.viem.deployContract("Jackpot", [LendingProtocol.address, Vault.address, Pot.address, TUSDC.address, testUSDCPrice.toBigInt()]);
+
+  await LinkToken.write.transfer([Chainlink.address, oneHundredLink.toBigInt()])
+
+  await Chainlink.write.initFactory([Jackpot.address])
+
+  const Vaults = await Jackpot.read.vaultAddresses()
 
   const publicClient = await hre.viem.getPublicClient();
 
@@ -126,7 +140,49 @@ export async function deployTest() {
     user2,
     TUSDC,
     LinkToken, VRFCoordinatorV2Mock, MockV3Aggregator, VRFV2Wrapper,
+    Chainlink,
+    Vaults,
     publicClient,
+  };
+}
+
+
+
+export async function deployTestAfterGame() {
+
+
+  const {
+    Jackpot,
+    LendingProtocol,
+    user1,
+    user2,
+    TUSDC,
+    LinkToken, VRFCoordinatorV2Mock, MockV3Aggregator, VRFV2Wrapper,
+    publicClient,
+  } = await deployTest()
+
+  // Contracts are deployed using the first signer/account by default
+
+  const tickets = ticket(21, 12, 40, 50, 20)
+
+  await TUSDC.write.approve([Jackpot.address, BigInt(10e40)])
+
+  await Jackpot.write.buyTickets([TUSDC.address, tickets]);
+
+  // Increase Time by 1hr 1 min
+  await hre.network.provider.send("hardhat_mine", ["0x3D", "0x3c"]);
+
+  await Jackpot.write.randomRequestRandomWords([300_000]);
+ 
+  return {
+    Jackpot,
+    LendingProtocol,
+    user1,
+    user2,
+    TUSDC,
+    LinkToken, VRFCoordinatorV2Mock, MockV3Aggregator, VRFV2Wrapper,
+    publicClient,
+    tickets
   };
 }
 
@@ -138,32 +194,99 @@ export async function deployLendingProtocol() {
 
   const TUSDC = await hre.viem.deployContract("TestUSDC");
 
-  const Vault = await hre.viem.deployContract("Vault");
+  const Vault1 = await hre.viem.deployContract("Vault");
+
+  const Vault2 = await hre.viem.deployContract("Vault");
+
+  const Vault3 = await hre.viem.deployContract("Vault");
+
+  const Vault4 = await hre.viem.deployContract("Vault");
+
+  const Vault5 = await hre.viem.deployContract("Vault");
+
+  const DAOVault = await hre.viem.deployContract("DAOVault");
 
   const LendingProtocol = await hre.viem.deployContract("LendingProtocol");
 
-  const { LinkToken, VRFCoordinatorV2Mock, MockV3Aggregator, VRFV2Wrapper } = await chainLinkConfig()
-
-  const Jackpot = await hre.viem.deployContract("Jackpot", [LinkToken.address, VRFV2Wrapper.address, LendingProtocol.address, Vault.address, TUSDC.address, testUSDCPrice.toBigInt()]);
-
-  await LinkToken.write.transfer([Jackpot.address, oneHundredLink.toBigInt()])
+  await LendingProtocol.write.initialize([
+    [Vault1.address, Vault2.address, Vault3.address, Vault4.address, Vault5.address, DAOVault.address],
+    vaultShare,
+    TUSDC.address
+  ])
 
   const publicClient = await hre.viem.getPublicClient();
 
   return {
-    Jackpot,
     LendingProtocol,
     user1,
     user2,
     TUSDC,
-    LinkToken, VRFCoordinatorV2Mock, MockV3Aggregator, VRFV2Wrapper,
+    Vault1,
+    Vault2,
+    Vault3,
+    Vault4,
+    Vault5,
+    DAOVault,
+    publicClient,
+  };
+}
+
+
+export async function deployLendingProtocolInitVaults() {
+
+  const {
+    LendingProtocol,
+    user1,
+    user2,
+    TUSDC,
+    Vault1,
+    Vault2,
+    Vault3,
+    Vault4,
+    Vault5,
+    DAOVault,
+    publicClient,
+  } = await deployLendingProtocol()
+
+  const Pot = await hre.viem.deployContract("Pot");
+
+  await Vault1.write.initialize([LendingProtocol.address, Pot.address])
+  await Vault2.write.initialize([LendingProtocol.address, Pot.address])
+  await Vault3.write.initialize([LendingProtocol.address, Pot.address])
+  await Vault4.write.initialize([LendingProtocol.address, Pot.address])
+  await Vault5.write.initialize([LendingProtocol.address, Pot.address])
+  await DAOVault.write.initialize([LendingProtocol.address, Pot.address])
+
+
+  return {
+    LendingProtocol,
+    user1,
+    user2,
+    TUSDC,
+    Vault1,
+    Vault2,
+    Vault3,
+    Vault4,
+    Vault5,
+    DAOVault,
     publicClient,
   };
 }
 
 export const ticket = (value1: number, value2: number,value3: number,value4: number,value5: number,) => {
-
-  return [{ value1: BigInt(value1) , value2: BigInt(value2), value3: BigInt(value3), value4: BigInt(value4), value5: BigInt(value5) }]
-    //return [BigInt(value1), BigInt(value2), BigInt(value3), BigInt(value4), BigInt(value5)]
+  return { value1: BigInt(value1) , value2: BigInt(value2), value3: BigInt(value3), value4: BigInt(value4), value5: BigInt(value5) }
 }
 
+
+
+
+
+export async function flashloan(TUSDC: any, LendingProtocol: any) {
+
+  const BorrowerContract = await hre.viem.deployContract("FlashBorrowerExample")
+
+  await TUSDC.write.transfer([BorrowerContract.address,  BigInt(10e20)])
+
+  await LendingProtocol.write.flashLoan([TUSDC.address, BorrowerContract.address, testUSDCPrice])
+
+}

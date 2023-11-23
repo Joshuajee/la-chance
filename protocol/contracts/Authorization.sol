@@ -4,20 +4,18 @@ pragma solidity ^0.8.19;
 // Uncomment this line to use console.log
 // import "hardhat/console.sol";
 
-abstract contract Authorization {
+import "./interface/IAuthorization.sol";
 
-    error CallerIsNotFactory();
-    error CallerIsNotGovernor();
-    error FactoryAlreadyInitialized();
-    error GovernorAlreadyInitialized();
-
-    error AddressZeroNotAllowed();
-    error AlreadyInitialized();
+abstract contract Authorization is IAuthorization {
 
     bool initialized = false;
 
     address public factoryAddress;
     address public governorAddress;
+    address public chainlinkAddress;
+
+    mapping(address => bool) public supportedToken;
+    address [] public supportedTokenArray;
 
     function initFactory(address _factory) external {
         _isAddressZero(_factory);
@@ -29,6 +27,16 @@ abstract contract Authorization {
         _isAddressZero(_governor);
         if (governorAddress != address(0)) revert GovernorAlreadyInitialized(); 
         governorAddress = _governor;
+    }
+
+
+    function addSupportedToken(address token) external onlyFactory  {
+        supportedToken[token] = true;
+        supportedTokenArray.push(token);
+    }
+
+    function removeSupportedToken(address token) external onlyFactory  {
+        delete supportedToken[token];
     }
 
     function _isAddressZero(address _address) internal pure {
@@ -43,6 +51,11 @@ abstract contract Authorization {
 
     modifier onlyGovernor() {
         if (msg.sender != governorAddress) revert CallerIsNotGovernor();
+        _;
+    }
+
+    modifier onlyChainlink() {
+        if (msg.sender != chainlinkAddress) revert CallerIsNotChainlink();
         _;
     }
 

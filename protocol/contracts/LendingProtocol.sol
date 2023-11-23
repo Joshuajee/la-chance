@@ -6,48 +6,49 @@ import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import './Authorization.sol';
 import './Vault.sol';
 import './interface/IFlashBorrower.sol';
+import './interface/ILendingInterface.sol';
 // Uncomment this line to use console.log
-// import "hardhat/console.sol";
+import "hardhat/console.sol";
 
 
-contract LendingProtocol is  Authorization {
+contract LendingProtocol is Authorization, ILendingInterface {
 
     error DebtWasNotPaid(uint debt, uint amountPaid);
 
     using SafeERC20 for IERC20;
 
-    uint8 public interestRate = 9;
+    uint public interestRate = 9;
     uint16 constant PERCENT = 1000;
     uint32 public constant minLoanAmount = 99999999;
 
-    address public vaults1; 
-    address public vaults2; 
-    address public vaults3; 
-    address public vaults4; 
-    address public vaults5; 
+    address public vault1; 
+    address public vault2; 
+    address public vault3; 
+    address public vault4; 
+    address public vault5; 
     address public daoVault; 
 
 
-    uint8 public vaultShare1; 
-    uint8 public vaultShare2; 
-    uint8 public vaultShare3; 
-    uint8 public vaultShare4; 
-    uint8 public vaultShare5; 
-    uint8 public daoVaultShare; 
+    uint public vaultShare1; 
+    uint public vaultShare2; 
+    uint public vaultShare3; 
+    uint public vaultShare4; 
+    uint public vaultShare5; 
+    uint public daoVaultShare; 
 
-    function initialize (address [6] memory vaults, uint8[6] memory vaultShare) external onlyOnInitalization {
+    function initialize (address [6] memory vaults, uint[6] memory vaultShare, address token) external onlyOnInitalization {
 
         initialized = true;
 
-        for (uint256 index = 0; index < 6; index++) {
+        for (uint index = 0; index < 6; index++) {
             _isAddressZero(vaults[index]);
         }
 
-        vaults1 = vaults[0]; 
-        vaults2 = vaults[1];  
-        vaults3 = vaults[2]; 
-        vaults4 = vaults[3]; 
-        vaults5 = vaults[4];  
+        vault1 = vaults[0]; 
+        vault2 = vaults[1];  
+        vault3 = vaults[2]; 
+        vault4 = vaults[3]; 
+        vault5 = vaults[4];  
         daoVault = vaults[5];  
 
         vaultShare1 = vaultShare[0]; 
@@ -56,20 +57,23 @@ contract LendingProtocol is  Authorization {
         vaultShare4 = vaultShare[3]; 
         vaultShare5 = vaultShare[4];  
         daoVaultShare = vaultShare[5]; 
+
+        supportedToken[token] = true;
+        supportedTokenArray.push(token);
     }
 
     function updateVault(address _vault, uint _vaultNumber) external onlyGovernor {
 
         if (_vaultNumber == 1) {
-            vaults1 = _vault; 
+            vault1 = _vault; 
         } else if (_vaultNumber == 2) {
-            vaults2 = _vault; 
+            vault2 = _vault; 
         } else if (_vaultNumber == 3) {
-            vaults3 = _vault; 
+            vault3 = _vault; 
         } else if (_vaultNumber == 4) {
-            vaults4 = _vault; 
+            vault4 = _vault; 
         } else if (_vaultNumber == 5) {
-            vaults5 = _vault; 
+            vault5 = _vault; 
         } else if (_vaultNumber == 6) {
             daoVault = _vault; 
         }
@@ -82,8 +86,7 @@ contract LendingProtocol is  Authorization {
         uint interest = _amount * interestRate / PERCENT;
         uint debt = _amount + interest;
 
-        IERC20(_token).approve(_contract, _amount);
-        IERC20(_token).safeTransferFrom(address(this), _contract, _amount);
+        IERC20(_token).safeTransfer(_contract, _amount);
 
         uint balanceAfterLending = IERC20(_token).balanceOf(address(this));
 
@@ -96,10 +99,36 @@ contract LendingProtocol is  Authorization {
         _shareInterestToVaults(_token, interest);
     }
 
+    function withdraw (address pot) external isVault {
+
+        uint length = supportedTokenArray.length;
+
+        for (uint i = 0; i < length; ++i) {
+            address token = supportedTokenArray[i];
+            uint amount = Vault(msg.sender).tokenInterest(token);  
+            console.log(amount);
+            Vault(msg.sender).clearInterest(token);   
+            IERC20(token).safeTransfer(pot, amount);        
+        }
+
+
+    }
 
     function _shareInterestToVaults (address _token, uint interest) internal {
-        //Vault(vaults1).addInterest(_token);
+        Vault(vault1).addInterest(_token, interest * vaultShare1 / PERCENT);
+        Vault(vault2).addInterest(_token, interest * vaultShare2 / PERCENT);
+        Vault(vault3).addInterest(_token, interest * vaultShare3 / PERCENT);
+        Vault(vault4).addInterest(_token, interest * vaultShare4 / PERCENT);
+        Vault(vault5).addInterest(_token, interest * vaultShare5 / PERCENT);
+        Vault(daoVault).addInterest(_token, interest * daoVaultShare / PERCENT);
+    }
 
+
+    modifier isVault() {
+        if (vault1 != msg.sender && vault2 != msg.sender && vault3 != msg.sender && vault4 != msg.sender && vault5 != msg.sender && daoVault != msg.sender) {
+            revert ();
+        }
+        _;
     }
 
 

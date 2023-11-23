@@ -7,29 +7,68 @@ pragma solidity ^0.8.19;
 import './CloneFactory.sol';
 import './Authorization.sol';
 import './interface/IVault.sol';
+import './interface/IPot.sol';
+import './interface/ILendingInterface.sol';
 
 contract Vault is CloneFactory, Authorization, IVault {
 
-    uint8 public vaultShare;
+    error CallerIsNotLendingProtocol();
+
+    uint public vaultShare;
 
     mapping(address => uint) public tokenBalance;
     mapping(address => uint) public tokenInterest;
 
+    // mapping of rounds to pot address
+    mapping(uint => address) public pots;
+
+    address public lendingProtocolAddress;
+    address public potFactoryAddress;
+
+
+    function initialize (address _lendingProtocolAddress, address _potFactoryAddress) external onlyOnInitalization {
+        lendingProtocolAddress = _lendingProtocolAddress;
+        potFactoryAddress = _potFactoryAddress;
+    }
 
     function increaseBalance(address token, uint amount) external onlyFactory {
         tokenBalance[token] += amount;
     }
 
-    function decreaseBalance(address token, uint amount) external onlyFactory() {
+    function decreaseBalance(address token, uint amount) external onlyFactory {
         tokenBalance[token] -= amount;
     }
 
-    function addInterest(address token, uint amount) external  {
-        tokenBalance[token] += amount;
+    function addInterest(address token, uint amount) external onlyLendingProtocol  {
+        tokenInterest[token] += amount;
     }
 
-    function updateVaultShare(uint8 _vaultShare) external onlyFactory {
+    function clearInterest(address token) external onlyLendingProtocol  {
+        tokenInterest[token] = 0;
+    }
+
+    function updateVaultShare(uint _vaultShare) external onlyFactory {
         vaultShare = _vaultShare;
+    }
+
+    function createPot(uint round, uint winners) external onlyFactory {
+        address pot = createClone(potFactoryAddress);
+        Authorization(pot).initFactory(address(this));
+        ILendingInterface(lendingProtocolAddress).withdraw(pot);
+        pots[round] = pot;
+    }
+
+    function withdraw(address owner, uint rounds) external onlyFactory {
+
+    }
+
+    function withdrawStake(address owner, uint rounds) external onlyFactory {
+        
+    }
+
+    modifier onlyLendingProtocol() {
+        if (msg.sender != lendingProtocolAddress) revert CallerIsNotLendingProtocol();
+        _;
     }
 
 }

@@ -3,19 +3,20 @@ pragma solidity ^0.8.9;
 
 
 abstract contract JackpotCore {
-    
+
 
     struct TicketIDStruct {
         uint round;
         uint ticketId;
     }
+
     struct VaultShare {
-        uint8 vault1;
-        uint8 vault2;
-        uint8 vault3;
-        uint8 vault4;
-        uint8 vault5;
-        uint8 daoVault;
+        uint vault1;
+        uint vault2;
+        uint vault3;
+        uint vault4;
+        uint vault5;
+        uint daoVault;
     }
     
     struct TicketValueStruct {
@@ -27,7 +28,7 @@ abstract contract JackpotCore {
     }
 
     struct TicketStruct {
-        uint32 stakeTime;
+        uint stakeTime;
         uint amount;
         bool hasClaimedPrize;
         address owner;
@@ -35,12 +36,22 @@ abstract contract JackpotCore {
         VaultShare vaultShare;
     }
 
+    event BuyTicket(address indexed staker, uint indexed gameRound, uint indexed ticketID, TicketValueStruct value);
+    event GameResult(uint indexed gameRound, TicketValueStruct result);
+
     uint constant PERCENT = 100;
 
     uint public gameRounds = 1;
-    uint public gameTickets = 1;
+    uint public gameTickets = 0;
 
-    VaultShare public vaultShare = VaultShare(25, 20, 15, 15, 15, 10);
+    // store duration for game and stake holding period
+    uint public gameDuration = 3600; // 1 hour for testing
+    uint public stakingDuration = 14400; // 4 hour for testing
+
+    //The period in which game can't receiver result
+    uint public gamePeriod = block.timestamp + gameDuration;
+
+    VaultShare public vaultShare = VaultShare(30, 15, 15, 15, 15, 10);
 
     // mapping of rounds to ticket value
     mapping(uint => TicketValueStruct) public results;
@@ -68,8 +79,6 @@ abstract contract JackpotCore {
     mapping(uint => mapping(uint => mapping(uint => uint))) public ticketFrequency2_9;
     mapping(uint => mapping(uint => mapping(uint => uint))) public ticketFrequency2_10;
 
-    //mapping(uint => mapping(TicketValueStruct => uint)) public ticketFrequency5;
-
     mapping(uint => mapping(uint => mapping(uint => mapping(uint => uint)))) public ticketFrequency3_1;
     mapping(uint => mapping(uint => mapping(uint => mapping(uint => uint)))) public ticketFrequency3_2;
     mapping(uint => mapping(uint => mapping(uint => mapping(uint => uint)))) public ticketFrequency3_3;
@@ -81,27 +90,88 @@ abstract contract JackpotCore {
     mapping(uint => mapping(uint => mapping(uint => mapping(uint => uint)))) public ticketFrequency3_9;
     mapping(uint => mapping(uint => mapping(uint => mapping(uint => uint)))) public ticketFrequency3_10;
 
-
     mapping(uint => mapping(uint => mapping(uint => mapping(uint => mapping(uint => uint))))) public ticketFrequency4_1;
     mapping(uint => mapping(uint => mapping(uint => mapping(uint => mapping(uint => uint))))) public ticketFrequency4_2;
     mapping(uint => mapping(uint => mapping(uint => mapping(uint => mapping(uint => uint))))) public ticketFrequency4_3;
     mapping(uint => mapping(uint => mapping(uint => mapping(uint => mapping(uint => uint))))) public ticketFrequency4_4;
     mapping(uint => mapping(uint => mapping(uint => mapping(uint => mapping(uint => uint))))) public ticketFrequency4_5;
 
-
     mapping(uint => mapping(uint => mapping(uint => mapping(uint => mapping(uint => mapping(uint => uint)))))) public ticketFrequency5;
   
-
     // Arrays
     TicketIDStruct [] public myTickets;
-    TicketIDStruct [] public myOpenTickets;
 
 
-    function returnWonPots(uint gameRound, TicketStruct memory result) public {
+    /*********************************************************************
+     *                          Public Functions                         *
+     *********************************************************************/
+
+
+    function getPotsWon(uint gameRound, uint ticketId) view
+        public returns (bool one, bool two, bool three, bool four, bool five) {
+
+            TicketValueStruct memory result = results[gameRound];
+            TicketStruct memory ticket = _tickets[gameRound][ticketId];
+
+            uint value1 = ticket.ticketValue.value1;
+            uint value2 = ticket.ticketValue.value2;
+            uint value3 = ticket.ticketValue.value3;
+            uint value4 = ticket.ticketValue.value4;
+            uint value5 = ticket.ticketValue.value5;
+
+            one = value1 == result.value1 || value2 == result.value2 || value3 == result.value3 ||
+                value4 == result.value4 || value5 == result.value5;
+
+            two = _compareTwo([value1, value2], [result.value1, result.value2]) || 
+                _compareTwo([value1, value3], [result.value1, result.value3]) ||
+                _compareTwo([value1, value4], [result.value1, result.value4]) ||
+                _compareTwo([value1, value5], [result.value1, result.value5]) ||
+                _compareTwo([value2, value3], [result.value2, result.value3]) ||
+                _compareTwo([value2, value4], [result.value2, result.value4]) ||
+                _compareTwo([value2, value5], [result.value2, result.value5]) ||
+                _compareTwo([value3, value4], [result.value3, result.value4]) ||
+                _compareTwo([value3, value5], [result.value3, result.value5]) ||
+                _compareTwo([value4, value5], [result.value4, result.value5]);
+
+            three = _compareThree([value1, value2, value3], [result.value1, result.value2, result.value3]) || 
+                _compareThree([value1, value2, value4], [result.value1, result.value2, result.value4]) ||
+                _compareThree([value1, value2, value5], [result.value1, result.value2, result.value5]) ||
+                _compareThree([value1, value3, value4], [result.value1, result.value3, result.value4]) ||
+                _compareThree([value1, value3, value5], [result.value1, result.value3, result.value5]) ||
+                _compareThree([value1, value4, value5], [result.value1, result.value4, result.value5]) ||
+                _compareThree([value2, value3, value4], [result.value2, result.value3, result.value4]) ||
+                _compareThree([value2, value3, value5], [result.value2, result.value3, result.value5]) ||
+                _compareThree([value2, value4, value5], [result.value2, result.value4, result.value5]) ||
+                _compareThree([value3, value4, value5], [result.value3, result.value4, result.value5]);
+
+            four = _compareFour([value1, value2, value3, value4], [result.value1, result.value2, result.value3, result.value4]) || 
+                _compareFour([value1, value2, value3, value5], [result.value1, result.value2, result.value3, result.value5]) ||
+                _compareFour([value1, value2, value4, value5], [result.value1, result.value2, result.value4, result.value5]) ||
+                _compareFour([value1, value3, value4, value5], [result.value1, result.value3, result.value4, result.value5]) ||
+                _compareFour([value2, value3, value4, value5], [result.value2, result.value3, result.value4, result.value5]);
         
+            five = value1 == result.value1 && value2 == result.value2 && value3 == result.value3 &&
+                    value4 == result.value4 && value5 == result.value5;
     }
 
 
+    function potOneWinners(TicketValueStruct memory result) public view returns (uint) {
+        uint rounds = gameRounds;
+        return ( 
+            ticketFrequency1_1[rounds][result.value1] + ticketFrequency1_2[rounds][result.value2] +
+            ticketFrequency1_3[rounds][result.value3] + ticketFrequency1_4[rounds][result.value4] +
+            ticketFrequency1_4[rounds][result.value5]
+        );
+    }
+
+    function potTwoWinners(TicketValueStruct memory result) public view returns (uint) {
+        uint rounds = gameRounds;
+        return ( 
+            ticketFrequency1_1[rounds][result.value1] + ticketFrequency1_2[rounds][result.value2] +
+            ticketFrequency1_3[rounds][result.value3] + ticketFrequency1_4[rounds][result.value4] +
+            ticketFrequency1_4[rounds][result.value5]
+        );
+    }
 
     function _saveTicket(TicketValueStruct calldata ticket, VaultShare memory _vaultShare, uint pricePerTicket) internal {
 
@@ -110,7 +180,7 @@ abstract contract JackpotCore {
 
         // store tickets
         _tickets[gameRounds][_gameTickets] = TicketStruct({
-            stakeTime: uint32(block.timestamp),
+            stakeTime: uint(block.timestamp),
             amount: pricePerTicket,
             hasClaimedPrize: false,
             owner: msg.sender,
@@ -118,23 +188,26 @@ abstract contract JackpotCore {
             vaultShare: _vaultShare
         }); 
 
-        myOpenTickets.push(TicketIDStruct({
+        myTickets.push(TicketIDStruct({
             round: _gameRounds,
             ticketId: _gameTickets
         }));
 
         _increaseFrequencies(ticket);
 
+        emit BuyTicket(msg.sender, gameRounds, _gameTickets, ticket);
     }
 
     function _saveResult(TicketValueStruct memory ticket) internal {
         results[gameRounds] = ticket;
+        emit GameResult(gameRounds, ticket);
         _newRound();
     }
 
     function _newRound() private {
-        gameRounds++;
-        gameTickets = 1;
+        ++gameRounds;
+        gameTickets = 0;
+        gamePeriod = block.timestamp + gameDuration;
     }
 
 
@@ -182,16 +255,17 @@ abstract contract JackpotCore {
 
     }
 
-
-    function _increaseRandomness(uint word) view internal returns(uint) {
-        unchecked {
-            return  word * block.timestamp  * block.number % PERCENT + 1;   
-        }
-
+    function _compareTwo(uint[2] memory values, uint[2] memory _results) internal pure returns(bool){
+        return values[0] == _results[0] && values[1] == _results[1]; 
     }
 
+    function _compareThree(uint[3] memory values, uint[3] memory _results) internal pure returns(bool){
+        return values[0] == _results[0] && values[1] == _results[1] && values[2] == _results[2]; 
+    }
 
-
+    function _compareFour(uint[4] memory values, uint[4] memory _results) internal pure returns(bool){
+        return values[0] == _results[0] && values[1] == _results[1] && values[2] == _results[2] && values[3] == _results[3]; 
+    }
 
 
 
