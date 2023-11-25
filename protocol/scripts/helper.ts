@@ -80,29 +80,6 @@ export async function chainLinkConfig () {
 
 export async function deploy() {
 
-  // Contracts are deployed using the first signer/account by default
-  const [user1, user2] = await hre.viem.getWalletClients();
-
-  const TUSDC = await hre.viem.deployContract("TestUSDC");
-
-  const Vault = await hre.viem.deployContract("Vault");
-
-  const Pot = await hre.viem.deployContract("Pot");
-
-  const LendingProtocol = await hre.viem.deployContract("LendingProtocol");
-
-  const Jackpot = await hre.viem.deployContract("Jackpot", [TUSDC.address, TUSDC.address, LendingProtocol.address, Vault.address, Pot.address, TUSDC.address, testUSDCPrice.toBigInt()]);
-
-  const publicClient = await hre.viem.getPublicClient();
-
-  return {
-    Jackpot,
-    LendingProtocol,
-    user1,
-    user2,
-    TUSDC,
-    publicClient,
-  };
 }
 
 
@@ -123,11 +100,16 @@ export async function deployTest() {
 
   const Chainlink = await hre.viem.deployContract("Chainlink", [LinkToken.address, VRFV2Wrapper.address])
 
-  const Jackpot = await hre.viem.deployContract("Jackpot", [LendingProtocol.address, Vault.address, Pot.address, TUSDC.address, testUSDCPrice.toBigInt()]);
+  const JackpotCore = await hre.viem.deployContract("JackpotCore");
+
+  const Jackpot = await hre.viem.deployContract("Jackpot", [JackpotCore.address, LendingProtocol.address, Vault.address, Pot.address, TUSDC.address, testUSDCPrice.toBigInt()]);
+
 
   await LinkToken.write.transfer([Chainlink.address, oneHundredLink.toBigInt()])
 
   await Chainlink.write.initFactory([Jackpot.address])
+
+  await JackpotCore.write.initFactory([Jackpot.address])
 
   const Vaults = await Jackpot.read.vaultAddresses()
 
@@ -135,6 +117,7 @@ export async function deployTest() {
 
   return {
     Jackpot,
+    JackpotCore,
     LendingProtocol,
     user1,
     user2,

@@ -106,7 +106,6 @@ contract LendingProtocol is Authorization, ILendingInterface {
         for (uint i = 0; i < length; ++i) {
             address token = supportedTokenArray[i];
             uint amount = Vault(msg.sender).tokenInterest(token);  
-            console.log(amount);
             Vault(msg.sender).clearInterest(token);   
             IERC20(token).safeTransfer(pot, amount);        
         }

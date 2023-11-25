@@ -5,7 +5,9 @@ import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 
 import "./interface/IJackpot.sol";
+import "./interface/IJackpotCore.sol";
 import "./CloneFactory.sol";
+import './Authorization.sol';
 import "./JackpotCore.sol";
 import "./LendingProtocol.sol";
 import './interface/IVault.sol';
@@ -13,7 +15,7 @@ import './interface/IVault.sol';
 //import "hardhat/console.sol";
 
 
-contract Jackpot is IJackpot, Authorization, JackpotCore, CloneFactory {
+contract Jackpot is IJackpot, Authorization, CloneFactory {
 
     error TicketAlreadyClaimed(uint round, uint ticketId);
 
@@ -29,7 +31,7 @@ contract Jackpot is IJackpot, Authorization, JackpotCore, CloneFactory {
         address daoVault;
     }
 
-
+    address public jackpotCoreAddress;
     address public lendingProtocolAddress;
     address public vaultFactoryAddress; 
     address public potFactoryAddress; 
@@ -38,19 +40,23 @@ contract Jackpot is IJackpot, Authorization, JackpotCore, CloneFactory {
 
     mapping(address => uint) public acceptedTokenPrize;
 
+    VaultShare public vaultShare = VaultShare(30, 15, 15, 15, 15, 10);
+
+    uint PERCENT = 100;
+
     // mapping of game rounds to pots
     //mapping(uint => PotAddressStruct) public potAddressess;
 
-    constructor (address _lendingProtocolAddress, address _vaultFactoryAddress, address _potFactoryAddress, address tokenAddress, uint amount) {
+    constructor (address _jackpotCore, address _lendingProtocolAddress, address _vaultFactoryAddress, address _potFactoryAddress, address tokenAddress, uint amount) {
         
+        _isAddressZero(_jackpotCore);
         _isAddressZero(_lendingProtocolAddress);
         _isAddressZero(_vaultFactoryAddress);
         _isAddressZero(tokenAddress);
 
         acceptedTokenPrize[tokenAddress] = amount;
-
+        jackpotCoreAddress = _jackpotCore;
         lendingProtocolAddress = _lendingProtocolAddress;
-
         vaultFactoryAddress = _vaultFactoryAddress;
 
         // Create vaultFactoryAddress
@@ -123,7 +129,7 @@ contract Jackpot is IJackpot, Authorization, JackpotCore, CloneFactory {
         _splitStakeToVaults(token, amount);
 
         for (uint i = 0; i < length; i++) {
-            _saveTicket(tickets[i], _vaultShare, pricePerTicket);
+            IJackpotCore(jackpotCoreAddress).saveTicket(tickets[i], _vaultShare, pricePerTicket);
         }
 
     }
@@ -131,17 +137,17 @@ contract Jackpot is IJackpot, Authorization, JackpotCore, CloneFactory {
 
     function claimTicket(uint round, uint ticketId) external {
         
-        TicketStruct storage ticket = _tickets[round][ticketId];
+        TicketStruct memory ticket = IJackpotCore(jackpotCoreAddress).getTicket(round, ticketId);
 
         if (ticket.hasClaimedPrize) revert TicketAlreadyClaimed(round, ticketId);
 
-        uint rounds = gameRounds;
+        uint rounds = IJackpotCore(jackpotCoreAddress).gameRounds();
 
         address owner = ticket.owner;
 
         VaultAddressStruct memory _vaultAddresses  = vaultAddresses;
 
-        (bool one, bool two, bool three, bool four, bool five) = getPotsWon(round, ticketId);
+        (bool one, bool two, bool three, bool four, bool five) = IJackpotCore(jackpotCoreAddress).getPotsWon(round, ticketId);
 
         // check pot 1
         if (one) {
@@ -173,10 +179,6 @@ contract Jackpot is IJackpot, Authorization, JackpotCore, CloneFactory {
         if (tokenPrize == 0) revert UnAcceptedERC20Token();
     }
 
-    function gamePeriodHasElasped() external view returns (bool) {
-        return block.timestamp > gamePeriod;
-    }
-
 
     function receiveResults(uint[5] memory _results) external {
         TicketValueStruct memory result = TicketValueStruct({
@@ -187,7 +189,11 @@ contract Jackpot is IJackpot, Authorization, JackpotCore, CloneFactory {
             value5: _results[4]
         });
         _createWinningPots(result);
-        _saveResult(result);
+        IJackpotCore(jackpotCoreAddress).saveResult(result);
+    }
+
+    function gamePeriodHasElasped() external view returns (bool) {
+        return IJackpotCore(jackpotCoreAddress).gamePeriodHasElasped();
     }
 
     // Internal functions
@@ -209,12 +215,15 @@ contract Jackpot is IJackpot, Authorization, JackpotCore, CloneFactory {
 
     function _createWinningPots(TicketValueStruct memory result) internal {
 
-        uint rounds = gameRounds;
+        uint rounds = IJackpotCore(jackpotCoreAddress).gameRounds();
 
         VaultAddressStruct memory _vaultAddresses = vaultAddresses;
 
-        uint pot1 = potOneWinners(result);
-        uint pot2 = potTwoWinners(result);
+        uint pot1 = IJackpotCore(jackpotCoreAddress).potOneWinners(result);
+        uint pot2 = IJackpotCore(jackpotCoreAddress).potTwoWinners(result);
+        uint pot3 = IJackpotCore(jackpotCoreAddress).potThreeWinners(result);
+        uint pot4 = IJackpotCore(jackpotCoreAddress).potFourWinners(result);
+        uint pot5 = IJackpotCore(jackpotCoreAddress).potFiveWinners(result);
         //uint pot3 = potThreeWinners(result);
 
         if (pot1 > 0)  {
@@ -225,9 +234,17 @@ contract Jackpot is IJackpot, Authorization, JackpotCore, CloneFactory {
             IVault(_vaultAddresses.vault2).createPot(rounds, pot2);
         }
 
-        // if (pot3 > 0)  {
-        //     IVault(_vaultAddresses.vault3).createPot(rounds, pot3);
-        // }
+        if (pot3 > 0)  {
+            IVault(_vaultAddresses.vault3).createPot(rounds, pot3);
+        }
+
+        if (pot4 > 0)  {
+            IVault(_vaultAddresses.vault4).createPot(rounds, pot4);
+        }
+
+        if (pot5 > 0)  {
+            IVault(_vaultAddresses.vault5).createPot(rounds, pot5);
+        }
     }
 
     // Governance functions
