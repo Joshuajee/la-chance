@@ -2,7 +2,7 @@
 pragma solidity ^0.8.9;
 
 
-abstract contract JackpotCore {
+contract JackpotCore {
 
 
     struct TicketIDStruct {
@@ -167,11 +167,36 @@ abstract contract JackpotCore {
     function potTwoWinners(TicketValueStruct memory result) public view returns (uint) {
         uint rounds = gameRounds;
         return ( 
-            ticketFrequency1_1[rounds][result.value1] + ticketFrequency1_2[rounds][result.value2] +
-            ticketFrequency1_3[rounds][result.value3] + ticketFrequency1_4[rounds][result.value4] +
-            ticketFrequency1_4[rounds][result.value5]
+            ticketFrequency2_1[rounds][result.value1][result.value2]
+            + ticketFrequency2_2[rounds][result.value1][result.value3]
+            + ticketFrequency2_3[rounds][result.value1][result.value4]
+            + ticketFrequency2_4[rounds][result.value1][result.value5]
+            + ticketFrequency2_5[rounds][result.value2][result.value3]
+            + ticketFrequency2_6[rounds][result.value2][result.value4]
+            + ticketFrequency2_7[rounds][result.value2][result.value5]
+            + ticketFrequency2_8[rounds][result.value3][result.value4]
+            + ticketFrequency2_9[rounds][result.value3][result.value5]
+            + ticketFrequency2_10[rounds][result.value4][result.value5]
         );
     }
+
+
+    // function potThreeWinners(TicketValueStruct memory result) public view returns (uint) {
+    //     uint rounds = gameRounds;
+    //     return ( 
+    //         ticketFrequency2_1[rounds][result.value1][result.value2]
+    //         + ticketFrequency2_2[rounds][result.value1][result.value3]
+    //         + ticketFrequency2_3[rounds][result.value1][result.value4]
+    //         + ticketFrequency2_4[rounds][result.value1][result.value5]
+    //         + ticketFrequency2_5[rounds][result.value2][result.value3]
+    //         + ticketFrequency2_6[rounds][result.value2][result.value4]
+    //         + ticketFrequency2_7[rounds][result.value2][result.value5]
+    //         + ticketFrequency2_8[rounds][result.value3][result.value4]
+    //         + ticketFrequency2_9[rounds][result.value3][result.value5]
+    //         + ticketFrequency2_10[rounds][result.value4][result.value5]
+    //     );
+    // }
+
 
     function _saveTicket(TicketValueStruct calldata ticket, VaultShare memory _vaultShare, uint pricePerTicket) internal {
 

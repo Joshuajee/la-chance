@@ -4,7 +4,7 @@ import hre from "hardhat";
 import { deployTest, flashloan, testUSDCPrice, ticket } from "../scripts/helper";
 
 
-const GAS_CALLBACK = 500000n
+const GAS_CALLBACK = 1500000n
 
 describe("Jackpot", function () {
   // We define a fixture to reuse the same setup in every test.
@@ -596,6 +596,10 @@ describe("Jackpot", function () {
       const Vault2 = await hre.viem.getContractAt("Vault", Vaults[1])
 
       const interest2 = await Vault2.read.tokenInterest([TUSDC.address])
+
+      const Vault3 = await hre.viem.getContractAt("Vault", Vaults[2])
+
+      const interest3 = await Vault3.read.tokenInterest([TUSDC.address])
     
       // Increase Time by 1hr 1 min
       await hre.network.provider.send("hardhat_mine", ["0x3D", "0x3c"]);
@@ -608,9 +612,12 @@ describe("Jackpot", function () {
 
       const potAddress1 = await Vault1.read.pots([1n])
       const potAddress2 = await Vault2.read.pots([1n])
+      const potAddress3 = await Vault3.read.pots([1n])
 
       expect(await TUSDC.read.balanceOf([potAddress1])).to.be.equal(interest1)
       expect(await TUSDC.read.balanceOf([potAddress2])).to.be.equal(interest2)
+      expect(await TUSDC.read.balanceOf([potAddress3])).to.be.equal(interest3)
+
 
     });
 
@@ -642,6 +649,15 @@ describe("Jackpot", function () {
       const Vault2 = await hre.viem.getContractAt("Vault", Vaults[1])
 
       const interest2 = await Vault2.read.tokenInterest([TUSDC.address])
+
+      const Vault3 = await hre.viem.getContractAt("Vault", Vaults[2])
+
+      const interest3 = await Vault3.read.tokenInterest([TUSDC.address])
+
+      const Vault4 = await hre.viem.getContractAt("Vault", Vaults[3])
+
+      const interest4 = await Vault4.read.tokenInterest([TUSDC.address])
+
     
       // Increase Time by 1hr 1 min
       await hre.network.provider.send("hardhat_mine", ["0x3D", "0x3c"]);
@@ -654,10 +670,14 @@ describe("Jackpot", function () {
 
       const potAddress1 = await Vault1.read.pots([1n])
       const potAddress2 = await Vault2.read.pots([1n])
+      const potAddress3 = await Vault3.read.pots([1n])
+      const potAddress4 = await Vault4.read.pots([1n])
 
       expect(await TUSDC.read.balanceOf([potAddress1])).to.be.equal(interest1)
       expect(await TUSDC.read.balanceOf([potAddress2])).to.be.equal(interest2)
-    
+      expect(await TUSDC.read.balanceOf([potAddress3])).to.be.equal(interest3)
+      expect(await TUSDC.read.balanceOf([potAddress4])).to.be.equal(interest4)
+
       
     });
 
@@ -687,7 +707,19 @@ describe("Jackpot", function () {
       const Vault2 = await hre.viem.getContractAt("Vault", Vaults[1])
 
       const interest2 = await Vault2.read.tokenInterest([TUSDC.address])
-    
+
+      const Vault3 = await hre.viem.getContractAt("Vault", Vaults[2])
+
+      const interest3 = await Vault3.read.tokenInterest([TUSDC.address])
+
+      const Vault4 = await hre.viem.getContractAt("Vault", Vaults[3])
+
+      const interest4 = await Vault4.read.tokenInterest([TUSDC.address])
+
+      const Vault5 = await hre.viem.getContractAt("Vault", Vaults[4])
+
+      const interest5 = await Vault4.read.tokenInterest([TUSDC.address])
+
       // Increase Time by 1hr 1 min
       await hre.network.provider.send("hardhat_mine", ["0x3D", "0x3c"]);
     
@@ -699,10 +731,15 @@ describe("Jackpot", function () {
 
       const potAddress1 = await Vault1.read.pots([1n])
       const potAddress2 = await Vault2.read.pots([1n])
+      const potAddress3 = await Vault3.read.pots([1n])
+      const potAddress4 = await Vault4.read.pots([1n])
+      const potAddress5 = await Vault5.read.pots([1n])
 
       expect(await TUSDC.read.balanceOf([potAddress1])).to.be.equal(interest1)
       expect(await TUSDC.read.balanceOf([potAddress2])).to.be.equal(interest2)
-
+      expect(await TUSDC.read.balanceOf([potAddress3])).to.be.equal(interest3)
+      expect(await TUSDC.read.balanceOf([potAddress4])).to.be.equal(interest4)
+      expect(await TUSDC.read.balanceOf([potAddress5])).to.be.equal(interest5)
 
     });
     

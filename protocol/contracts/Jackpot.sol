@@ -214,9 +214,20 @@ contract Jackpot is IJackpot, Authorization, JackpotCore, CloneFactory {
         VaultAddressStruct memory _vaultAddresses = vaultAddresses;
 
         uint pot1 = potOneWinners(result);
+        uint pot2 = potTwoWinners(result);
+        //uint pot3 = potThreeWinners(result);
+
         if (pot1 > 0)  {
             IVault(_vaultAddresses.vault1).createPot(rounds, pot1);
         }
+
+        if (pot2 > 0)  {
+            IVault(_vaultAddresses.vault2).createPot(rounds, pot2);
+        }
+
+        // if (pot3 > 0)  {
+        //     IVault(_vaultAddresses.vault3).createPot(rounds, pot3);
+        // }
     }
 
     // Governance functions
