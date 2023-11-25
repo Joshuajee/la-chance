@@ -4,7 +4,7 @@ import hre from "hardhat";
 import { deployTest, flashloan, testUSDCPrice, ticket } from "../scripts/helper";
 
 
-const GAS_CALLBACK = 500000n
+const GAS_CALLBACK = 1500000n
 
 describe("Jackpot", function () {
   // We define a fixture to reuse the same setup in every test.
@@ -39,14 +39,14 @@ describe("Jackpot", function () {
 
     //ERC20InsufficientAllowance
     it("Should update required ticket data when a ticket is bought", async function () {
-      const { Jackpot, TUSDC } = await loadFixture(deployTest);
+      const { Jackpot, JackpotCore, TUSDC } = await loadFixture(deployTest);
 
       await TUSDC.write.approve([Jackpot.address, testUSDCPrice.toBigInt()])
 
       await Jackpot.write.buyTickets([TUSDC.address, ticket1]);
 
-      expect(await Jackpot.read.gameRounds()).to.be.equal(1n);
-      expect(await Jackpot.read.gameTickets()).to.be.equal(1n);
+      expect(await JackpotCore.read.gameRounds()).to.be.equal(1n);
+      expect(await JackpotCore.read.gameTickets()).to.be.equal(1n);
 
     });
 
@@ -112,54 +112,54 @@ describe("Jackpot", function () {
 
       const Ticket = ticket1[0] 
 
-      const { Jackpot, TUSDC } = await loadFixture(deployTest);
+      const { Jackpot, JackpotCore, TUSDC } = await loadFixture(deployTest);
 
-      const gameRounds = await Jackpot.read.gameRounds()
+      const gameRounds = await JackpotCore.read.gameRounds()
 
       await TUSDC.write.approve([Jackpot.address, testUSDCPrice.toBigInt()])
 
       await Jackpot.write.buyTickets([TUSDC.address, ticket1]);
 
-      expect(await Jackpot.read.ticketFrequency1_1([gameRounds, Ticket.value1])).to.be.equal(1n)
-      expect(await Jackpot.read.ticketFrequency1_2([gameRounds, Ticket.value2])).to.be.equal(1n)
-      expect(await Jackpot.read.ticketFrequency1_3([gameRounds, Ticket.value3])).to.be.equal(1n)
-      expect(await Jackpot.read.ticketFrequency1_4([gameRounds, Ticket.value4])).to.be.equal(1n)
-      expect(await Jackpot.read.ticketFrequency1_5([gameRounds, Ticket.value5])).to.be.equal(1n)
+      expect(await JackpotCore.read.ticketFrequency1_1([gameRounds, Ticket.value1])).to.be.equal(1n)
+      expect(await JackpotCore.read.ticketFrequency1_2([gameRounds, Ticket.value2])).to.be.equal(1n)
+      expect(await JackpotCore.read.ticketFrequency1_3([gameRounds, Ticket.value3])).to.be.equal(1n)
+      expect(await JackpotCore.read.ticketFrequency1_4([gameRounds, Ticket.value4])).to.be.equal(1n)
+      expect(await JackpotCore.read.ticketFrequency1_5([gameRounds, Ticket.value5])).to.be.equal(1n)
 
       // Test 2 values
-      expect(await Jackpot.read.ticketFrequency2_1([gameRounds, Ticket.value1, Ticket.value2])).to.be.equal(1n)
-      expect(await Jackpot.read.ticketFrequency2_2([gameRounds, Ticket.value1, Ticket.value3])).to.be.equal(1n)
-      expect(await Jackpot.read.ticketFrequency2_3([gameRounds, Ticket.value1, Ticket.value4])).to.be.equal(1n)
-      expect(await Jackpot.read.ticketFrequency2_4([gameRounds, Ticket.value1, Ticket.value5])).to.be.equal(1n)
-      expect(await Jackpot.read.ticketFrequency2_5([gameRounds, Ticket.value2, Ticket.value3])).to.be.equal(1n)
-      expect(await Jackpot.read.ticketFrequency2_6([gameRounds, Ticket.value2, Ticket.value4])).to.be.equal(1n)
-      expect(await Jackpot.read.ticketFrequency2_7([gameRounds, Ticket.value2, Ticket.value5])).to.be.equal(1n)
-      expect(await Jackpot.read.ticketFrequency2_8([gameRounds, Ticket.value3, Ticket.value4])).to.be.equal(1n)
-      expect(await Jackpot.read.ticketFrequency2_9([gameRounds, Ticket.value3, Ticket.value5])).to.be.equal(1n)
-      expect(await Jackpot.read.ticketFrequency2_10([gameRounds, Ticket.value4, Ticket.value5])).to.be.equal(1n)
+      expect(await JackpotCore.read.ticketFrequency2_1([gameRounds, Ticket.value1, Ticket.value2])).to.be.equal(1n)
+      expect(await JackpotCore.read.ticketFrequency2_2([gameRounds, Ticket.value1, Ticket.value3])).to.be.equal(1n)
+      expect(await JackpotCore.read.ticketFrequency2_3([gameRounds, Ticket.value1, Ticket.value4])).to.be.equal(1n)
+      expect(await JackpotCore.read.ticketFrequency2_4([gameRounds, Ticket.value1, Ticket.value5])).to.be.equal(1n)
+      expect(await JackpotCore.read.ticketFrequency2_5([gameRounds, Ticket.value2, Ticket.value3])).to.be.equal(1n)
+      expect(await JackpotCore.read.ticketFrequency2_6([gameRounds, Ticket.value2, Ticket.value4])).to.be.equal(1n)
+      expect(await JackpotCore.read.ticketFrequency2_7([gameRounds, Ticket.value2, Ticket.value5])).to.be.equal(1n)
+      expect(await JackpotCore.read.ticketFrequency2_8([gameRounds, Ticket.value3, Ticket.value4])).to.be.equal(1n)
+      expect(await JackpotCore.read.ticketFrequency2_9([gameRounds, Ticket.value3, Ticket.value5])).to.be.equal(1n)
+      expect(await JackpotCore.read.ticketFrequency2_10([gameRounds, Ticket.value4, Ticket.value5])).to.be.equal(1n)
 
       // Test 3 values
-      expect(await Jackpot.read.ticketFrequency3_1([gameRounds, Ticket.value1, Ticket.value2, Ticket.value3])).to.be.equal(1n)
-      expect(await Jackpot.read.ticketFrequency3_2([gameRounds, Ticket.value1, Ticket.value2, Ticket.value4])).to.be.equal(1n)
-      expect(await Jackpot.read.ticketFrequency3_3([gameRounds, Ticket.value1, Ticket.value2, Ticket.value5])).to.be.equal(1n)
-      expect(await Jackpot.read.ticketFrequency3_4([gameRounds, Ticket.value1, Ticket.value3, Ticket.value4])).to.be.equal(1n)
-      expect(await Jackpot.read.ticketFrequency3_5([gameRounds, Ticket.value1, Ticket.value3, Ticket.value5])).to.be.equal(1n)
-      expect(await Jackpot.read.ticketFrequency3_6([gameRounds, Ticket.value1, Ticket.value4, Ticket.value5])).to.be.equal(1n)
-      expect(await Jackpot.read.ticketFrequency3_7([gameRounds, Ticket.value2, Ticket.value3, Ticket.value4])).to.be.equal(1n)
-      expect(await Jackpot.read.ticketFrequency3_8([gameRounds, Ticket.value2, Ticket.value3, Ticket.value5])).to.be.equal(1n)
-      expect(await Jackpot.read.ticketFrequency3_9([gameRounds, Ticket.value2, Ticket.value4, Ticket.value5])).to.be.equal(1n)
-      expect(await Jackpot.read.ticketFrequency3_10([gameRounds, Ticket.value3, Ticket.value4, Ticket.value5])).to.be.equal(1n)
+      expect(await JackpotCore.read.ticketFrequency3_1([gameRounds, Ticket.value1, Ticket.value2, Ticket.value3])).to.be.equal(1n)
+      expect(await JackpotCore.read.ticketFrequency3_2([gameRounds, Ticket.value1, Ticket.value2, Ticket.value4])).to.be.equal(1n)
+      expect(await JackpotCore.read.ticketFrequency3_3([gameRounds, Ticket.value1, Ticket.value2, Ticket.value5])).to.be.equal(1n)
+      expect(await JackpotCore.read.ticketFrequency3_4([gameRounds, Ticket.value1, Ticket.value3, Ticket.value4])).to.be.equal(1n)
+      expect(await JackpotCore.read.ticketFrequency3_5([gameRounds, Ticket.value1, Ticket.value3, Ticket.value5])).to.be.equal(1n)
+      expect(await JackpotCore.read.ticketFrequency3_6([gameRounds, Ticket.value1, Ticket.value4, Ticket.value5])).to.be.equal(1n)
+      expect(await JackpotCore.read.ticketFrequency3_7([gameRounds, Ticket.value2, Ticket.value3, Ticket.value4])).to.be.equal(1n)
+      expect(await JackpotCore.read.ticketFrequency3_8([gameRounds, Ticket.value2, Ticket.value3, Ticket.value5])).to.be.equal(1n)
+      expect(await JackpotCore.read.ticketFrequency3_9([gameRounds, Ticket.value2, Ticket.value4, Ticket.value5])).to.be.equal(1n)
+      expect(await JackpotCore.read.ticketFrequency3_10([gameRounds, Ticket.value3, Ticket.value4, Ticket.value5])).to.be.equal(1n)
 
 
       // Test 4 values
-      expect(await Jackpot.read.ticketFrequency4_1([gameRounds, Ticket.value1, Ticket.value2, Ticket.value3, Ticket.value4])).to.be.equal(1n)
-      expect(await Jackpot.read.ticketFrequency4_2([gameRounds, Ticket.value1, Ticket.value2, Ticket.value3, Ticket.value5])).to.be.equal(1n)
-      expect(await Jackpot.read.ticketFrequency4_3([gameRounds, Ticket.value1, Ticket.value2, Ticket.value4, Ticket.value5])).to.be.equal(1n)
-      expect(await Jackpot.read.ticketFrequency4_4([gameRounds, Ticket.value1, Ticket.value3, Ticket.value4, Ticket.value5])).to.be.equal(1n)
-      expect(await Jackpot.read.ticketFrequency4_5([gameRounds, Ticket.value2, Ticket.value3, Ticket.value4, Ticket.value5])).to.be.equal(1n)
+      expect(await JackpotCore.read.ticketFrequency4_1([gameRounds, Ticket.value1, Ticket.value2, Ticket.value3, Ticket.value4])).to.be.equal(1n)
+      expect(await JackpotCore.read.ticketFrequency4_2([gameRounds, Ticket.value1, Ticket.value2, Ticket.value3, Ticket.value5])).to.be.equal(1n)
+      expect(await JackpotCore.read.ticketFrequency4_3([gameRounds, Ticket.value1, Ticket.value2, Ticket.value4, Ticket.value5])).to.be.equal(1n)
+      expect(await JackpotCore.read.ticketFrequency4_4([gameRounds, Ticket.value1, Ticket.value3, Ticket.value4, Ticket.value5])).to.be.equal(1n)
+      expect(await JackpotCore.read.ticketFrequency4_5([gameRounds, Ticket.value2, Ticket.value3, Ticket.value4, Ticket.value5])).to.be.equal(1n)
           
       // Test 5 values
-      expect(await Jackpot.read.ticketFrequency5([gameRounds, Ticket.value1, Ticket.value2, Ticket.value3, Ticket.value4, Ticket.value5])).to.be.equal(1n)
+      expect(await JackpotCore.read.ticketFrequency5([gameRounds, Ticket.value1, Ticket.value2, Ticket.value3, Ticket.value4, Ticket.value5])).to.be.equal(1n)
 
     });
 
@@ -199,7 +199,7 @@ describe("Jackpot", function () {
 
     it("Should make random request and state should be updated accordily", async function () {
 
-      const { Jackpot, Chainlink, TUSDC } = await loadFixture(deployTest);
+      const { Jackpot, JackpotCore, Chainlink, TUSDC } = await loadFixture(deployTest);
 
       await TUSDC.write.approve([Jackpot.address, BigInt(10e40)])
 
@@ -214,12 +214,12 @@ describe("Jackpot", function () {
 
       expect(request[1]).to.be.equal(false)
 
-      expect(await Jackpot.read.results([1n])).to.be.deep.equal([0n, 0n, 0n, 0n, 0n])
+      expect(await JackpotCore.read.results([1n])).to.be.deep.equal([0n, 0n, 0n, 0n, 0n])
 
       // gameRounds should be 1 and gameTickets should be 1
-      expect(await Jackpot.read.gameRounds()).to.be.equal(1n)
+      expect(await JackpotCore.read.gameRounds()).to.be.equal(1n)
 
-      expect(await Jackpot.read.gameTickets()).to.be.equal(1n)
+      expect(await JackpotCore.read.gameTickets()).to.be.equal(1n)
 
       expect(await Chainlink.read.getNumberOfRandomRequests()).to.be.equal(1n)
       
@@ -228,7 +228,7 @@ describe("Jackpot", function () {
 
     it("Should make random request and receive random number, state should be updated", async function () {
 
-      const { Jackpot, Chainlink, TUSDC, VRFCoordinatorV2Mock, VRFV2Wrapper } = await loadFixture(deployTest);
+      const { Jackpot, JackpotCore, Chainlink, TUSDC, VRFCoordinatorV2Mock, VRFV2Wrapper } = await loadFixture(deployTest);
 
       await TUSDC.write.approve([Jackpot.address, BigInt(10e40)])
 
@@ -245,11 +245,11 @@ describe("Jackpot", function () {
 
       expect(request[1]).to.be.equal(true)
 
-      expect(await Jackpot.read.results([1n])).to.not.deep.equal([[0n], [0n],[0n],[0n],[0n]])
+      expect(await JackpotCore.read.results([1n])).to.not.deep.equal([[0n], [0n],[0n],[0n],[0n]])
 
-      expect(await Jackpot.read.gameRounds()).to.be.equal(2n)
+      expect(await JackpotCore.read.gameRounds()).to.be.equal(2n)
 
-      expect(await Jackpot.read.gameTickets()).to.be.equal(0n)
+      expect(await JackpotCore.read.gameTickets()).to.be.equal(0n)
       
     });    
 
@@ -261,7 +261,7 @@ describe("Jackpot", function () {
 
     it("Should Return true on pot1 when one prediction matches the results", async function () {
 
-      const { Jackpot, Chainlink, VRFCoordinatorV2Mock, VRFV2Wrapper, TUSDC } = await loadFixture(deployTest);
+      const { Jackpot, JackpotCore, Chainlink, VRFCoordinatorV2Mock, VRFV2Wrapper, TUSDC } = await loadFixture(deployTest);
 
 
       const tickets = [
@@ -285,21 +285,21 @@ describe("Jackpot", function () {
         1n, VRFV2Wrapper.address, [10, 19, 39, 90, 99]
       ]);
 
-      expect(await Jackpot.read.getPotsWon([1n, 1n])).to.be.deep.equal([true, false, false, false, false])
+      expect(await JackpotCore.read.getPotsWon([1n, 1n])).to.be.deep.equal([true, false, false, false, false])
 
-      expect(await Jackpot.read.getPotsWon([1n, 2n])).to.be.deep.equal([true, false, false, false, false])
+      expect(await JackpotCore.read.getPotsWon([1n, 2n])).to.be.deep.equal([true, false, false, false, false])
 
-      expect(await Jackpot.read.getPotsWon([1n, 3n])).to.be.deep.equal([true, false, false, false, false])
+      expect(await JackpotCore.read.getPotsWon([1n, 3n])).to.be.deep.equal([true, false, false, false, false])
 
-      expect(await Jackpot.read.getPotsWon([1n, 4n])).to.be.deep.equal([true, false, false, false, false])
+      expect(await JackpotCore.read.getPotsWon([1n, 4n])).to.be.deep.equal([true, false, false, false, false])
 
-      expect(await Jackpot.read.getPotsWon([1n, 5n])).to.be.deep.equal([true, false, false, false, false])
+      expect(await JackpotCore.read.getPotsWon([1n, 5n])).to.be.deep.equal([true, false, false, false, false])
 
     });
 
     it("Should Return true on pot1 and pot2 when two prediction matches the results", async function () {
 
-      const { Jackpot, Chainlink, VRFCoordinatorV2Mock, VRFV2Wrapper, TUSDC } = await loadFixture(deployTest);
+      const { Jackpot, JackpotCore, Chainlink, VRFCoordinatorV2Mock, VRFV2Wrapper, TUSDC } = await loadFixture(deployTest);
 
       const tickets = [
         ticket(11, 20, 1, 1, 1),
@@ -327,32 +327,32 @@ describe("Jackpot", function () {
         1n, VRFV2Wrapper.address, [10, 19, 39, 90, 99]
       ]);
 
-      expect(await Jackpot.read.getPotsWon([1n, 1n])).to.be.deep.equal([true, true, false, false, false])
+      expect(await JackpotCore.read.getPotsWon([1n, 1n])).to.be.deep.equal([true, true, false, false, false])
 
-      expect(await Jackpot.read.getPotsWon([1n, 2n])).to.be.deep.equal([true, true, false, false, false])
+      expect(await JackpotCore.read.getPotsWon([1n, 2n])).to.be.deep.equal([true, true, false, false, false])
 
-      expect(await Jackpot.read.getPotsWon([1n, 3n])).to.be.deep.equal([true, true, false, false, false])
+      expect(await JackpotCore.read.getPotsWon([1n, 3n])).to.be.deep.equal([true, true, false, false, false])
 
-      expect(await Jackpot.read.getPotsWon([1n, 4n])).to.be.deep.equal([true, true, false, false, false])
+      expect(await JackpotCore.read.getPotsWon([1n, 4n])).to.be.deep.equal([true, true, false, false, false])
 
-      expect(await Jackpot.read.getPotsWon([1n, 5n])).to.be.deep.equal([true, true, false, false, false])
+      expect(await JackpotCore.read.getPotsWon([1n, 5n])).to.be.deep.equal([true, true, false, false, false])
 
-      expect(await Jackpot.read.getPotsWon([1n, 6n])).to.be.deep.equal([true, true, false, false, false])
+      expect(await JackpotCore.read.getPotsWon([1n, 6n])).to.be.deep.equal([true, true, false, false, false])
 
-      expect(await Jackpot.read.getPotsWon([1n, 7n])).to.be.deep.equal([true, true, false, false, false])
+      expect(await JackpotCore.read.getPotsWon([1n, 7n])).to.be.deep.equal([true, true, false, false, false])
 
-      expect(await Jackpot.read.getPotsWon([1n, 8n])).to.be.deep.equal([true, true, false, false, false])
+      expect(await JackpotCore.read.getPotsWon([1n, 8n])).to.be.deep.equal([true, true, false, false, false])
 
-      expect(await Jackpot.read.getPotsWon([1n, 9n])).to.be.deep.equal([true, true, false, false, false])
+      expect(await JackpotCore.read.getPotsWon([1n, 9n])).to.be.deep.equal([true, true, false, false, false])
 
-      expect(await Jackpot.read.getPotsWon([1n, 10n])).to.be.deep.equal([true, true, false, false, false])
+      expect(await JackpotCore.read.getPotsWon([1n, 10n])).to.be.deep.equal([true, true, false, false, false])
 
     });
 
 
     it("Should Return true on pot1, pot2, and pot3 when three prediction matches the results", async function () {
 
-      const { Jackpot, Chainlink, VRFCoordinatorV2Mock, VRFV2Wrapper, TUSDC } = await loadFixture(deployTest);
+      const { Jackpot, JackpotCore, Chainlink, VRFCoordinatorV2Mock, VRFV2Wrapper, TUSDC } = await loadFixture(deployTest);
 
       const tickets = [
         ticket(11, 20, 40, 1, 1),
@@ -380,32 +380,32 @@ describe("Jackpot", function () {
         1n, VRFV2Wrapper.address, [10, 19, 39, 90, 99]
       ]);
 
-      expect(await Jackpot.read.getPotsWon([1n, 1n])).to.be.deep.equal([true, true, true, false, false])
+      expect(await JackpotCore.read.getPotsWon([1n, 1n])).to.be.deep.equal([true, true, true, false, false])
 
-      expect(await Jackpot.read.getPotsWon([1n, 2n])).to.be.deep.equal([true, true, true, false, false])
+      expect(await JackpotCore.read.getPotsWon([1n, 2n])).to.be.deep.equal([true, true, true, false, false])
 
-      expect(await Jackpot.read.getPotsWon([1n, 3n])).to.be.deep.equal([true, true, true, false, false])
+      expect(await JackpotCore.read.getPotsWon([1n, 3n])).to.be.deep.equal([true, true, true, false, false])
 
-      expect(await Jackpot.read.getPotsWon([1n, 4n])).to.be.deep.equal([true, true, true, false, false])
+      expect(await JackpotCore.read.getPotsWon([1n, 4n])).to.be.deep.equal([true, true, true, false, false])
 
-      expect(await Jackpot.read.getPotsWon([1n, 5n])).to.be.deep.equal([true, true, true, false, false])
+      expect(await JackpotCore.read.getPotsWon([1n, 5n])).to.be.deep.equal([true, true, true, false, false])
 
-      expect(await Jackpot.read.getPotsWon([1n, 6n])).to.be.deep.equal([true, true, true, false, false])
+      expect(await JackpotCore.read.getPotsWon([1n, 6n])).to.be.deep.equal([true, true, true, false, false])
 
-      expect(await Jackpot.read.getPotsWon([1n, 7n])).to.be.deep.equal([true, true, true, false, false])
+      expect(await JackpotCore.read.getPotsWon([1n, 7n])).to.be.deep.equal([true, true, true, false, false])
 
-      expect(await Jackpot.read.getPotsWon([1n, 8n])).to.be.deep.equal([true, true, true, false, false])
+      expect(await JackpotCore.read.getPotsWon([1n, 8n])).to.be.deep.equal([true, true, true, false, false])
 
-      expect(await Jackpot.read.getPotsWon([1n, 9n])).to.be.deep.equal([true, true, true, false, false])
+      expect(await JackpotCore.read.getPotsWon([1n, 9n])).to.be.deep.equal([true, true, true, false, false])
 
-      expect(await Jackpot.read.getPotsWon([1n, 10n])).to.be.deep.equal([true, true, true, false, false])
+      expect(await JackpotCore.read.getPotsWon([1n, 10n])).to.be.deep.equal([true, true, true, false, false])
 
     });
 
 
     it("Should Return true on pot1, pot2, pot3, and pot4 when four prediction matches the results", async function () {
 
-      const { Jackpot, Chainlink, VRFCoordinatorV2Mock, VRFV2Wrapper, TUSDC } = await loadFixture(deployTest);
+      const { Jackpot, JackpotCore, Chainlink, VRFCoordinatorV2Mock, VRFV2Wrapper, TUSDC } = await loadFixture(deployTest);
 
       const tickets = [
         ticket(11, 20, 40, 91, 1),
@@ -428,22 +428,22 @@ describe("Jackpot", function () {
         1n, VRFV2Wrapper.address, [10, 19, 39, 90, 99]
       ]);
 
-      expect(await Jackpot.read.getPotsWon([1n, 1n])).to.be.deep.equal([true, true, true, true, false])
+      expect(await JackpotCore.read.getPotsWon([1n, 1n])).to.be.deep.equal([true, true, true, true, false])
 
-      expect(await Jackpot.read.getPotsWon([1n, 2n])).to.be.deep.equal([true, true, true, true, false])
+      expect(await JackpotCore.read.getPotsWon([1n, 2n])).to.be.deep.equal([true, true, true, true, false])
 
-      expect(await Jackpot.read.getPotsWon([1n, 3n])).to.be.deep.equal([true, true, true, true, false])
+      expect(await JackpotCore.read.getPotsWon([1n, 3n])).to.be.deep.equal([true, true, true, true, false])
 
-      expect(await Jackpot.read.getPotsWon([1n, 4n])).to.be.deep.equal([true, true, true, true, false])
+      expect(await JackpotCore.read.getPotsWon([1n, 4n])).to.be.deep.equal([true, true, true, true, false])
 
-      expect(await Jackpot.read.getPotsWon([1n, 5n])).to.be.deep.equal([true, true, true, true, false])
+      expect(await JackpotCore.read.getPotsWon([1n, 5n])).to.be.deep.equal([true, true, true, true, false])
 
     });
 
 
     it("Should Return true on all pots when prediction matches all results", async function () {
 
-      const { Jackpot, Chainlink, VRFCoordinatorV2Mock, VRFV2Wrapper, TUSDC } = await loadFixture(deployTest);
+      const { Jackpot, JackpotCore, Chainlink, VRFCoordinatorV2Mock, VRFV2Wrapper, TUSDC } = await loadFixture(deployTest);
 
       const tickets = [
         ticket(11, 20, 40, 91, 100),
@@ -464,7 +464,7 @@ describe("Jackpot", function () {
         1n, VRFV2Wrapper.address, [10, 19, 39, 90, 99]
       ]);
 
-      expect(await Jackpot.read.getPotsWon([1n, 1n])).to.be.deep.equal([true, true, true, true, true])
+      expect(await JackpotCore.read.getPotsWon([1n, 1n])).to.be.deep.equal([true, true, true, true, true])
 
     });
     
@@ -596,6 +596,10 @@ describe("Jackpot", function () {
       const Vault2 = await hre.viem.getContractAt("Vault", Vaults[1])
 
       const interest2 = await Vault2.read.tokenInterest([TUSDC.address])
+
+      const Vault3 = await hre.viem.getContractAt("Vault", Vaults[2])
+
+      const interest3 = await Vault3.read.tokenInterest([TUSDC.address])
     
       // Increase Time by 1hr 1 min
       await hre.network.provider.send("hardhat_mine", ["0x3D", "0x3c"]);
@@ -608,9 +612,12 @@ describe("Jackpot", function () {
 
       const potAddress1 = await Vault1.read.pots([1n])
       const potAddress2 = await Vault2.read.pots([1n])
+      const potAddress3 = await Vault3.read.pots([1n])
 
       expect(await TUSDC.read.balanceOf([potAddress1])).to.be.equal(interest1)
       expect(await TUSDC.read.balanceOf([potAddress2])).to.be.equal(interest2)
+      expect(await TUSDC.read.balanceOf([potAddress3])).to.be.equal(interest3)
+
 
     });
 
@@ -642,6 +649,15 @@ describe("Jackpot", function () {
       const Vault2 = await hre.viem.getContractAt("Vault", Vaults[1])
 
       const interest2 = await Vault2.read.tokenInterest([TUSDC.address])
+
+      const Vault3 = await hre.viem.getContractAt("Vault", Vaults[2])
+
+      const interest3 = await Vault3.read.tokenInterest([TUSDC.address])
+
+      const Vault4 = await hre.viem.getContractAt("Vault", Vaults[3])
+
+      const interest4 = await Vault4.read.tokenInterest([TUSDC.address])
+
     
       // Increase Time by 1hr 1 min
       await hre.network.provider.send("hardhat_mine", ["0x3D", "0x3c"]);
@@ -654,10 +670,14 @@ describe("Jackpot", function () {
 
       const potAddress1 = await Vault1.read.pots([1n])
       const potAddress2 = await Vault2.read.pots([1n])
+      const potAddress3 = await Vault3.read.pots([1n])
+      const potAddress4 = await Vault4.read.pots([1n])
 
       expect(await TUSDC.read.balanceOf([potAddress1])).to.be.equal(interest1)
       expect(await TUSDC.read.balanceOf([potAddress2])).to.be.equal(interest2)
-    
+      expect(await TUSDC.read.balanceOf([potAddress3])).to.be.equal(interest3)
+      expect(await TUSDC.read.balanceOf([potAddress4])).to.be.equal(interest4)
+
       
     });
 
@@ -687,7 +707,19 @@ describe("Jackpot", function () {
       const Vault2 = await hre.viem.getContractAt("Vault", Vaults[1])
 
       const interest2 = await Vault2.read.tokenInterest([TUSDC.address])
-    
+
+      const Vault3 = await hre.viem.getContractAt("Vault", Vaults[2])
+
+      const interest3 = await Vault3.read.tokenInterest([TUSDC.address])
+
+      const Vault4 = await hre.viem.getContractAt("Vault", Vaults[3])
+
+      const interest4 = await Vault4.read.tokenInterest([TUSDC.address])
+
+      const Vault5 = await hre.viem.getContractAt("Vault", Vaults[4])
+
+      const interest5 = await Vault4.read.tokenInterest([TUSDC.address])
+
       // Increase Time by 1hr 1 min
       await hre.network.provider.send("hardhat_mine", ["0x3D", "0x3c"]);
     
@@ -699,10 +731,15 @@ describe("Jackpot", function () {
 
       const potAddress1 = await Vault1.read.pots([1n])
       const potAddress2 = await Vault2.read.pots([1n])
+      const potAddress3 = await Vault3.read.pots([1n])
+      const potAddress4 = await Vault4.read.pots([1n])
+      const potAddress5 = await Vault5.read.pots([1n])
 
       expect(await TUSDC.read.balanceOf([potAddress1])).to.be.equal(interest1)
       expect(await TUSDC.read.balanceOf([potAddress2])).to.be.equal(interest2)
-
+      expect(await TUSDC.read.balanceOf([potAddress3])).to.be.equal(interest3)
+      expect(await TUSDC.read.balanceOf([potAddress4])).to.be.equal(interest4)
+      expect(await TUSDC.read.balanceOf([potAddress5])).to.be.equal(interest5)
 
     });
     

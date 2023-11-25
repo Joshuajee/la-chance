@@ -1,45 +1,13 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.9;
+import './Authorization.sol';
+import "./interface/IJackpotCore.sol";
 
+contract JackpotCore is Authorization, IJackpotCore {
 
-abstract contract JackpotCore {
-
-
-    struct TicketIDStruct {
-        uint round;
-        uint ticketId;
-    }
-
-    struct VaultShare {
-        uint vault1;
-        uint vault2;
-        uint vault3;
-        uint vault4;
-        uint vault5;
-        uint daoVault;
-    }
-    
-    struct TicketValueStruct {
-        uint value1;
-        uint value2;
-        uint value3;
-        uint value4;
-        uint value5;
-    }
-
-    struct TicketStruct {
-        uint stakeTime;
-        uint amount;
-        bool hasClaimedPrize;
-        address owner;
-        TicketValueStruct ticketValue;
-        VaultShare vaultShare;
-    }
 
     event BuyTicket(address indexed staker, uint indexed gameRound, uint indexed ticketID, TicketValueStruct value);
     event GameResult(uint indexed gameRound, TicketValueStruct result);
-
-    uint constant PERCENT = 100;
 
     uint public gameRounds = 1;
     uint public gameTickets = 0;
@@ -51,13 +19,11 @@ abstract contract JackpotCore {
     //The period in which game can't receiver result
     uint public gamePeriod = block.timestamp + gameDuration;
 
-    VaultShare public vaultShare = VaultShare(30, 15, 15, 15, 15, 10);
-
     // mapping of rounds to ticket value
     mapping(uint => TicketValueStruct) public results;
 
     // mapping of rounds to ticket Id, then to Ticket values
-    mapping(uint => mapping(uint => TicketStruct)) public _tickets;
+    mapping(uint => mapping(uint => TicketStruct)) public tickets;
 
     // mapping of ticket values frequencies
     mapping(uint => mapping(uint => uint)) public ticketFrequency1_1;
@@ -102,16 +68,57 @@ abstract contract JackpotCore {
     TicketIDStruct [] public myTickets;
 
 
+    function gamePeriodHasElasped() external view returns (bool) {
+        return block.timestamp > gamePeriod;
+    }
+
+    function getTicket(uint round, uint ticketId) external view returns (TicketStruct memory) {
+        return tickets[round][ticketId];
+    }
+
+
+    function saveTicket(TicketValueStruct calldata ticket, VaultShare memory _vaultShare, uint pricePerTicket) external onlyFactory {
+
+        uint _gameRounds = gameRounds;
+        uint _gameTickets = ++gameTickets;
+
+        // store tickets
+        tickets[gameRounds][_gameTickets] = TicketStruct({
+            stakeTime: uint(block.timestamp),
+            amount: pricePerTicket,
+            hasClaimedPrize: false,
+            owner: msg.sender,
+            ticketValue: ticket,
+            vaultShare: _vaultShare
+        }); 
+
+        myTickets.push(TicketIDStruct({
+            round: _gameRounds,
+            ticketId: _gameTickets
+        }));
+
+        _increaseFrequencies(ticket);
+
+        emit BuyTicket(msg.sender, gameRounds, _gameTickets, ticket);
+    }
+
+    function saveResult(TicketValueStruct memory ticket) external onlyFactory {
+        results[gameRounds] = ticket;
+        emit GameResult(gameRounds, ticket);
+        _newRound();
+    }
+
+
     /*********************************************************************
-     *                          Public Functions                         *
+     *                          External Functions                         *
      *********************************************************************/
 
 
     function getPotsWon(uint gameRound, uint ticketId) view
-        public returns (bool one, bool two, bool three, bool four, bool five) {
+        external returns (bool one, bool two, bool three, bool four, bool five) {
 
             TicketValueStruct memory result = results[gameRound];
-            TicketStruct memory ticket = _tickets[gameRound][ticketId];
+            TicketStruct memory ticket = tickets[gameRound][ticketId];
 
             uint value1 = ticket.ticketValue.value1;
             uint value2 = ticket.ticketValue.value2;
@@ -155,7 +162,7 @@ abstract contract JackpotCore {
     }
 
 
-    function potOneWinners(TicketValueStruct memory result) public view returns (uint) {
+    function potOneWinners(TicketValueStruct memory result) external view returns (uint) {
         uint rounds = gameRounds;
         return ( 
             ticketFrequency1_1[rounds][result.value1] + ticketFrequency1_2[rounds][result.value2] +
@@ -167,42 +174,53 @@ abstract contract JackpotCore {
     function potTwoWinners(TicketValueStruct memory result) public view returns (uint) {
         uint rounds = gameRounds;
         return ( 
-            ticketFrequency1_1[rounds][result.value1] + ticketFrequency1_2[rounds][result.value2] +
-            ticketFrequency1_3[rounds][result.value3] + ticketFrequency1_4[rounds][result.value4] +
-            ticketFrequency1_4[rounds][result.value5]
+            ticketFrequency2_1[rounds][result.value1][result.value2]
+            + ticketFrequency2_2[rounds][result.value1][result.value3]
+            + ticketFrequency2_3[rounds][result.value1][result.value4]
+            + ticketFrequency2_4[rounds][result.value1][result.value5]
+            + ticketFrequency2_5[rounds][result.value2][result.value3]
+            + ticketFrequency2_6[rounds][result.value2][result.value4]
+            + ticketFrequency2_7[rounds][result.value2][result.value5]
+            + ticketFrequency2_8[rounds][result.value3][result.value4]
+            + ticketFrequency2_9[rounds][result.value3][result.value5]
+            + ticketFrequency2_10[rounds][result.value4][result.value5]
         );
     }
 
-    function _saveTicket(TicketValueStruct calldata ticket, VaultShare memory _vaultShare, uint pricePerTicket) internal {
 
-        uint _gameRounds = gameRounds;
-        uint _gameTickets = ++gameTickets;
-
-        // store tickets
-        _tickets[gameRounds][_gameTickets] = TicketStruct({
-            stakeTime: uint(block.timestamp),
-            amount: pricePerTicket,
-            hasClaimedPrize: false,
-            owner: msg.sender,
-            ticketValue: ticket,
-            vaultShare: _vaultShare
-        }); 
-
-        myTickets.push(TicketIDStruct({
-            round: _gameRounds,
-            ticketId: _gameTickets
-        }));
-
-        _increaseFrequencies(ticket);
-
-        emit BuyTicket(msg.sender, gameRounds, _gameTickets, ticket);
+    function potThreeWinners(TicketValueStruct memory result) public view returns (uint) {
+        uint rounds = gameRounds;
+        return ( 
+            ticketFrequency3_1[rounds][result.value1][result.value2][result.value3]
+            + ticketFrequency3_2[rounds][result.value1][result.value2][result.value4]
+            + ticketFrequency3_3[rounds][result.value1][result.value2][result.value5]
+            + ticketFrequency3_4[rounds][result.value1][result.value3][result.value4]
+            + ticketFrequency3_5[rounds][result.value1][result.value3][result.value5]
+            + ticketFrequency3_6[rounds][result.value1][result.value4][result.value5]
+            + ticketFrequency3_7[rounds][result.value2][result.value3][result.value4]
+            + ticketFrequency3_8[rounds][result.value2][result.value3][result.value5]
+            + ticketFrequency3_9[rounds][result.value2][result.value4][result.value5]
+            + ticketFrequency3_10[rounds][result.value3][result.value4][result.value5]
+        );
     }
 
-    function _saveResult(TicketValueStruct memory ticket) internal {
-        results[gameRounds] = ticket;
-        emit GameResult(gameRounds, ticket);
-        _newRound();
+    function potFourWinners(TicketValueStruct memory result) public view returns (uint) {
+        uint rounds = gameRounds;
+        return ( 
+            ticketFrequency4_1[rounds][result.value1][result.value2][result.value3][result.value4]
+            + ticketFrequency4_2[rounds][result.value1][result.value2][result.value3][result.value5]
+            + ticketFrequency4_3[rounds][result.value1][result.value2][result.value4][result.value5]
+            + ticketFrequency4_4[rounds][result.value1][result.value3][result.value4][result.value5]
+            + ticketFrequency4_5[rounds][result.value2][result.value3][result.value4][result.value5]
+        );
     }
+
+
+    function potFiveWinners(TicketValueStruct memory result) public view returns (uint) {
+        uint rounds = gameRounds;
+        return ticketFrequency5[rounds][result.value1][result.value2][result.value3][result.value4][result.value5];
+    }
+
 
     function _newRound() private {
         ++gameRounds;

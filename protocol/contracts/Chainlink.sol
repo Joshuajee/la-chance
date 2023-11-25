@@ -5,6 +5,7 @@ pragma solidity ^0.8.7;
 import "@chainlink/contracts/src/v0.8/vrf/VRFV2WrapperConsumerBase.sol";
 
 import './interface/IJackpot.sol';
+import "./interface/IJackpotCore.sol";
 import './Authorization.sol';
 
 
