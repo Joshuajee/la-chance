@@ -77,7 +77,7 @@ contract JackpotCore is Authorization, IJackpotCore {
     }
 
 
-    function saveTicket(TicketValueStruct calldata ticket, VaultShare memory _vaultShare, uint pricePerTicket) external onlyFactory {
+    function saveTicket(address owner, TicketValueStruct calldata ticket, VaultShare memory _vaultShare, uint pricePerTicket) external onlyFactory {
 
         uint _gameRounds = gameRounds;
         uint _gameTickets = ++gameTickets;
@@ -87,7 +87,7 @@ contract JackpotCore is Authorization, IJackpotCore {
             stakeTime: uint(block.timestamp),
             amount: pricePerTicket,
             hasClaimedPrize: false,
-            owner: msg.sender,
+            owner: owner,
             ticketValue: ticket,
             vaultShare: _vaultShare
         }); 
@@ -99,7 +99,7 @@ contract JackpotCore is Authorization, IJackpotCore {
 
         _increaseFrequencies(ticket);
 
-        emit BuyTicket(msg.sender, gameRounds, _gameTickets, ticket);
+        emit BuyTicket(owner, gameRounds, _gameTickets, ticket);
     }
 
     function saveResult(TicketValueStruct memory ticket) external onlyFactory {
@@ -167,7 +167,7 @@ contract JackpotCore is Authorization, IJackpotCore {
         return ( 
             ticketFrequency1_1[rounds][result.value1] + ticketFrequency1_2[rounds][result.value2] +
             ticketFrequency1_3[rounds][result.value3] + ticketFrequency1_4[rounds][result.value4] +
-            ticketFrequency1_4[rounds][result.value5]
+            ticketFrequency1_5[rounds][result.value5]
         );
     }
 
@@ -231,45 +231,46 @@ contract JackpotCore is Authorization, IJackpotCore {
 
     function _increaseFrequencies(TicketValueStruct calldata ticket) internal {
 
-        ++ticketFrequency1_1[gameRounds][ticket.value1];
-        ++ticketFrequency1_2[gameRounds][ticket.value2];
-        ++ticketFrequency1_3[gameRounds][ticket.value3];
-        ++ticketFrequency1_4[gameRounds][ticket.value4];
-        ++ticketFrequency1_5[gameRounds][ticket.value5];
+        uint round = gameRounds;
+
+        ++ticketFrequency1_1[round][ticket.value1];
+        ++ticketFrequency1_2[round][ticket.value2];
+        ++ticketFrequency1_3[round][ticket.value3];
+        ++ticketFrequency1_4[round][ticket.value4];
+        ++ticketFrequency1_5[round][ticket.value5];
 
 
-        ++ticketFrequency2_1[gameRounds][ticket.value1][ticket.value2];
-        ++ticketFrequency2_2[gameRounds][ticket.value1][ticket.value3];
-        ++ticketFrequency2_3[gameRounds][ticket.value1][ticket.value4];
-        ++ticketFrequency2_4[gameRounds][ticket.value1][ticket.value5];
-        ++ticketFrequency2_5[gameRounds][ticket.value2][ticket.value3];
-        ++ticketFrequency2_6[gameRounds][ticket.value2][ticket.value4];
-        ++ticketFrequency2_7[gameRounds][ticket.value2][ticket.value5];
-        ++ticketFrequency2_8[gameRounds][ticket.value3][ticket.value4];
-        ++ticketFrequency2_9[gameRounds][ticket.value3][ticket.value5];
-        ++ticketFrequency2_10[gameRounds][ticket.value4][ticket.value5];
+        ++ticketFrequency2_1[round][ticket.value1][ticket.value2];
+        ++ticketFrequency2_2[round][ticket.value1][ticket.value3];
+        ++ticketFrequency2_3[round][ticket.value1][ticket.value4];
+        ++ticketFrequency2_4[round][ticket.value1][ticket.value5];
+        ++ticketFrequency2_5[round][ticket.value2][ticket.value3];
+        ++ticketFrequency2_6[round][ticket.value2][ticket.value4];
+        ++ticketFrequency2_7[round][ticket.value2][ticket.value5];
+        ++ticketFrequency2_8[round][ticket.value3][ticket.value4];
+        ++ticketFrequency2_9[round][ticket.value3][ticket.value5];
+        ++ticketFrequency2_10[round][ticket.value4][ticket.value5];
 
 
-        ++ticketFrequency3_1[gameRounds][ticket.value1][ticket.value2][ticket.value3];
-        ++ticketFrequency3_2[gameRounds][ticket.value1][ticket.value2][ticket.value4];
-        ++ticketFrequency3_3[gameRounds][ticket.value1][ticket.value2][ticket.value5];
-        ++ticketFrequency3_4[gameRounds][ticket.value1][ticket.value3][ticket.value4];
-        ++ticketFrequency3_5[gameRounds][ticket.value1][ticket.value3][ticket.value5];
-        ++ticketFrequency3_6[gameRounds][ticket.value1][ticket.value4][ticket.value5];
-        ++ticketFrequency3_7[gameRounds][ticket.value2][ticket.value3][ticket.value4];
-        ++ticketFrequency3_8[gameRounds][ticket.value2][ticket.value3][ticket.value5];
-        ++ticketFrequency3_9[gameRounds][ticket.value2][ticket.value4][ticket.value5];
-        ++ticketFrequency3_10[gameRounds][ticket.value3][ticket.value4][ticket.value5];
+        ++ticketFrequency3_1[round][ticket.value1][ticket.value2][ticket.value3];
+        ++ticketFrequency3_2[round][ticket.value1][ticket.value2][ticket.value4];
+        ++ticketFrequency3_3[round][ticket.value1][ticket.value2][ticket.value5];
+        ++ticketFrequency3_4[round][ticket.value1][ticket.value3][ticket.value4];
+        ++ticketFrequency3_5[round][ticket.value1][ticket.value3][ticket.value5];
+        ++ticketFrequency3_6[round][ticket.value1][ticket.value4][ticket.value5];
+        ++ticketFrequency3_7[round][ticket.value2][ticket.value3][ticket.value4];
+        ++ticketFrequency3_8[round][ticket.value2][ticket.value3][ticket.value5];
+        ++ticketFrequency3_9[round][ticket.value2][ticket.value4][ticket.value5];
+        ++ticketFrequency3_10[round][ticket.value3][ticket.value4][ticket.value5];
 
 
-        ++ticketFrequency4_1[gameRounds][ticket.value1][ticket.value2][ticket.value3][ticket.value4];
-        ++ticketFrequency4_2[gameRounds][ticket.value1][ticket.value2][ticket.value3][ticket.value5];
-        ++ticketFrequency4_3[gameRounds][ticket.value1][ticket.value2][ticket.value4][ticket.value5];
-        ++ticketFrequency4_4[gameRounds][ticket.value1][ticket.value3][ticket.value4][ticket.value5];
-        ++ticketFrequency4_5[gameRounds][ticket.value2][ticket.value3][ticket.value4][ticket.value5];
+        ++ticketFrequency4_1[round][ticket.value1][ticket.value2][ticket.value3][ticket.value4];
+        ++ticketFrequency4_2[round][ticket.value1][ticket.value2][ticket.value3][ticket.value5];
+        ++ticketFrequency4_3[round][ticket.value1][ticket.value2][ticket.value4][ticket.value5];
+        ++ticketFrequency4_4[round][ticket.value1][ticket.value3][ticket.value4][ticket.value5];
+        ++ticketFrequency4_5[round][ticket.value2][ticket.value3][ticket.value4][ticket.value5];
 
-        ++ticketFrequency5[gameRounds][ticket.value1][ticket.value2][ticket.value3][ticket.value4][ticket.value5];
-
+        ++ticketFrequency5[round][ticket.value1][ticket.value2][ticket.value3][ticket.value4][ticket.value5];
 
     }
 
@@ -284,7 +285,5 @@ contract JackpotCore is Authorization, IJackpotCore {
     function _compareFour(uint[4] memory values, uint[4] memory _results) internal pure returns(bool){
         return values[0] == _results[0] && values[1] == _results[1] && values[2] == _results[2] && values[3] == _results[3]; 
     }
-
-
 
 }

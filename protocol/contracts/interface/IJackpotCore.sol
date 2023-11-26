@@ -8,7 +8,7 @@ interface IJackpotCore is IJackpotCoreStruct {
    
 
     //function receiveResults(uint[5] memory _results) external;
-    function saveTicket(TicketValueStruct calldata ticket, VaultShare memory _vaultShare, uint pricePerTicket) external;
+    function saveTicket(address owner, TicketValueStruct calldata ticket, VaultShare memory _vaultShare, uint pricePerTicket) external;
     function saveResult(TicketValueStruct memory ticket) external;
 
     function gameRounds() external view returns(uint);

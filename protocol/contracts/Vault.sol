@@ -2,7 +2,7 @@
 pragma solidity ^0.8.19;
 
 // Uncomment this line to use console.log
-// import "hardhat/console.sol";
+import "hardhat/console.sol";
 
 import './CloneFactory.sol';
 import './Authorization.sol';
@@ -54,12 +54,13 @@ contract Vault is CloneFactory, Authorization, IVault {
     function createPot(uint round, uint winners) external onlyFactory {
         address pot = createClone(potFactoryAddress);
         Authorization(pot).initFactory(address(this));
-        ILendingInterface(lendingProtocolAddress).withdraw(pot);
+        (address [] memory assets, uint [] memory assetBalances) = ILendingInterface(lendingProtocolAddress).withdraw(pot);
+        IPot(pot).initialize(winners, assets, assetBalances);
         pots[round] = pot;
     }
 
-    function withdraw(address owner, uint rounds) external onlyFactory {
-
+    function withdraw(address owner, uint round) external onlyFactory {
+        IPot(pots[round]).withdraw(owner);
     }
 
     function withdrawStake(address owner, uint rounds) external onlyFactory {
