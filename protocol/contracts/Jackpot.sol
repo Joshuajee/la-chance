@@ -19,6 +19,8 @@ contract Jackpot is IJackpot, Authorization, CloneFactory {
 
     error TicketAlreadyClaimed(uint round, uint ticketId);
 
+    error TicketDidntWin(uint round, uint ticketId);
+
     using SafeERC20 for IERC20;
 
     // vaults contract address
@@ -129,7 +131,7 @@ contract Jackpot is IJackpot, Authorization, CloneFactory {
         _splitStakeToVaults(token, amount);
 
         for (uint i = 0; i < length; i++) {
-            IJackpotCore(jackpotCoreAddress).saveTicket(tickets[i], _vaultShare, pricePerTicket);
+            IJackpotCore(jackpotCoreAddress).saveTicket(msg.sender, tickets[i], _vaultShare, pricePerTicket);
         }
 
     }
@@ -141,8 +143,6 @@ contract Jackpot is IJackpot, Authorization, CloneFactory {
 
         if (ticket.hasClaimedPrize) revert TicketAlreadyClaimed(round, ticketId);
 
-        uint rounds = IJackpotCore(jackpotCoreAddress).gameRounds();
-
         address owner = ticket.owner;
 
         VaultAddressStruct memory _vaultAddresses  = vaultAddresses;
@@ -152,23 +152,53 @@ contract Jackpot is IJackpot, Authorization, CloneFactory {
         // check pot 1
         if (one) {
             //IVault(_vaultAddresses.vault1).withdrawStake(owner, rounds);
-            IVault(_vaultAddresses.vault1).withdraw(owner, rounds);
+            IVault(_vaultAddresses.vault1).withdraw(owner, round);
         }
 
         if (two) {
-            IVault(_vaultAddresses.vault2).withdraw(owner, rounds);
+            IVault(_vaultAddresses.vault1).withdraw(owner, round);
+            IVault(_vaultAddresses.vault2).withdraw(owner, round);
         }
 
         if (three) {
-            IVault(_vaultAddresses.vault3).withdraw(owner, rounds);
+            IVault(_vaultAddresses.vault1).withdraw(owner, round);
+            IVault(_vaultAddresses.vault2).withdraw(owner, round);
+            IVault(_vaultAddresses.vault2).withdraw(owner, round);
+            IVault(_vaultAddresses.vault3).withdraw(owner, round);
         }
 
         if (four) {
-            IVault(_vaultAddresses.vault4).withdraw(owner, rounds);
+            IVault(_vaultAddresses.vault1).withdraw(owner, round);
+            IVault(_vaultAddresses.vault2).withdraw(owner, round);
+            IVault(_vaultAddresses.vault2).withdraw(owner, round);
+            IVault(_vaultAddresses.vault2).withdraw(owner, round);
+            IVault(_vaultAddresses.vault3).withdraw(owner, round);
+            IVault(_vaultAddresses.vault3).withdraw(owner, round);
+            IVault(_vaultAddresses.vault3).withdraw(owner, round);
+            IVault(_vaultAddresses.vault4).withdraw(owner, round);
         }
 
         if (five) {
-            IVault(_vaultAddresses.vault5).withdraw(owner, rounds);
+            IVault(_vaultAddresses.vault1).withdraw(owner, round);
+            IVault(_vaultAddresses.vault2).withdraw(owner, round);
+            IVault(_vaultAddresses.vault2).withdraw(owner, round);
+            IVault(_vaultAddresses.vault2).withdraw(owner, round);
+            IVault(_vaultAddresses.vault2).withdraw(owner, round);
+            IVault(_vaultAddresses.vault3).withdraw(owner, round);
+            IVault(_vaultAddresses.vault3).withdraw(owner, round);
+            IVault(_vaultAddresses.vault3).withdraw(owner, round);
+            IVault(_vaultAddresses.vault3).withdraw(owner, round);
+            IVault(_vaultAddresses.vault3).withdraw(owner, round);
+            IVault(_vaultAddresses.vault3).withdraw(owner, round);
+            IVault(_vaultAddresses.vault4).withdraw(owner, round);
+            IVault(_vaultAddresses.vault4).withdraw(owner, round);
+            IVault(_vaultAddresses.vault4).withdraw(owner, round);
+            IVault(_vaultAddresses.vault4).withdraw(owner, round);
+            IVault(_vaultAddresses.vault5).withdraw(owner, round);
+        }
+
+        if (!one && !two && !three && !four && !five) {
+            revert TicketDidntWin(round, ticketId);
         }
 
     }
@@ -224,7 +254,6 @@ contract Jackpot is IJackpot, Authorization, CloneFactory {
         uint pot3 = IJackpotCore(jackpotCoreAddress).potThreeWinners(result);
         uint pot4 = IJackpotCore(jackpotCoreAddress).potFourWinners(result);
         uint pot5 = IJackpotCore(jackpotCoreAddress).potFiveWinners(result);
-        //uint pot3 = potThreeWinners(result);
 
         if (pot1 > 0)  {
             IVault(_vaultAddresses.vault1).createPot(rounds, pot1);
@@ -245,6 +274,7 @@ contract Jackpot is IJackpot, Authorization, CloneFactory {
         if (pot5 > 0)  {
             IVault(_vaultAddresses.vault5).createPot(rounds, pot5);
         }
+
     }
 
     // Governance functions

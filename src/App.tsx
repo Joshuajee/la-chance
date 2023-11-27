@@ -7,6 +7,7 @@ import StakePage from './pages/stake';
 import ProposalPage from './pages/proposals';
 import GameHistoryPage from './pages/game-history';
 import VotingPage from './pages/proposals/votingPage';
+import MyGames from './pages/my-games';
 
 
 
@@ -26,6 +27,7 @@ function App() {
           <Routes>
             <Route path='/' element={<HomePage/>}/>
             <Route path='/stake' element={<StakePage />}/>
+            <Route path='/my-games' element={<MyGames /> } />
             <Route path='/proposals' element={<ProposalPage />}/>
             <Route path='/proposals/:id' element={<VotingPage />}/>
             <Route path='/game-history' element={<GameHistoryPage />}/>

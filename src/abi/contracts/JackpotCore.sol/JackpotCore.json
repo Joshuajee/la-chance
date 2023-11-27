@@ -1,5 +1,40 @@
 [
   {
+    "inputs": [],
+    "name": "AddressZeroNotAllowed",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "AlreadyInitialized",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "CallerIsNotChainlink",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "CallerIsNotFactory",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "CallerIsNotGovernor",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "FactoryAlreadyInitialized",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "GovernorAlreadyInitialized",
+    "type": "error"
+  },
+  {
     "anonymous": false,
     "inputs": [
       {
@@ -49,7 +84,7 @@
           }
         ],
         "indexed": false,
-        "internalType": "struct JackpotCore.TicketValueStruct",
+        "internalType": "struct IJackpotCoreStruct.TicketValueStruct",
         "name": "value",
         "type": "tuple"
       }
@@ -95,7 +130,7 @@
           }
         ],
         "indexed": false,
-        "internalType": "struct JackpotCore.TicketValueStruct",
+        "internalType": "struct IJackpotCoreStruct.TicketValueStruct",
         "name": "result",
         "type": "tuple"
       }
@@ -106,106 +141,37 @@
   {
     "inputs": [
       {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
+        "internalType": "address",
+        "name": "token",
+        "type": "address"
       }
     ],
-    "name": "_tickets",
+    "name": "addSupportedToken",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "chainlinkAddress",
     "outputs": [
       {
-        "internalType": "uint256",
-        "name": "stakeTime",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "amount",
-        "type": "uint256"
-      },
-      {
-        "internalType": "bool",
-        "name": "hasClaimedPrize",
-        "type": "bool"
-      },
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "factoryAddress",
+    "outputs": [
       {
         "internalType": "address",
-        "name": "owner",
+        "name": "",
         "type": "address"
-      },
-      {
-        "components": [
-          {
-            "internalType": "uint256",
-            "name": "value1",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "value2",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "value3",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "value4",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "value5",
-            "type": "uint256"
-          }
-        ],
-        "internalType": "struct JackpotCore.TicketValueStruct",
-        "name": "ticketValue",
-        "type": "tuple"
-      },
-      {
-        "components": [
-          {
-            "internalType": "uint256",
-            "name": "vault1",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "vault2",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "vault3",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "vault4",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "vault5",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "daoVault",
-            "type": "uint256"
-          }
-        ],
-        "internalType": "struct JackpotCore.VaultShare",
-        "name": "vaultShare",
-        "type": "tuple"
       }
     ],
     "stateMutability": "view",
@@ -232,6 +198,19 @@
         "internalType": "uint256",
         "name": "",
         "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "gamePeriodHasElasped",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
       }
     ],
     "stateMutability": "view",
@@ -311,6 +290,160 @@
     "inputs": [
       {
         "internalType": "uint256",
+        "name": "round",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "ticketId",
+        "type": "uint256"
+      }
+    ],
+    "name": "getTicket",
+    "outputs": [
+      {
+        "components": [
+          {
+            "internalType": "uint256",
+            "name": "stakeTime",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "amount",
+            "type": "uint256"
+          },
+          {
+            "internalType": "bool",
+            "name": "hasClaimedPrize",
+            "type": "bool"
+          },
+          {
+            "internalType": "address",
+            "name": "owner",
+            "type": "address"
+          },
+          {
+            "components": [
+              {
+                "internalType": "uint256",
+                "name": "value1",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "value2",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "value3",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "value4",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "value5",
+                "type": "uint256"
+              }
+            ],
+            "internalType": "struct IJackpotCoreStruct.TicketValueStruct",
+            "name": "ticketValue",
+            "type": "tuple"
+          },
+          {
+            "components": [
+              {
+                "internalType": "uint256",
+                "name": "vault1",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "vault2",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "vault3",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "vault4",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "vault5",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "daoVault",
+                "type": "uint256"
+              }
+            ],
+            "internalType": "struct IJackpotCoreStruct.VaultShare",
+            "name": "vaultShare",
+            "type": "tuple"
+          }
+        ],
+        "internalType": "struct IJackpotCoreStruct.TicketStruct",
+        "name": "",
+        "type": "tuple"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "governorAddress",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_factory",
+        "type": "address"
+      }
+    ],
+    "name": "initFactory",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_governor",
+        "type": "address"
+      }
+    ],
+    "name": "initGovernor",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
         "name": "",
         "type": "uint256"
       }
@@ -329,6 +462,249 @@
       }
     ],
     "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "components": [
+          {
+            "internalType": "uint256",
+            "name": "value1",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "value2",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "value3",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "value4",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "value5",
+            "type": "uint256"
+          }
+        ],
+        "internalType": "struct IJackpotCoreStruct.TicketValueStruct",
+        "name": "result",
+        "type": "tuple"
+      }
+    ],
+    "name": "potFiveWinners",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "components": [
+          {
+            "internalType": "uint256",
+            "name": "value1",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "value2",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "value3",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "value4",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "value5",
+            "type": "uint256"
+          }
+        ],
+        "internalType": "struct IJackpotCoreStruct.TicketValueStruct",
+        "name": "result",
+        "type": "tuple"
+      }
+    ],
+    "name": "potFourWinners",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "components": [
+          {
+            "internalType": "uint256",
+            "name": "value1",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "value2",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "value3",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "value4",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "value5",
+            "type": "uint256"
+          }
+        ],
+        "internalType": "struct IJackpotCoreStruct.TicketValueStruct",
+        "name": "result",
+        "type": "tuple"
+      }
+    ],
+    "name": "potOneWinners",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "components": [
+          {
+            "internalType": "uint256",
+            "name": "value1",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "value2",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "value3",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "value4",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "value5",
+            "type": "uint256"
+          }
+        ],
+        "internalType": "struct IJackpotCoreStruct.TicketValueStruct",
+        "name": "result",
+        "type": "tuple"
+      }
+    ],
+    "name": "potThreeWinners",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "components": [
+          {
+            "internalType": "uint256",
+            "name": "value1",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "value2",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "value3",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "value4",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "value5",
+            "type": "uint256"
+          }
+        ],
+        "internalType": "struct IJackpotCoreStruct.TicketValueStruct",
+        "name": "result",
+        "type": "tuple"
+      }
+    ],
+    "name": "potTwoWinners",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "token",
+        "type": "address"
+      }
+    ],
+    "name": "removeSupportedToken",
+    "outputs": [],
+    "stateMutability": "nonpayable",
     "type": "function"
   },
   {
@@ -371,6 +747,133 @@
     "type": "function"
   },
   {
+    "inputs": [
+      {
+        "components": [
+          {
+            "internalType": "uint256",
+            "name": "value1",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "value2",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "value3",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "value4",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "value5",
+            "type": "uint256"
+          }
+        ],
+        "internalType": "struct IJackpotCoreStruct.TicketValueStruct",
+        "name": "ticket",
+        "type": "tuple"
+      }
+    ],
+    "name": "saveResult",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "owner",
+        "type": "address"
+      },
+      {
+        "components": [
+          {
+            "internalType": "uint256",
+            "name": "value1",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "value2",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "value3",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "value4",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "value5",
+            "type": "uint256"
+          }
+        ],
+        "internalType": "struct IJackpotCoreStruct.TicketValueStruct",
+        "name": "ticket",
+        "type": "tuple"
+      },
+      {
+        "components": [
+          {
+            "internalType": "uint256",
+            "name": "vault1",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "vault2",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "vault3",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "vault4",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "vault5",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "daoVault",
+            "type": "uint256"
+          }
+        ],
+        "internalType": "struct IJackpotCoreStruct.VaultShare",
+        "name": "_vaultShare",
+        "type": "tuple"
+      },
+      {
+        "internalType": "uint256",
+        "name": "pricePerTicket",
+        "type": "uint256"
+      }
+    ],
+    "name": "saveTicket",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
     "inputs": [],
     "name": "stakingDuration",
     "outputs": [
@@ -378,6 +881,44 @@
         "internalType": "uint256",
         "name": "",
         "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "name": "supportedToken",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "name": "supportedTokenArray",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
       }
     ],
     "stateMutability": "view",
@@ -1373,38 +1914,108 @@
     "type": "function"
   },
   {
-    "inputs": [],
-    "name": "vaultShare",
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "name": "tickets",
     "outputs": [
       {
         "internalType": "uint256",
-        "name": "vault1",
+        "name": "stakeTime",
         "type": "uint256"
       },
       {
         "internalType": "uint256",
-        "name": "vault2",
+        "name": "amount",
         "type": "uint256"
       },
       {
-        "internalType": "uint256",
-        "name": "vault3",
-        "type": "uint256"
+        "internalType": "bool",
+        "name": "hasClaimedPrize",
+        "type": "bool"
       },
       {
-        "internalType": "uint256",
-        "name": "vault4",
-        "type": "uint256"
+        "internalType": "address",
+        "name": "owner",
+        "type": "address"
       },
       {
-        "internalType": "uint256",
-        "name": "vault5",
-        "type": "uint256"
+        "components": [
+          {
+            "internalType": "uint256",
+            "name": "value1",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "value2",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "value3",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "value4",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "value5",
+            "type": "uint256"
+          }
+        ],
+        "internalType": "struct IJackpotCoreStruct.TicketValueStruct",
+        "name": "ticketValue",
+        "type": "tuple"
       },
       {
-        "internalType": "uint256",
-        "name": "daoVault",
-        "type": "uint256"
+        "components": [
+          {
+            "internalType": "uint256",
+            "name": "vault1",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "vault2",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "vault3",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "vault4",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "vault5",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "daoVault",
+            "type": "uint256"
+          }
+        ],
+        "internalType": "struct IJackpotCoreStruct.VaultShare",
+        "name": "vaultShare",
+        "type": "tuple"
       }
     ],
     "stateMutability": "view",
