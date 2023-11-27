@@ -67,6 +67,10 @@ contract Vault is CloneFactory, Authorization, IVault {
         
     }
 
+    function getAllInterest() external view returns (uint) {
+        return 0;
+    }
+
     modifier onlyLendingProtocol() {
         if (msg.sender != lendingProtocolAddress) revert CallerIsNotLendingProtocol();
         _;

@@ -3,9 +3,8 @@
 @tailwind utilities;
 
 .root {
-  background-image: url(bg.jpg);
-  background-size: cover;
-  background-repeat: no-repeat;
+  background: rgb(2,0,36);
+  background: linear-gradient(90deg, rgba(2,0,36,1) 0%, rgba(64,152,180,1) 93%);
   min-height: 100vh;
   height: 100%;
 }
