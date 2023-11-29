@@ -7,7 +7,7 @@ import TestUSDCAbi from "../../abi/contracts/mocks/TestUSDC.sol/TestUSDC.json"
 import { useAccount, useContractRead, useContractWrite } from "wagmi"
 import { JACKPOT, TEST_USDC } from "@/libs/constants"
 import { toast } from "react-toastify"
-interface IStakes {
+export interface IStake {
     value1: number;
     value2: number;
     value3: number;
@@ -15,11 +15,16 @@ interface IStakes {
     value5: number;
 }
 
+export interface IStakeForm {
+    error: boolean;
+    stakes: IStake[]
+}
+
 const StakePage = () => {
 
     const { address, isConnected } = useAccount()
 
-    const [stakes, setStakes] = useState<{error: boolean, stakes: IStakes[]}>({ 
+    const [stakes, setStakes] = useState<IStakeForm>({ 
         error: true, 
         stakes: [ {value1: 0, value2: 0, value3: 0, value4: 0, value5: 0 }]
     })
@@ -29,6 +34,10 @@ const StakePage = () => {
         const temp = [...stakes.stakes, {value1: 0, value2: 0, value3: 0, value4: 0, value5: 0 }]
         setStakes({...stakes, stakes: temp})
     }
+
+    // const updateStakes = () => {
+    //     setStakes()
+    // }
 
     // const remove = (index: number) => {
     //     const temp = [...stakes.stakes].splice(index, 1)
@@ -81,7 +90,7 @@ const StakePage = () => {
                     { stakes.stakes.map((stake, index) => {
                         console.log(stake, index)
                         return (
-                            <Predition key={index} />
+                            <Predition key={index} index={index} stakes={stakes} setStakes={setStakes} />
                         )
                     })}
 

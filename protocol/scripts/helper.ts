@@ -1,8 +1,5 @@
 import hre from "hardhat";
 import { ethers } from "ethers";
-import { TestUSDC$Type } from "../artifacts/contracts/mocks/TestUSDC.sol/TestUSDC";
-import { LendingProtocol$Type } from "../artifacts/contracts/LendingProtocol.sol/LendingProtocol";
-
 
 export const vaultShare = [BigInt(30), BigInt(15), BigInt(15), BigInt(15), BigInt(15), BigInt(10)]
 
@@ -270,6 +267,31 @@ export async function flashloan(TUSDC: any, LendingProtocol: any) {
 
   await TUSDC.write.transfer([BorrowerContract.address,  BigInt(10e20)])
 
-  await LendingProtocol.write.flashLoan([TUSDC.address, BorrowerContract.address, testUSDCPrice])
+  const protocolBalance = await TUSDC.read.balanceOf([LendingProtocol.address])
 
+  await LendingProtocol.write.flashLoan([TUSDC.address, BorrowerContract.address, protocolBalance])
+
+}
+
+function getRandomTicketValue(min: number = 1, max: number = 100) {
+  return Math.floor(Math.random() * (max - min) + min);
+}
+
+
+export const generateTickets = (numberOfTickets: number) => {
+
+  const tickets = []
+
+  for (let i = 0; i < numberOfTickets; i++) {
+    tickets.push(ticket(
+      getRandomTicketValue(), 
+      getRandomTicketValue(),
+      getRandomTicketValue(),
+      getRandomTicketValue(),
+      getRandomTicketValue()
+      )
+    )
+  }
+
+  return tickets
 }

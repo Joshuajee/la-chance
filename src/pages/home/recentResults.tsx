@@ -1,37 +1,74 @@
+import ValueBox from "@/components/utils/ValueBox"
+import JackpotCoreAbi from "./../../abi/contracts/JackpotCore.sol/JackpotCore.json"
+import { JACKPOT_CORE } from "@/libs/constants"
+import { useEffect, useState } from "react"
+import { useContractRead } from "wagmi"
+import { ResultStanding } from "@/libs/interfaces"
+
+
+
 const RecentResults = () => {
+
+    const [results, setResults] = useState<ResultStanding[]>([])
+
+    const gameRounds = useContractRead({
+        address: JACKPOT_CORE,
+        abi: JackpotCoreAbi,
+        functionName: "gameRounds"
+    })
+
+    const rounds = gameRounds.data as bigint || 1n
+
+    const start = rounds - 1n
+    const showing = 10n
+    const diff = start - showing
+
+
+
+    const gameResult = useContractRead({
+        address: JACKPOT_CORE,
+        abi: JackpotCoreAbi,
+        functionName: "getRecentResults",
+        args: [diff > 0 ? diff : 0, start],
+        enabled: rounds > 1,
+        watch: true
+    })
+
+    useEffect(() => {
+        if (gameResult.data) setResults(gameResult.data as ResultStanding[]) 
+    }, [gameResult.data])
+
 
     return (
         <div className="relative overflow-x-auto shadow-md sm:rounded-lg border-[1px]">
             <table className="w-full text-sm text-left text-white">
                 <thead className="text-xs uppercase text-white">
                     <tr>
-                        <th scope="col" className="px-6 py-3">
-                            Numbers
+                        <th colSpan={5} scope="col" className="px-6 py-3">
+                            Result
                         </th>
                         <th scope="col" className="px-6 py-3">
                             Winners
-                        </th>
-                        <th scope="col" className="px-6 py-3">
-                            Time
                         </th>
                     </tr>
                 </thead>
                 <tbody>
                     {
-                        [1, 2, 3].map((result) => {
+                        results.map((result) => {
 
-                            console.log(result)
+                            const { pot1, pot2, pot3, pot4, pot5 } = result;
+
+                            const { value1, value2, value3, value4, value5 } = result.result;
 
                             return (
                                 <tr className="">
-                                    <th scope="row" className="px-6 py-4 font-medium whitespace-nowrap text-white">
-                                        12, 20, 30, 45, 55
-                                    </th>
+                                    <ValueBox value={value1}  />
+                                    <ValueBox value={value2}  />
+                                    <ValueBox value={value3}  />                 
+                                    <ValueBox value={value4}  />          
+                                    <ValueBox value={value5}   />
                                     <td className="px-6 py-4">
-                                        10
-                                    </td>
-                                    <td className="px-6 py-4">
-                                        {Date.now()}
+                                        { Number(pot1 + pot2 + pot3 + pot4 + pot5) }
                                     </td>
                                 </tr>
                             )

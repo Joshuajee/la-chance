@@ -1188,4 +1188,55 @@ describe("Jackpot", function () {
 
   });
 
+
+
+
+
+  describe("Getters", function () {
+
+    it("Get all my the tickets", async function () {
+
+      const { Jackpot, JackpotCore, Chainlink, VRFCoordinatorV2Mock, VRFV2Wrapper, TUSDC, LendingProtocol, user1 } = await loadFixture(deployTest);
+
+      const tickets = [
+        ticket(11, 20, 40, 1, 1),
+        ticket(11, 20, 1, 91, 1),
+        ticket(11, 20, 1, 1, 100),
+        ticket(11, 1, 40, 91, 1),
+        ticket(11, 1, 40, 1, 100),
+        ticket(11, 1, 1, 91, 100),
+        ticket(1, 20, 40, 91, 1),
+        ticket(1, 20, 40, 1, 100),
+        ticket(1, 20, 1, 91, 100),
+        ticket(1, 1, 40, 91, 100),
+      ]
+
+      await TUSDC.write.approve([Jackpot.address, BigInt(10e40)])
+
+      await Jackpot.write.buyTickets([TUSDC.address, tickets]);
+
+      // Increase Time by 1hr 1 min
+      await hre.network.provider.send("hardhat_mine", ["0x3D", "0x3c"]);
+      await flashloan(TUSDC, LendingProtocol)
+
+      // Increase Time by 1hr 1 min
+      await hre.network.provider.send("hardhat_mine", ["0x3D", "0x3c"]);
+
+      await Chainlink.write.randomRequestRandomWords([GAS_CALLBACK]);
+
+      await VRFCoordinatorV2Mock.write.fulfillRandomWordsWithOverride([
+        1n, VRFV2Wrapper.address, [10, 19, 39, 90, 99]
+      ]);
+
+
+      console.log(await JackpotCore.read.getRecentResults([0n, 1n]))
+
+      console.log(await JackpotCore.read.getMyRecentTickets([user1.account.address, 1n, 10n]))
+
+    });
+
+    
+
+  });
+
 });

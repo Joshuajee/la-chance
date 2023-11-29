@@ -245,6 +245,182 @@
   {
     "inputs": [
       {
+        "internalType": "address",
+        "name": "owner",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "start",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "end",
+        "type": "uint256"
+      }
+    ],
+    "name": "getMyRecentTickets",
+    "outputs": [
+      {
+        "components": [
+          {
+            "components": [
+              {
+                "internalType": "uint256",
+                "name": "stakeTime",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "amount",
+                "type": "uint256"
+              },
+              {
+                "internalType": "bool",
+                "name": "hasClaimedPrize",
+                "type": "bool"
+              },
+              {
+                "internalType": "address",
+                "name": "owner",
+                "type": "address"
+              },
+              {
+                "components": [
+                  {
+                    "internalType": "uint256",
+                    "name": "value1",
+                    "type": "uint256"
+                  },
+                  {
+                    "internalType": "uint256",
+                    "name": "value2",
+                    "type": "uint256"
+                  },
+                  {
+                    "internalType": "uint256",
+                    "name": "value3",
+                    "type": "uint256"
+                  },
+                  {
+                    "internalType": "uint256",
+                    "name": "value4",
+                    "type": "uint256"
+                  },
+                  {
+                    "internalType": "uint256",
+                    "name": "value5",
+                    "type": "uint256"
+                  }
+                ],
+                "internalType": "struct IJackpotCoreStruct.TicketValueStruct",
+                "name": "ticketValue",
+                "type": "tuple"
+              },
+              {
+                "components": [
+                  {
+                    "internalType": "uint256",
+                    "name": "vault1",
+                    "type": "uint256"
+                  },
+                  {
+                    "internalType": "uint256",
+                    "name": "vault2",
+                    "type": "uint256"
+                  },
+                  {
+                    "internalType": "uint256",
+                    "name": "vault3",
+                    "type": "uint256"
+                  },
+                  {
+                    "internalType": "uint256",
+                    "name": "vault4",
+                    "type": "uint256"
+                  },
+                  {
+                    "internalType": "uint256",
+                    "name": "vault5",
+                    "type": "uint256"
+                  },
+                  {
+                    "internalType": "uint256",
+                    "name": "daoVault",
+                    "type": "uint256"
+                  }
+                ],
+                "internalType": "struct IJackpotCoreStruct.VaultShare",
+                "name": "vaultShare",
+                "type": "tuple"
+              }
+            ],
+            "internalType": "struct IJackpotCoreStruct.TicketStruct",
+            "name": "ticket",
+            "type": "tuple"
+          },
+          {
+            "internalType": "bool",
+            "name": "won1",
+            "type": "bool"
+          },
+          {
+            "internalType": "bool",
+            "name": "won2",
+            "type": "bool"
+          },
+          {
+            "internalType": "bool",
+            "name": "won3",
+            "type": "bool"
+          },
+          {
+            "internalType": "bool",
+            "name": "won4",
+            "type": "bool"
+          },
+          {
+            "internalType": "bool",
+            "name": "won5",
+            "type": "bool"
+          },
+          {
+            "internalType": "bool",
+            "name": "hasResult",
+            "type": "bool"
+          }
+        ],
+        "internalType": "struct JackpotCore.TicketStanding[]",
+        "name": "",
+        "type": "tuple[]"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "owner",
+        "type": "address"
+      }
+    ],
+    "name": "getMyTicketLength",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
         "internalType": "uint256",
         "name": "gameRound",
         "type": "uint256"
@@ -281,6 +457,89 @@
         "internalType": "bool",
         "name": "five",
         "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "start",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "end",
+        "type": "uint256"
+      }
+    ],
+    "name": "getRecentResults",
+    "outputs": [
+      {
+        "components": [
+          {
+            "components": [
+              {
+                "internalType": "uint256",
+                "name": "value1",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "value2",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "value3",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "value4",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "value5",
+                "type": "uint256"
+              }
+            ],
+            "internalType": "struct IJackpotCoreStruct.TicketValueStruct",
+            "name": "result",
+            "type": "tuple"
+          },
+          {
+            "internalType": "uint256",
+            "name": "pot1",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "pot2",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "pot3",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "pot4",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "pot5",
+            "type": "uint256"
+          }
+        ],
+        "internalType": "struct JackpotCore.ResultStanding[]",
+        "name": "",
+        "type": "tuple[]"
       }
     ],
     "stateMutability": "view",
@@ -443,6 +702,11 @@
   {
     "inputs": [
       {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      },
+      {
         "internalType": "uint256",
         "name": "",
         "type": "uint256"
@@ -466,6 +730,11 @@
   },
   {
     "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "rounds",
+        "type": "uint256"
+      },
       {
         "components": [
           {
@@ -513,6 +782,11 @@
   {
     "inputs": [
       {
+        "internalType": "uint256",
+        "name": "rounds",
+        "type": "uint256"
+      },
+      {
         "components": [
           {
             "internalType": "uint256",
@@ -558,6 +832,11 @@
   },
   {
     "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "rounds",
+        "type": "uint256"
+      },
       {
         "components": [
           {
@@ -605,6 +884,11 @@
   {
     "inputs": [
       {
+        "internalType": "uint256",
+        "name": "rounds",
+        "type": "uint256"
+      },
+      {
         "components": [
           {
             "internalType": "uint256",
@@ -650,6 +934,11 @@
   },
   {
     "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "rounds",
+        "type": "uint256"
+      },
       {
         "components": [
           {

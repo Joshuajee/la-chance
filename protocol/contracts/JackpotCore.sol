@@ -5,6 +5,23 @@ import "./interface/IJackpotCore.sol";
 
 contract JackpotCore is Authorization, IJackpotCore {
 
+    struct ResultStanding {
+        TicketValueStruct result;
+        uint pot1;
+        uint pot2;
+        uint pot3;
+        uint pot4;
+        uint pot5;
+    }
+    struct TicketStanding {
+        TicketStruct ticket;
+        bool won1;
+        bool won2;
+        bool won3;
+        bool won4;
+        bool won5;
+        bool hasResult;
+    }
 
     event BuyTicket(address indexed staker, uint indexed gameRound, uint indexed ticketID, TicketValueStruct value);
     event GameResult(uint indexed gameRound, TicketValueStruct result);
@@ -65,7 +82,7 @@ contract JackpotCore is Authorization, IJackpotCore {
     mapping(uint => mapping(uint => mapping(uint => mapping(uint => mapping(uint => mapping(uint => uint)))))) public ticketFrequency5;
   
     // Arrays
-    TicketIDStruct [] public myTickets;
+    mapping(address => TicketIDStruct []) public myTickets;
 
 
     function gamePeriodHasElasped() external view returns (bool) {
@@ -92,7 +109,7 @@ contract JackpotCore is Authorization, IJackpotCore {
             vaultShare: _vaultShare
         }); 
 
-        myTickets.push(TicketIDStruct({
+        myTickets[owner].push(TicketIDStruct({
             round: _gameRounds,
             ticketId: _gameTickets
         }));
@@ -109,13 +126,9 @@ contract JackpotCore is Authorization, IJackpotCore {
     }
 
 
-    /*********************************************************************
-     *                          External Functions                         *
-     *********************************************************************/
-
 
     function getPotsWon(uint gameRound, uint ticketId) view
-        external returns (bool one, bool two, bool three, bool four, bool five) {
+        public returns (bool one, bool two, bool three, bool four, bool five) {
 
             TicketValueStruct memory result = results[gameRound];
             TicketStruct memory ticket = tickets[gameRound][ticketId];
@@ -125,6 +138,8 @@ contract JackpotCore is Authorization, IJackpotCore {
             uint value3 = ticket.ticketValue.value3;
             uint value4 = ticket.ticketValue.value4;
             uint value5 = ticket.ticketValue.value5;
+
+            if (value1 == 0 || value2 == 0 || value3 == 0 || value4 == 0 || value5 == 0) return (false, false, false, false, false);
 
             one = value1 == result.value1 || value2 == result.value2 || value3 == result.value3 ||
                 value4 == result.value4 || value5 == result.value5;
@@ -161,9 +176,11 @@ contract JackpotCore is Authorization, IJackpotCore {
                     value4 == result.value4 && value5 == result.value5;
     }
 
+    /*********************************************************************
+     *                          External Functions                         *
+     *********************************************************************/
 
-    function potOneWinners(TicketValueStruct memory result) external view returns (uint) {
-        uint rounds = gameRounds;
+    function potOneWinners(uint rounds, TicketValueStruct memory result) public view returns (uint) {
         return ( 
             ticketFrequency1_1[rounds][result.value1] + ticketFrequency1_2[rounds][result.value2] +
             ticketFrequency1_3[rounds][result.value3] + ticketFrequency1_4[rounds][result.value4] +
@@ -171,8 +188,7 @@ contract JackpotCore is Authorization, IJackpotCore {
         );
     }
 
-    function potTwoWinners(TicketValueStruct memory result) public view returns (uint) {
-        uint rounds = gameRounds;
+    function potTwoWinners(uint rounds, TicketValueStruct memory result) public view returns (uint) {
         return ( 
             ticketFrequency2_1[rounds][result.value1][result.value2]
             + ticketFrequency2_2[rounds][result.value1][result.value3]
@@ -188,8 +204,7 @@ contract JackpotCore is Authorization, IJackpotCore {
     }
 
 
-    function potThreeWinners(TicketValueStruct memory result) public view returns (uint) {
-        uint rounds = gameRounds;
+    function potThreeWinners(uint rounds, TicketValueStruct memory result) public view returns (uint) {
         return ( 
             ticketFrequency3_1[rounds][result.value1][result.value2][result.value3]
             + ticketFrequency3_2[rounds][result.value1][result.value2][result.value4]
@@ -204,8 +219,7 @@ contract JackpotCore is Authorization, IJackpotCore {
         );
     }
 
-    function potFourWinners(TicketValueStruct memory result) public view returns (uint) {
-        uint rounds = gameRounds;
+    function potFourWinners(uint rounds, TicketValueStruct memory result) public view returns (uint) {
         return ( 
             ticketFrequency4_1[rounds][result.value1][result.value2][result.value3][result.value4]
             + ticketFrequency4_2[rounds][result.value1][result.value2][result.value3][result.value5]
@@ -216,18 +230,69 @@ contract JackpotCore is Authorization, IJackpotCore {
     }
 
 
-    function potFiveWinners(TicketValueStruct memory result) public view returns (uint) {
-        uint rounds = gameRounds;
+    function potFiveWinners(uint rounds, TicketValueStruct memory result) public view returns (uint) {
         return ticketFrequency5[rounds][result.value1][result.value2][result.value3][result.value4][result.value5];
     }
 
+    function getRecentResults(uint start, uint end) external view returns (ResultStanding [] memory) {
+
+        ResultStanding  [] memory result = new ResultStanding  [] (end - start);
+        
+        uint count = 0;
+
+        for (uint i = end; i > start; --i) {
+            TicketValueStruct memory currentResult = results[i];
+            result[count] = ResultStanding({
+                result: currentResult,
+                pot1: potOneWinners(count, currentResult),
+                pot2: potTwoWinners(count, currentResult),
+                pot3: potThreeWinners(count, currentResult),
+                pot4: potFourWinners(count, currentResult),
+                pot5: potFiveWinners(count, currentResult)
+            });
+
+            ++count;
+        }
+
+        return result;
+        
+    }
+
+     function getMyRecentTickets(address owner, uint start, uint end) external view returns (TicketStanding [] memory) {
+
+        TicketStanding [] memory myRecentTickets = new TicketStanding[] (end - start);
+        
+        uint count = 0;
+
+        for (uint i = end; i > start; --i) {
+            TicketIDStruct memory ticketId = myTickets[owner][i];
+            TicketStruct memory ticket = tickets[ticketId.round][ticketId.ticketId]; 
+            (bool won1, bool won2, bool won3, bool won4, bool won5) = getPotsWon(ticketId.round, ticketId.ticketId);
+            myRecentTickets[count] = TicketStanding({
+                ticket: ticket,
+                won1: won1,
+                won2: won2,
+                won3: won3,
+                won4: won4,
+                won5: won5,
+                hasResult: ticketId.round < gameRounds
+            }); 
+            ++count;
+        }
+
+        return myRecentTickets;
+        
+    }
+
+    function getMyTicketLength(address owner) external view returns (uint) {
+        return myTickets[owner].length;
+    }
 
     function _newRound() private {
         ++gameRounds;
         gameTickets = 0;
         gamePeriod = block.timestamp + gameDuration;
     }
-
 
     function _increaseFrequencies(TicketValueStruct calldata ticket) internal {
 

@@ -1,29 +1,42 @@
 import Input from "@/components/utils/Input";
 import useInput from "@/hooks/useInput";
-import { memo } from "react";
+import { memo, useEffect } from "react";
 import { LiaRandomSolid } from "react-icons/lia"
+import { IStakeForm } from ".";
 
 function getRandom(min: number, max: number) {
     return Math.floor(Math.random() * (max - min) + min);
 }
 
-
-//{index, remove}: { index: number, remove(index: number): void}
-const Predition = () => {
+const Predition = ({ index, stakes, setStakes } : {index: number, stakes: IStakeForm, setStakes: (stakes: IStakeForm) => void }) => {
   
-    const value1 = useInput("text", 1)
-    const value2 = useInput("text", 1)
-    const value3 = useInput("text", 1)
-    const value4 = useInput("text", 1)
-    const value5 = useInput("text", 1)
+    const value1 = useInput("number", 1)
+    const value2 = useInput("number", 1)
+    const value3 = useInput("number", 1)
+    const value4 = useInput("number", 1)
+    const value5 = useInput("number", 1)
 
     const random = () => {
-        value1.setValue(getRandom(0, 99))
-        value2.setValue(getRandom(0, 99))
-        value3.setValue(getRandom(0, 99))
-        value4.setValue(getRandom(0, 99))
-        value5.setValue(getRandom(0, 99))
+        value1.setValue(getRandom(1, 100))
+        value2.setValue(getRandom(1, 100))
+        value3.setValue(getRandom(1, 100))
+        value4.setValue(getRandom(1, 100))
+        value5.setValue(getRandom(1, 100))
     }
+
+    useEffect(() => {
+        const current = stakes.stakes[index];
+        current.value1 = parseInt(value1.value.toString())
+        current.value2 = parseInt(value2.value.toString())
+        current.value3 = parseInt(value3.value.toString())
+        current.value4 = parseInt(value4.value.toString())
+        current.value5 = parseInt(value5.value.toString())
+
+        setStakes({ error: false, stakes: [current] })
+
+        console.log(stakes)
+
+    }, [value1.value, value2.value, value3.value, value4.value, value5.value, index])
 
   
     return (
