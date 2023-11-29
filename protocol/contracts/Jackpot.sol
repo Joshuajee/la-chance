@@ -249,11 +249,11 @@ contract Jackpot is IJackpot, Authorization, CloneFactory {
 
         VaultAddressStruct memory _vaultAddresses = vaultAddresses;
 
-        uint pot1 = IJackpotCore(jackpotCoreAddress).potOneWinners(result);
-        uint pot2 = IJackpotCore(jackpotCoreAddress).potTwoWinners(result);
-        uint pot3 = IJackpotCore(jackpotCoreAddress).potThreeWinners(result);
-        uint pot4 = IJackpotCore(jackpotCoreAddress).potFourWinners(result);
-        uint pot5 = IJackpotCore(jackpotCoreAddress).potFiveWinners(result);
+        uint pot1 = IJackpotCore(jackpotCoreAddress).potOneWinners(rounds, result);
+        uint pot2 = IJackpotCore(jackpotCoreAddress).potTwoWinners(rounds, result);
+        uint pot3 = IJackpotCore(jackpotCoreAddress).potThreeWinners(rounds, result);
+        uint pot4 = IJackpotCore(jackpotCoreAddress).potFourWinners(rounds, result);
+        uint pot5 = IJackpotCore(jackpotCoreAddress).potFiveWinners(rounds, result);
 
         if (pot1 > 0)  {
             IVault(_vaultAddresses.vault1).createPot(rounds, pot1);

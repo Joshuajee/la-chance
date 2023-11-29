@@ -1,6 +1,7 @@
 import { Address, useContractRead } from "wagmi"
 import VaultAbi from "../../abi/contracts/Vault.sol/Vault.json";
 import { TEST_USDC } from "@/libs/constants";
+import convert from "ethereum-unit-converter";
 
 
 const Pots = ({title, contractAddr} : {title: string, contractAddr: Address | undefined }) => {
@@ -16,10 +17,10 @@ const Pots = ({title, contractAddr} : {title: string, contractAddr: Address | un
 
 
     return (
-        <div className="w-40 h-20 border-[1px] rounded-lg text-white">
+        <div className="w-40 h-20 border-[1px] rounded-lg text-white flex flex-col justify-center items-center">
             
             <p className="text-center">
-                {isLoading ? "Loading..." : `${Number(data || 0)} USD` } 
+                {isLoading ? "Loading..." : `${(Number(convert(Number(data || 0), "wei").ether)).toFixed(4)} USD` } 
             </p>
             
             <h3 className="text-center">{title}</h3>

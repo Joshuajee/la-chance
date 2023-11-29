@@ -187,6 +187,11 @@
   {
     "inputs": [
       {
+        "internalType": "uint256",
+        "name": "rounds",
+        "type": "uint256"
+      },
+      {
         "components": [
           {
             "internalType": "uint256",
@@ -232,6 +237,11 @@
   },
   {
     "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "rounds",
+        "type": "uint256"
+      },
       {
         "components": [
           {
@@ -279,6 +289,11 @@
   {
     "inputs": [
       {
+        "internalType": "uint256",
+        "name": "rounds",
+        "type": "uint256"
+      },
+      {
         "components": [
           {
             "internalType": "uint256",
@@ -325,6 +340,11 @@
   {
     "inputs": [
       {
+        "internalType": "uint256",
+        "name": "rounds",
+        "type": "uint256"
+      },
+      {
         "components": [
           {
             "internalType": "uint256",
@@ -370,6 +390,11 @@
   },
   {
     "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "rounds",
+        "type": "uint256"
+      },
       {
         "components": [
           {

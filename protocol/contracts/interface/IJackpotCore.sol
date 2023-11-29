@@ -16,9 +16,9 @@ interface IJackpotCore is IJackpotCoreStruct {
     function getTicket(uint round, uint ticketId) external view returns (TicketStruct memory);
     function getPotsWon(uint round, uint ticketId) external view returns (bool one, bool two, bool three, bool four, bool five);
 
-    function potOneWinners(TicketValueStruct memory result) external view returns (uint);
-    function potTwoWinners(TicketValueStruct memory result) external view returns (uint);
-    function potThreeWinners(TicketValueStruct memory result) external view returns (uint);
-    function potFourWinners(TicketValueStruct memory result) external view returns (uint);
-    function potFiveWinners(TicketValueStruct memory result) external view returns (uint);
+    function potOneWinners(uint rounds, TicketValueStruct memory result) external view returns (uint);
+    function potTwoWinners(uint rounds, TicketValueStruct memory result) external view returns (uint);
+    function potThreeWinners(uint rounds, TicketValueStruct memory result) external view returns (uint);
+    function potFourWinners(uint rounds, TicketValueStruct memory result) external view returns (uint);
+    function potFiveWinners(uint rounds, TicketValueStruct memory result) external view returns (uint);
 }

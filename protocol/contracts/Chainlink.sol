@@ -13,6 +13,8 @@ import './Authorization.sol';
 
 contract Chainlink is VRFV2WrapperConsumerBase, Authorization {
 
+    event Test();
+
     error StakingPeriodIsNotOver();
 
     event RandomRequestSent(uint requestId, uint numWords, uint paid);
@@ -60,6 +62,7 @@ contract Chainlink is VRFV2WrapperConsumerBase, Authorization {
         if (request.paid == 0) revert RandomRequestNotFound(_requestId);
         request.fulfilled = true;
         request.randomWords = _randomWords;
+        emit Test();
         IJackpot(factoryAddress).receiveResults([
             _increaseRandomness(_randomWords[0]),
             _increaseRandomness(_randomWords[1]),

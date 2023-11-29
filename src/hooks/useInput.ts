@@ -1,9 +1,9 @@
 //import { isAddress } from "ethers"
 import { useEffect, useState } from "react"
 
-type Verification = "text" | "slug" | "username" | "address"
+type Verification = "text" | "slug" | "username" | "address" | "number"
 
-const useInput = (verification: Verification, minLength?: number, initial?: string | number) => {
+const useInput = (verification: Verification, minLength: number = 3, initial: string | number ="", min: number = 1, max: number = 100) => {
 
     const [value, setValue] = useState<string | number>(initial || "")
     const [errorWarning, setErrorWarning] = useState(false)
@@ -23,6 +23,18 @@ const useInput = (verification: Verification, minLength?: number, initial?: stri
             //         setErrorMessage("")
             //     }
             //     break
+            case "number":
+                if (Number(value) < min) {
+                    setError(true)
+                    setErrorMessage(`Value too small, must be greaterthan ${min}`)
+                } else if (Number(value) > max) {
+                    setError(true)
+                    setErrorMessage(`Value too large, must be lesserthan ${max}`)
+                } else {
+                    setError(false)
+                    setErrorMessage("")
+                }
+                break
             case "text":
                 if ((value as string)?.length < Number(minLength)) {
                     setError(true)
