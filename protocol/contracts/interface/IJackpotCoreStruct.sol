@@ -15,6 +15,7 @@ interface IJackpotCoreStruct {
         uint vault4;
         uint vault5;
         uint daoVault;
+        uint communityVault;
     }
     
     struct TicketValueStruct {
@@ -26,9 +27,10 @@ interface IJackpotCoreStruct {
     }
 
     struct TicketStruct {
-        uint stakeTime;
+        uint stakePeriod;
         uint amount;
         bool hasClaimedPrize;
+        address asset;
         address owner;
         TicketValueStruct ticketValue;
         VaultShare vaultShare;

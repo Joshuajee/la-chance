@@ -94,16 +94,17 @@ contract JackpotCore is Authorization, IJackpotCore {
     }
 
 
-    function saveTicket(address owner, TicketValueStruct calldata ticket, VaultShare memory _vaultShare, uint pricePerTicket) external onlyFactory {
+    function saveTicket(address owner, address asset, TicketValueStruct calldata ticket, VaultShare memory _vaultShare, uint pricePerTicket) external onlyFactory {
 
         uint _gameRounds = gameRounds;
         uint _gameTickets = ++gameTickets;
 
         // store tickets
         tickets[gameRounds][_gameTickets] = TicketStruct({
-            stakeTime: uint(block.timestamp),
+            stakePeriod: uint(block.timestamp) + stakingDuration,
             amount: pricePerTicket,
             hasClaimedPrize: false,
+            asset: asset,
             owner: owner,
             ticketValue: ticket,
             vaultShare: _vaultShare

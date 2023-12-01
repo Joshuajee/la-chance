@@ -1,7 +1,7 @@
 import hre from "hardhat";
 import { ethers } from "ethers";
 
-export const vaultShare = [BigInt(30), BigInt(15), BigInt(15), BigInt(15), BigInt(15), BigInt(10)]
+export const vaultShare = [BigInt(25), BigInt(15), BigInt(15), BigInt(15), BigInt(15), BigInt(10), 5n]
 
 export const testUSDCPrice = ethers.utils.parseUnits("10","ether")
 
@@ -128,45 +128,6 @@ export async function deployTest() {
 
 
 
-export async function deployTestAfterGame() {
-
-
-  const {
-    Jackpot,
-    LendingProtocol,
-    user1,
-    user2,
-    TUSDC,
-    LinkToken, VRFCoordinatorV2Mock, MockV3Aggregator, VRFV2Wrapper,
-    publicClient,
-  } = await deployTest()
-
-  // Contracts are deployed using the first signer/account by default
-
-  const tickets = ticket(21, 12, 40, 50, 20)
-
-  await TUSDC.write.approve([Jackpot.address, BigInt(10e40)])
-
-  await Jackpot.write.buyTickets([TUSDC.address, tickets]);
-
-  // Increase Time by 1hr 1 min
-  await hre.network.provider.send("hardhat_mine", ["0x3D", "0x3c"]);
-
-  await Jackpot.write.randomRequestRandomWords([300_000]);
- 
-  return {
-    Jackpot,
-    LendingProtocol,
-    user1,
-    user2,
-    TUSDC,
-    LinkToken, VRFCoordinatorV2Mock, MockV3Aggregator, VRFV2Wrapper,
-    publicClient,
-    tickets
-  };
-}
-
-
 export async function deployLendingProtocol() {
 
   // Contracts are deployed using the first signer/account by default
@@ -186,10 +147,12 @@ export async function deployLendingProtocol() {
 
   const DAOVault = await hre.viem.deployContract("DAOVault");
 
+  const CommunityVault = await hre.viem.deployContract("CommunityVault");
+
   const LendingProtocol = await hre.viem.deployContract("LendingProtocol");
 
   await LendingProtocol.write.initialize([
-    [Vault1.address, Vault2.address, Vault3.address, Vault4.address, Vault5.address, DAOVault.address],
+    [Vault1.address, Vault2.address, Vault3.address, Vault4.address, Vault5.address, DAOVault.address, CommunityVault.address],
     vaultShare,
     TUSDC.address
   ])
@@ -207,6 +170,7 @@ export async function deployLendingProtocol() {
     Vault4,
     Vault5,
     DAOVault,
+    CommunityVault,
     publicClient,
   };
 }
@@ -225,6 +189,7 @@ export async function deployLendingProtocolInitVaults() {
     Vault4,
     Vault5,
     DAOVault,
+    CommunityVault,
     publicClient,
   } = await deployLendingProtocol()
 
@@ -236,6 +201,7 @@ export async function deployLendingProtocolInitVaults() {
   await Vault4.write.initialize([LendingProtocol.address, Pot.address])
   await Vault5.write.initialize([LendingProtocol.address, Pot.address])
   await DAOVault.write.initialize([LendingProtocol.address, Pot.address])
+  await CommunityVault.write.initialize([LendingProtocol.address, Pot.address])
 
 
   return {
@@ -249,6 +215,7 @@ export async function deployLendingProtocolInitVaults() {
     Vault4,
     Vault5,
     DAOVault,
+    CommunityVault,
     publicClient,
   };
 }

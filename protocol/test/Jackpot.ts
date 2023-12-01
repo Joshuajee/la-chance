@@ -1229,9 +1229,9 @@ describe("Jackpot", function () {
       ]);
 
 
-      console.log(await JackpotCore.read.getRecentResults([0n, 1n]))
+      //console.log(await JackpotCore.read.getRecentResults([0n, 1n]))
 
-      console.log(await JackpotCore.read.getMyRecentTickets([user1.account.address, 1n, 10n]))
+      console.log(await JackpotCore.read.getMyRecentTickets([user1.account.address, 0n, 9n]))
 
     });
 

@@ -4,7 +4,7 @@ import { TEST_USDC } from "@/libs/constants";
 import convert from "ethereum-unit-converter";
 
 
-const Pots = ({title, contractAddr} : {title: string, contractAddr: Address | undefined }) => {
+const Pots = ({title, contractAddr} : {title: string, contractAddr: Address | any}) => {
 
     const { data, isLoading } = useContractRead({
         abi: VaultAbi,
@@ -14,7 +14,6 @@ const Pots = ({title, contractAddr} : {title: string, contractAddr: Address | un
     })
 
     //https://lottie.host/1967e79b-05d6-4a1e-a50d-2d3ca3d64787/hniP5LUzEF.json
-
 
     return (
         <div className="w-40 h-20 border-[1px] rounded-lg text-white flex flex-col justify-center items-center">

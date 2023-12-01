@@ -103,7 +103,7 @@ contract Chainlink is VRFV2WrapperConsumerBase, Authorization {
 
 
 
-    function _increaseRandomness(uint word) view internal returns(uint) {
+    function _increaseRandomness(uint word) pure internal returns(uint) {
         return  word % PERCENT + 1;
         // unchecked {
         //     return  word * block.timestamp  * block.number % PERCENT + 1;   

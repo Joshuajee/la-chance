@@ -1,7 +1,3 @@
-import { CHAIN_ID, DOMAIN_ID, CONTRACT_ADDRESS } from "./enums"
-import { SUPPORTED_NETWORKS } from "./interfaces"
-import { SUPPORTED_SYMBOLS } from "./types"
-
 export const MIN_AMOUNT = 0.000001
 
 export const dollarFormat = (amount: number) => {
@@ -33,67 +29,6 @@ export const networkNameByChainId = (chainId: number) => {
 }
 
 
-export const currencyByChainId = (chainId: number) : SUPPORTED_SYMBOLS => {
-
-    switch (chainId) {
-        case CHAIN_ID.AVALANCHE_FUJI:
-            return "AVAX"
-        case CHAIN_ID.AFIJORES:
-            return "CELO"
-        case CHAIN_ID.MUMBAI:
-            return "MATIC"
-        default:
-            return ""
-    }
-
-}
-
-
-export const currencyByDomainId = (domainId: DOMAIN_ID): SUPPORTED_SYMBOLS => {
-
-    switch (domainId) {
-        case DOMAIN_ID.AVALANCHE_FUJI:
-            return "AVAX"
-        case DOMAIN_ID.AFIJORES:
-            return "CELO"
-        case DOMAIN_ID.MUMBAI:
-            return "MATIC"
-        default:
-            return ""
-    }
-
-}
-
-export const addressByDomainId = (domainId: DOMAIN_ID) => {
-
-    switch (domainId) {
-        case DOMAIN_ID.AVALANCHE_FUJI:
-            return CONTRACT_ADDRESS.AVALANCHE_FUJI
-        case DOMAIN_ID.AFIJORES:
-            return CONTRACT_ADDRESS.AFIJORES
-        case DOMAIN_ID.MUMBAI:
-            return CONTRACT_ADDRESS.MUMBAI
-        default:
-            return CONTRACT_ADDRESS.NONE
-    }
-
-}
-
-export const networkNameByDomainId = (domainId: DOMAIN_ID) => {
-
-    switch (domainId) {
-        case DOMAIN_ID.AVALANCHE_FUJI:
-            return "Avalanche Fuji"
-        case DOMAIN_ID.AFIJORES:
-            return "Alfajore"
-        case DOMAIN_ID.MUMBAI:
-            return "Mumbai"
-        default:
-            return ""
-    }
-
-}
-
 export const getDate = () => {
 
     const date = new Date()
@@ -110,41 +45,7 @@ export const dateToTimeStamp = (date: Date) => {
     return new Date(date).getTime() / 1000
 }
 
-export const supportedNetworks : SUPPORTED_NETWORKS [] = [
-    {
-        name: "Select Network",
-        description: "",
-        icon: "",
-        chainId: CHAIN_ID.NONE,
-        domainId: DOMAIN_ID.NONE,
-        contractAddress: CONTRACT_ADDRESS.NONE,
-        symbol: "",
-    },
-    {
-        name: "Mumbai",
-        description: "",
-        icon: "",
-        chainId: CHAIN_ID.MUMBAI,
-        domainId: DOMAIN_ID.MUMBAI,
-        contractAddress: CONTRACT_ADDRESS.MUMBAI,
-        symbol: "MATIC",
-    },
-    {
-        name: "Avalanche Fuji",
-        description: "",
-        icon: "",
-        chainId: CHAIN_ID.AVALANCHE_FUJI,
-        domainId: DOMAIN_ID.AVALANCHE_FUJI,
-        contractAddress: CONTRACT_ADDRESS.AVALANCHE_FUJI,
-        symbol: "AVAX",
-    },
-    {
-        name: "Alfajores",
-        description: "",
-        icon: "",
-        chainId: CHAIN_ID.AFIJORES,
-        domainId: DOMAIN_ID.AFIJORES,
-        contractAddress: CONTRACT_ADDRESS.AFIJORES,
-        symbol: "CELO",
-    }
-]
+
+export const moneyFormat = (amount: bigint, decimal = 18n) => {
+    return Number(amount / 10n ** decimal).toFixed(4)
+}

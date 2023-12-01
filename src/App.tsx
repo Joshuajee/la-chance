@@ -8,6 +8,7 @@ import ProposalPage from './pages/proposals';
 import GameHistoryPage from './pages/game-history';
 import VotingPage from './pages/proposals/votingPage';
 import MyGames from './pages/my-games';
+import GetTestToken from './pages/get-tokens';
 
 
 
@@ -28,6 +29,7 @@ function App() {
             <Route path='/' element={<HomePage/>}/>
             <Route path='/stake' element={<StakePage />}/>
             <Route path='/my-games' element={<MyGames /> } />
+            <Route path='/get-tokens' element={<GetTestToken /> } />
             <Route path='/proposals' element={<ProposalPage />}/>
             <Route path='/proposals/:id' element={<VotingPage />}/>
             <Route path='/game-history' element={<GameHistoryPage />}/>

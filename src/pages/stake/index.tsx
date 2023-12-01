@@ -7,6 +7,7 @@ import TestUSDCAbi from "../../abi/contracts/mocks/TestUSDC.sol/TestUSDC.json"
 import { useAccount, useContractRead, useContractWrite } from "wagmi"
 import { JACKPOT, TEST_USDC } from "@/libs/constants"
 import { toast } from "react-toastify"
+import { moneyFormat } from "@/libs/utils"
 export interface IStake {
     value1: number;
     value2: number;
@@ -24,11 +25,13 @@ const StakePage = () => {
 
     const { address, isConnected } = useAccount()
 
+    const [accountBal, setAccountBal] = useState(0n)
+    const [allowance, setAllowance] = useState(0n)
+
     const [stakes, setStakes] = useState<IStakeForm>({ 
         error: true, 
         stakes: [ {value1: 0, value2: 0, value3: 0, value4: 0, value5: 0 }]
     })
-
 
     const add = () => {
         const temp = [...stakes.stakes, {value1: 0, value2: 0, value3: 0, value4: 0, value5: 0 }]
@@ -45,12 +48,27 @@ const StakePage = () => {
     //     setStakes({...stakes, stakes: temp})
     // }
 
+    // const getPrice = useContractRead({
+    //     abi: JackpotAbi,
+    //     address: JACKPOT,
+    //     functionName: "acceptedTokenPrize",
+    //     args: [TEST_USDC]
+    // })
+
     const balance = useContractRead({
         abi: TestUSDCAbi,
         address: TEST_USDC,
         functionName: "balanceOf",
         args: [address],
         enabled: isConnected
+    })
+
+    const getAllowance = useContractRead({
+        abi: TestUSDCAbi,
+        address: TEST_USDC,
+        functionName: "allowance",
+        args: [address, JACKPOT],
+        enabled: accountBal > 0n
     })
 
     console.log(balance)
@@ -70,13 +88,26 @@ const StakePage = () => {
     })
 
     useEffect(() => {
-        if (buyTickets.isError) toast.error(buyTickets.error?.message)
+        if (buyTickets.isError) toast.error(buyTickets.error?.name)
     }, [buyTickets.isError, buyTickets.error])
 
+    useEffect(() => {
+        if (approve.isError) toast.error(approve.error?.name)
+    }, [approve.isError, approve.error])
 
     useEffect(() => {
-        if (approve.isError) toast.error(approve.error?.message)
-    }, [approve.isError, approve.error])
+        if (getAllowance.data) {
+            setAllowance(getAllowance.data as bigint)
+        }
+    }, [getAllowance.data])
+
+    useEffect(() => {
+        if (balance.data) {
+            setAccountBal(balance.data as bigint)
+        }
+    }, [balance.data])
+
+    console.log(getAllowance)
 
     return (
         <main className="flex flex-col ">
@@ -84,6 +115,10 @@ const StakePage = () => {
             <div className="bg-white px-4 rounded-lg  w-[600px] border-slate-200">
 
                 <h3 className="text-center text-3xl font-bold text-gray-800 mt-4">Stake </h3>
+                
+                <div>Balance {balance.data ? moneyFormat(accountBal) : "" }</div>
+
+                <div>Allowance {getAllowance.data ? moneyFormat(allowance) : "" }</div>
 
                 <div className="flex flex-col items-center justify-center my-10">
 
@@ -109,7 +144,6 @@ const StakePage = () => {
                 </div>
 
             </div>
-
 
         </main>
     )

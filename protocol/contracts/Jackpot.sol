@@ -11,6 +11,7 @@ import './Authorization.sol';
 import "./JackpotCore.sol";
 import "./LendingProtocol.sol";
 import './interface/IVault.sol';
+import './interface/ILendingInterface.sol';
 
 //import "hardhat/console.sol";
 
@@ -31,6 +32,7 @@ contract Jackpot is IJackpot, Authorization, CloneFactory {
         address vault4;
         address vault5;
         address daoVault;
+        address communityVault;
     }
 
     address public jackpotCoreAddress;
@@ -42,7 +44,7 @@ contract Jackpot is IJackpot, Authorization, CloneFactory {
 
     mapping(address => uint) public acceptedTokenPrize;
 
-    VaultShare public vaultShare = VaultShare(30, 15, 15, 15, 15, 10);
+    VaultShare public vaultShare = VaultShare(25, 15, 15, 15, 15, 10, 5);
 
     uint PERCENT = 100;
 
@@ -68,6 +70,7 @@ contract Jackpot is IJackpot, Authorization, CloneFactory {
             createClone(vaultFactoryAddress),
             createClone(vaultFactoryAddress),
             createClone(vaultFactoryAddress),
+            createClone(vaultFactoryAddress),
             createClone(vaultFactoryAddress)
         );
 
@@ -79,6 +82,7 @@ contract Jackpot is IJackpot, Authorization, CloneFactory {
         IAuthorization(vaultAddresses.vault4).initFactory(address(this));
         IAuthorization(vaultAddresses.vault5).initFactory(address(this));
         IAuthorization(vaultAddresses.daoVault).initFactory(address(this));
+        IAuthorization(vaultAddresses.communityVault).initFactory(address(this));
 
         // Initialize Lending protocol
 
@@ -89,7 +93,8 @@ contract Jackpot is IJackpot, Authorization, CloneFactory {
                 vaultAddresses.vault3,
                 vaultAddresses.vault4,
                 vaultAddresses.vault5,
-                vaultAddresses.daoVault
+                vaultAddresses.daoVault,
+                vaultAddresses.communityVault
             ],
             [
                 vaultShare.vault1,
@@ -97,7 +102,8 @@ contract Jackpot is IJackpot, Authorization, CloneFactory {
                 vaultShare.vault3,
                 vaultShare.vault4,
                 vaultShare.vault5,
-                vaultShare.daoVault
+                vaultShare.daoVault,
+                vaultShare.communityVault
             ],
             tokenAddress
         );
@@ -109,6 +115,7 @@ contract Jackpot is IJackpot, Authorization, CloneFactory {
         Vault(vaultAddresses.vault4).initialize(_lendingProtocolAddress, _potFactoryAddress);
         Vault(vaultAddresses.vault5).initialize(_lendingProtocolAddress, _potFactoryAddress);
         Vault(vaultAddresses.daoVault).initialize(_lendingProtocolAddress, _potFactoryAddress);
+        Vault(vaultAddresses.communityVault).initialize(_lendingProtocolAddress, _potFactoryAddress);
 
         supportedToken[tokenAddress] = true;
         supportedTokenArray.push(tokenAddress);
@@ -131,7 +138,7 @@ contract Jackpot is IJackpot, Authorization, CloneFactory {
         _splitStakeToVaults(token, amount);
 
         for (uint i = 0; i < length; i++) {
-            IJackpotCore(jackpotCoreAddress).saveTicket(msg.sender, tickets[i], _vaultShare, pricePerTicket);
+            IJackpotCore(jackpotCoreAddress).saveTicket(msg.sender, token, tickets[i], _vaultShare, pricePerTicket);
         }
 
     }
@@ -203,6 +210,10 @@ contract Jackpot is IJackpot, Authorization, CloneFactory {
 
     }
 
+    function withdrawStake(address owner, address asset, uint round, uint amount) internal {
+        ILendingInterface(lendingProtocolAddress).withdrawStake(owner, asset, amount);
+    }
+
 
     function getTicketPrize (address token) public view returns (uint tokenPrize) {
         tokenPrize = acceptedTokenPrize[token];
@@ -240,6 +251,23 @@ contract Jackpot is IJackpot, Authorization, CloneFactory {
         IVault(_vaultAddresses.vault4).increaseBalance(token, amount * _vaultShare.vault4 / PERCENT);
         IVault(_vaultAddresses.vault5).increaseBalance(token, amount * _vaultShare.vault5 / PERCENT);
         IVault(_vaultAddresses.daoVault).increaseBalance(token, amount * _vaultShare.daoVault / PERCENT);
+        IVault(_vaultAddresses.communityVault).increaseBalance(token, amount * _vaultShare.communityVault / PERCENT);
+    }
+
+
+    function _splitStakeFromVaults(address token, uint amount) internal {
+
+        VaultShare memory _vaultShare = vaultShare;
+
+        VaultAddressStruct memory _vaultAddresses = vaultAddresses;
+
+        IVault(_vaultAddresses.vault1).decreaseBalance(token, amount * _vaultShare.vault1 / PERCENT);
+        IVault(_vaultAddresses.vault2).decreaseBalance(token, amount * _vaultShare.vault2 / PERCENT);
+        IVault(_vaultAddresses.vault3).decreaseBalance(token, amount * _vaultShare.vault3 / PERCENT);
+        IVault(_vaultAddresses.vault4).decreaseBalance(token, amount * _vaultShare.vault4 / PERCENT);
+        IVault(_vaultAddresses.vault5).decreaseBalance(token, amount * _vaultShare.vault5 / PERCENT);
+        IVault(_vaultAddresses.daoVault).decreaseBalance(token, amount * _vaultShare.daoVault / PERCENT);
+        IVault(_vaultAddresses.communityVault).decreaseBalance(token, amount * _vaultShare.communityVault / PERCENT);
     }
 
 

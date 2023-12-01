@@ -268,7 +268,7 @@
             "components": [
               {
                 "internalType": "uint256",
-                "name": "stakeTime",
+                "name": "stakePeriod",
                 "type": "uint256"
               },
               {
@@ -280,6 +280,11 @@
                 "internalType": "bool",
                 "name": "hasClaimedPrize",
                 "type": "bool"
+              },
+              {
+                "internalType": "address",
+                "name": "asset",
+                "type": "address"
               },
               {
                 "internalType": "address",
@@ -348,6 +353,11 @@
                   {
                     "internalType": "uint256",
                     "name": "daoVault",
+                    "type": "uint256"
+                  },
+                  {
+                    "internalType": "uint256",
+                    "name": "communityVault",
                     "type": "uint256"
                   }
                 ],
@@ -564,7 +574,7 @@
         "components": [
           {
             "internalType": "uint256",
-            "name": "stakeTime",
+            "name": "stakePeriod",
             "type": "uint256"
           },
           {
@@ -576,6 +586,11 @@
             "internalType": "bool",
             "name": "hasClaimedPrize",
             "type": "bool"
+          },
+          {
+            "internalType": "address",
+            "name": "asset",
+            "type": "address"
           },
           {
             "internalType": "address",
@@ -644,6 +659,11 @@
               {
                 "internalType": "uint256",
                 "name": "daoVault",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "communityVault",
                 "type": "uint256"
               }
             ],
@@ -1083,6 +1103,11 @@
         "type": "address"
       },
       {
+        "internalType": "address",
+        "name": "asset",
+        "type": "address"
+      },
+      {
         "components": [
           {
             "internalType": "uint256",
@@ -1144,6 +1169,11 @@
           {
             "internalType": "uint256",
             "name": "daoVault",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "communityVault",
             "type": "uint256"
           }
         ],
@@ -2219,7 +2249,7 @@
     "outputs": [
       {
         "internalType": "uint256",
-        "name": "stakeTime",
+        "name": "stakePeriod",
         "type": "uint256"
       },
       {
@@ -2231,6 +2261,11 @@
         "internalType": "bool",
         "name": "hasClaimedPrize",
         "type": "bool"
+      },
+      {
+        "internalType": "address",
+        "name": "asset",
+        "type": "address"
       },
       {
         "internalType": "address",
@@ -2299,6 +2334,11 @@
           {
             "internalType": "uint256",
             "name": "daoVault",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "communityVault",
             "type": "uint256"
           }
         ],

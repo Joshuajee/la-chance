@@ -491,6 +491,11 @@
         "internalType": "address",
         "name": "daoVault",
         "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "communityVault",
+        "type": "address"
       }
     ],
     "stateMutability": "view",
@@ -541,6 +546,11 @@
       {
         "internalType": "uint256",
         "name": "daoVault",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "communityVault",
         "type": "uint256"
       }
     ],
