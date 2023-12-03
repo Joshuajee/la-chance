@@ -27,6 +27,7 @@ const StakePage = () => {
 
     const [accountBal, setAccountBal] = useState(0n)
     const [allowance, setAllowance] = useState(0n)
+    const [prize, setPrize] = useState(0n)
 
     const [stakes, setStakes] = useState<IStakeForm>({ 
         error: true, 
@@ -38,6 +39,8 @@ const StakePage = () => {
         setStakes({...stakes, stakes: temp})
     }
 
+    const cost = prize * BigInt(stakes.stakes.length)
+
     // const updateStakes = () => {
     //     setStakes()
     // }
@@ -48,12 +51,12 @@ const StakePage = () => {
     //     setStakes({...stakes, stakes: temp})
     // }
 
-    // const getPrice = useContractRead({
-    //     abi: JackpotAbi,
-    //     address: JACKPOT,
-    //     functionName: "acceptedTokenPrize",
-    //     args: [TEST_USDC]
-    // })
+    const getPrice = useContractRead({
+        abi: JackpotAbi,
+        address: JACKPOT,
+        functionName: "acceptedTokenPrize",
+        args: [TEST_USDC]
+    })
 
     const balance = useContractRead({
         abi: TestUSDCAbi,
@@ -77,7 +80,7 @@ const StakePage = () => {
         abi: TestUSDCAbi,
         address: TEST_USDC,
         functionName: "approve",
-        args: [JACKPOT, "1000000000000000000000000"]
+        args: [JACKPOT, cost]
     })
 
     const buyTickets = useContractWrite({
@@ -107,6 +110,12 @@ const StakePage = () => {
         }
     }, [balance.data])
 
+    useEffect(() => {
+        if (getPrice.data) {
+            setPrize(getPrice.data as bigint)
+        }
+    }, [getPrice.data])
+
     console.log(getAllowance)
 
     return (
@@ -116,9 +125,11 @@ const StakePage = () => {
 
                 <h3 className="text-center text-3xl font-bold text-gray-800 mt-4">Stake </h3>
                 
-                <div>Balance {balance.data ? moneyFormat(accountBal) : "" }</div>
+                <div className="text-center">Balance {balance.data ? moneyFormat(accountBal) : "" }</div>
 
-                <div>Allowance {getAllowance.data ? moneyFormat(allowance) : "" }</div>
+                <div className="text-center">Allowance {getAllowance.data ? moneyFormat(allowance) : "" }</div>
+
+                <h3 className="text-center"> {moneyFormat(prize)} USDT Per Ticket </h3>
 
                 <div className="flex flex-col items-center justify-center my-10">
 
@@ -129,12 +140,14 @@ const StakePage = () => {
                         )
                     })}
 
-                    <div className="w-80 mt-4">
-                        <Web3btn loading={approve.isLoading} onClick={approve.write} color="gray">Approve </Web3btn>
-                    </div>
+                    {  allowance < cost &&
+                        <div className="w-80 mt-4">
+                            <Web3btn color="green" loading={approve.isLoading} onClick={approve.write}>Approve </Web3btn>
+                        </div>
+                    }
 
                     <div className="w-80">
-                        <Web3btn loading={buyTickets.isLoading} onClick={buyTickets.write}>Stake</Web3btn>
+                        <Web3btn disabled={allowance < cost} loading={buyTickets.isLoading} onClick={buyTickets.write}>Stake</Web3btn>
                     </div>     
 
                     <div className="w-80">

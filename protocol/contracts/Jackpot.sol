@@ -144,7 +144,7 @@ contract Jackpot is IJackpot, Authorization, CloneFactory {
     }
 
 
-    function claimTicket(uint round, uint ticketId) external {
+    function claimTicket(uint round, uint ticketId) external returns (uint) {
         
         TicketStruct memory ticket = IJackpotCore(jackpotCoreAddress).getTicket(round, ticketId);
 
@@ -156,9 +156,19 @@ contract Jackpot is IJackpot, Authorization, CloneFactory {
 
         (bool one, bool two, bool three, bool four, bool five) = IJackpotCore(jackpotCoreAddress).getPotsWon(round, ticketId);
 
+        if (!one) {
+            if (ticket.stakePeriod < block.timestamp) {
+                LendingProtocol(lendingProtocolAddress).withdrawStake(owner, ticket.asset, ticket.amount);
+                IJackpotCore(jackpotCoreAddress).withdraw(round, ticketId);
+                return 0;
+            } else {
+                revert TicketDidntWin(round, ticketId);
+            }
+        }
+
         // check pot 1
         if (one) {
-            //IVault(_vaultAddresses.vault1).withdrawStake(owner, rounds);
+            LendingProtocol(lendingProtocolAddress).withdrawStake(owner, ticket.asset, ticket.amount);
             IVault(_vaultAddresses.vault1).withdraw(owner, round);
         }
 
@@ -204,9 +214,8 @@ contract Jackpot is IJackpot, Authorization, CloneFactory {
             IVault(_vaultAddresses.vault5).withdraw(owner, round);
         }
 
-        if (!one && !two && !three && !four && !five) {
-            revert TicketDidntWin(round, ticketId);
-        }
+        IJackpotCore(jackpotCoreAddress).withdraw(round, ticketId);
+        return 0;
 
     }
 

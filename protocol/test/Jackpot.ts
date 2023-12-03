@@ -516,7 +516,7 @@ describe("Jackpot", function () {
 
     it("Player should be able to withdraw from pot 1, with winning ticket", async function () {
 
-      const { user1, Jackpot, Chainlink, VRFCoordinatorV2Mock, VRFV2Wrapper, TUSDC, Vaults, LendingProtocol } = await loadFixture(deployTest);
+      const { user1, Jackpot, JackpotCore, Chainlink, VRFCoordinatorV2Mock, VRFV2Wrapper, TUSDC, Vaults, LendingProtocol } = await loadFixture(deployTest);
 
       const tickets = [
         ticket(11, 1, 1, 1, 1),
@@ -561,7 +561,9 @@ describe("Jackpot", function () {
 
       expect(await TUSDC.read.balanceOf([pot1Address])).to.be.equal(initialPotBal - winnersShare)
 
-      expect(await TUSDC.read.balanceOf([user1.account.address])).to.be.equal(playerBalance + winnersShare);
+      expect(await TUSDC.read.balanceOf([user1.account.address])).to.be.equal(playerBalance + testUSDCPrice.toBigInt() + winnersShare);
+
+      expect((await JackpotCore.read.tickets([1n, 3n]))[2]).to.be.true;
 
     });
 
@@ -625,7 +627,7 @@ describe("Jackpot", function () {
 
     it("Player should be able to withdraw from pot 1 and 2, with winning ticket", async function () {
 
-      const { user1, Jackpot, Chainlink, VRFCoordinatorV2Mock, VRFV2Wrapper, TUSDC, Vaults, LendingProtocol } = await loadFixture(deployTest);
+      const { user1, Jackpot, JackpotCore, Chainlink, VRFCoordinatorV2Mock, VRFV2Wrapper, TUSDC, Vaults, LendingProtocol } = await loadFixture(deployTest);
 
       const tickets = [
         ticket(11, 20, 1, 1, 1),
@@ -691,7 +693,9 @@ describe("Jackpot", function () {
 
       expect(await TUSDC.read.balanceOf([pot2Address])).to.be.equal(initialPot2Bal - winnersShare2)
 
-      expect(await TUSDC.read.balanceOf([user1.account.address])).to.be.equal(playerBalance + winnersShare1 * 2n + winnersShare2);
+      expect(await TUSDC.read.balanceOf([user1.account.address])).to.be.equal(playerBalance + testUSDCPrice.toBigInt() + winnersShare1 * 2n + winnersShare2);
+
+      expect((await JackpotCore.read.tickets([1n, 3n]))[2]).to.be.true;
 
     });
 
@@ -761,7 +765,7 @@ describe("Jackpot", function () {
 
     it("Player should be able to withdraw from pot 1, 2 and 3, with winning ticket", async function () {
 
-      const { user1, Jackpot, Chainlink, VRFCoordinatorV2Mock, VRFV2Wrapper, TUSDC, Vaults, LendingProtocol } = await loadFixture(deployTest);
+      const { user1, Jackpot, JackpotCore, Chainlink, VRFCoordinatorV2Mock, VRFV2Wrapper, TUSDC, Vaults, LendingProtocol } = await loadFixture(deployTest);
 
       const tickets = [
         ticket(11, 20, 40, 1, 1),
@@ -843,7 +847,9 @@ describe("Jackpot", function () {
 
       expect(await TUSDC.read.balanceOf([pot3Address])).to.be.equal(initialPot3Bal - winnersShare3)
 
-      expect(await TUSDC.read.balanceOf([user1.account.address])).to.be.equal(playerBalance + winnersShare1 * 3n + winnersShare2 * 3n + winnersShare3);
+      expect(await TUSDC.read.balanceOf([user1.account.address])).to.be.equal(playerBalance + testUSDCPrice.toBigInt() + winnersShare1 * 3n + winnersShare2 * 3n + winnersShare3);
+
+      expect((await JackpotCore.read.tickets([1n, 3n]))[2]).to.be.true;
 
     });
 
@@ -912,7 +918,7 @@ describe("Jackpot", function () {
 
     it("Player should be able to withdraw from pot 1, 2, 3, and 4 with winning ticket", async function () {
 
-      const { user1, Jackpot, Chainlink, VRFCoordinatorV2Mock, VRFV2Wrapper, TUSDC, Vaults, LendingProtocol } = await loadFixture(deployTest);
+      const { user1, Jackpot, JackpotCore, Chainlink, VRFCoordinatorV2Mock, VRFV2Wrapper, TUSDC, Vaults, LendingProtocol } = await loadFixture(deployTest);
 
       const tickets = [
         ticket(11, 20, 40, 91, 1),
@@ -1005,8 +1011,9 @@ describe("Jackpot", function () {
 
       expect(await TUSDC.read.balanceOf([pot4Address])).to.be.equal(initialPot4Bal - winnersShare4)
 
-      expect(await TUSDC.read.balanceOf([user1.account.address])).to.be.equal(playerBalance + winnersShare1 * 4n + winnersShare2 * 6n + winnersShare3 * 4n + winnersShare4);
+      expect(await TUSDC.read.balanceOf([user1.account.address])).to.be.equal(playerBalance + testUSDCPrice.toBigInt() + winnersShare1 * 4n + winnersShare2 * 6n + winnersShare3 * 4n + winnersShare4);
 
+      expect((await JackpotCore.read.tickets([1n, 3n]))[2]).to.be.true;
     });
 
   });
@@ -1077,7 +1084,7 @@ describe("Jackpot", function () {
 
     it("Player should be able to withdraw from pot 1, 2, 3, 4, and 5 with winning ticket", async function () {
 
-      const { user1, Jackpot, Chainlink, VRFCoordinatorV2Mock, VRFV2Wrapper, TUSDC, Vaults, LendingProtocol } = await loadFixture(deployTest);
+      const { user1, Jackpot, JackpotCore, Chainlink, VRFCoordinatorV2Mock, VRFV2Wrapper, TUSDC, Vaults, LendingProtocol } = await loadFixture(deployTest);
 
       const tickets = [
         ticket(11, 20, 40, 91, 100)
@@ -1182,21 +1189,20 @@ describe("Jackpot", function () {
 
       expect(await TUSDC.read.balanceOf([pot5Address])).to.be.equal(initialPot5Bal - winnersShare5)
 
-      //expect(await TUSDC.read.balanceOf([user1.account.address])).to.be.equal(playerBalance + winnersShare1 * 5n + winnersShare2 * 10n + winnersShare3 * 10n + winnersShare4 * 5n + winnersShare5);
+      expect(await TUSDC.read.balanceOf([user1.account.address])).to.be.equal(playerBalance + testUSDCPrice.toBigInt() + winnersShare1 * 5n + winnersShare2 * 10n + winnersShare3 * 10n + winnersShare4 * 5n + winnersShare5);
+
+      expect((await JackpotCore.read.tickets([1n, 1n]))[2]).to.be.true;
 
     });
 
   });
 
 
-
-
-
   describe("Getters", function () {
 
     it("Get all my the tickets", async function () {
 
-      const { Jackpot, JackpotCore, Chainlink, VRFCoordinatorV2Mock, VRFV2Wrapper, TUSDC, LendingProtocol, user1 } = await loadFixture(deployTest);
+      const { Jackpot, Chainlink, VRFCoordinatorV2Mock, VRFV2Wrapper, TUSDC, LendingProtocol, user1 } = await loadFixture(deployTest);
 
       const tickets = [
         ticket(11, 20, 40, 1, 1),
@@ -1228,14 +1234,7 @@ describe("Jackpot", function () {
         1n, VRFV2Wrapper.address, [10, 19, 39, 90, 99]
       ]);
 
-
-      //console.log(await JackpotCore.read.getRecentResults([0n, 1n]))
-
-      console.log(await JackpotCore.read.getMyRecentTickets([user1.account.address, 0n, 9n]))
-
     });
-
-    
 
   });
 

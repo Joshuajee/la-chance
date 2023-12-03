@@ -120,6 +120,11 @@ contract JackpotCore is Authorization, IJackpotCore {
         emit BuyTicket(owner, gameRounds, _gameTickets, ticket);
     }
 
+
+    function withdraw(uint round, uint ticketId) external onlyFactory {
+        tickets[round][ticketId].hasClaimedPrize = true;
+    }
+
     function saveResult(TicketValueStruct memory ticket) external onlyFactory {
         results[gameRounds] = ticket;
         emit GameResult(gameRounds, ticket);
@@ -178,7 +183,7 @@ contract JackpotCore is Authorization, IJackpotCore {
     }
 
     /*********************************************************************
-     *                          External Functions                         *
+     *                          External Functions                       *
      *********************************************************************/
 
     function potOneWinners(uint rounds, TicketValueStruct memory result) public view returns (uint) {

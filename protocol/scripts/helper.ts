@@ -101,12 +101,13 @@ export async function deployTest() {
 
   const Jackpot = await hre.viem.deployContract("Jackpot", [JackpotCore.address, LendingProtocol.address, Vault.address, Pot.address, TUSDC.address, testUSDCPrice.toBigInt()]);
 
-
   await LinkToken.write.transfer([Chainlink.address, oneHundredLink.toBigInt()])
 
   await Chainlink.write.initFactory([Jackpot.address])
 
   await JackpotCore.write.initFactory([Jackpot.address])
+
+  await LendingProtocol.write.initFactory([Jackpot.address])
 
   const Vaults = await Jackpot.read.vaultAddresses()
 
