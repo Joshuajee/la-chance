@@ -13,6 +13,7 @@ interface IJackpotCore is IJackpotCoreStruct {
     function withdraw(uint round, uint ticketId) external;
 
     function gameRounds() external view returns(uint);
+    function gameTickets() external view returns(uint);
     function gamePeriodHasElasped() external view returns(bool);
     function getTicket(uint round, uint ticketId) external view returns (TicketStruct memory);
     function getPotsWon(uint round, uint ticketId) external view returns (bool one, bool two, bool three, bool four, bool five);

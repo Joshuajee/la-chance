@@ -13,7 +13,7 @@ import "./LendingProtocol.sol";
 import './interface/IVault.sol';
 import './interface/ILendingInterface.sol';
 
-//import "hardhat/console.sol";
+import "hardhat/console.sol";
 
 
 contract Jackpot is IJackpot, Authorization, CloneFactory {
@@ -44,7 +44,7 @@ contract Jackpot is IJackpot, Authorization, CloneFactory {
 
     mapping(address => uint) public acceptedTokenPrize;
 
-    VaultShare public vaultShare = VaultShare(25, 15, 15, 15, 15, 10, 5);
+    VaultShare public vaultShare = VaultShare(20, 15, 15, 15, 15, 10, 10);
 
     uint PERCENT = 100;
 
@@ -73,7 +73,6 @@ contract Jackpot is IJackpot, Authorization, CloneFactory {
             createClone(vaultFactoryAddress),
             createClone(vaultFactoryAddress)
         );
-
 
         // Initailized vault Factory
         IAuthorization(vaultAddresses.vault1).initFactory(address(this));
@@ -129,7 +128,7 @@ contract Jackpot is IJackpot, Authorization, CloneFactory {
         
         uint pricePerTicket = getTicketPrize(token);
 
-        uint length = uint(tickets.length);
+        uint length = tickets.length;
 
         uint amount = pricePerTicket * length;
 
@@ -152,14 +151,17 @@ contract Jackpot is IJackpot, Authorization, CloneFactory {
 
         address owner = ticket.owner;
 
+        address asset = ticket.asset;
+
+        uint amount = ticket.amount;
+
         VaultAddressStruct memory _vaultAddresses  = vaultAddresses;
 
         (bool one, bool two, bool three, bool four, bool five) = IJackpotCore(jackpotCoreAddress).getPotsWon(round, ticketId);
 
         if (!one) {
             if (ticket.stakePeriod < block.timestamp) {
-                LendingProtocol(lendingProtocolAddress).withdrawStake(owner, ticket.asset, ticket.amount);
-                IJackpotCore(jackpotCoreAddress).withdraw(round, ticketId);
+                withdrawStake(owner, asset, round, ticketId, amount);
                 return 0;
             } else {
                 revert TicketDidntWin(round, ticketId);
@@ -168,7 +170,7 @@ contract Jackpot is IJackpot, Authorization, CloneFactory {
 
         // check pot 1
         if (one) {
-            LendingProtocol(lendingProtocolAddress).withdrawStake(owner, ticket.asset, ticket.amount);
+            withdrawStake(owner, asset, round, ticketId, amount);
             IVault(_vaultAddresses.vault1).withdraw(owner, round);
         }
 
@@ -214,13 +216,14 @@ contract Jackpot is IJackpot, Authorization, CloneFactory {
             IVault(_vaultAddresses.vault5).withdraw(owner, round);
         }
 
-        IJackpotCore(jackpotCoreAddress).withdraw(round, ticketId);
         return 0;
 
     }
 
-    function withdrawStake(address owner, address asset, uint round, uint amount) internal {
+    function withdrawStake(address owner, address asset, uint round, uint ticketId, uint amount) internal {
         ILendingInterface(lendingProtocolAddress).withdrawStake(owner, asset, amount);
+        IJackpotCore(jackpotCoreAddress).withdraw(round, ticketId);
+        IVault(vaultAddresses.communityVault).withdraw(owner, round);
     }
 
 
@@ -283,9 +286,10 @@ contract Jackpot is IJackpot, Authorization, CloneFactory {
     function _createWinningPots(TicketValueStruct memory result) internal {
 
         uint rounds = IJackpotCore(jackpotCoreAddress).gameRounds();
+        uint totalTickets = IJackpotCore(jackpotCoreAddress).gameTickets();
 
         VaultAddressStruct memory _vaultAddresses = vaultAddresses;
-
+        
         uint pot1 = IJackpotCore(jackpotCoreAddress).potOneWinners(rounds, result);
         uint pot2 = IJackpotCore(jackpotCoreAddress).potTwoWinners(rounds, result);
         uint pot3 = IJackpotCore(jackpotCoreAddress).potThreeWinners(rounds, result);
@@ -311,6 +315,10 @@ contract Jackpot is IJackpot, Authorization, CloneFactory {
         if (pot5 > 0)  {
             IVault(_vaultAddresses.vault5).createPot(rounds, pot5);
         }
+
+        // create community pot
+        IVault(_vaultAddresses.communityVault).createPot(rounds, totalTickets);
+
 
     }
 

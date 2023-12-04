@@ -75,9 +75,6 @@ export async function chainLinkConfig () {
 
 }
 
-export async function deploy() {
-
-}
 
 
 export async function deployTest() {
@@ -262,4 +259,27 @@ export const generateTickets = (numberOfTickets: number) => {
   }
 
   return tickets
+}
+
+
+
+export async function deployGovernanceTest() {
+
+  // Contracts are deployed using the first signer/account by default
+  const [user1, user2] = await hre.viem.getWalletClients();
+
+  const Governance = await hre.viem.deployContract("Governance");
+
+  const GovernanceToken = await hre.viem.deployContract("GovernanceToken", [Governance.address]);
+
+  await GovernanceToken.write.mint([user1.account.address, 10**20])
+
+
+
+  return {
+    user1,
+    user2,
+    GovernanceToken,
+    Governance,
+  };
 }

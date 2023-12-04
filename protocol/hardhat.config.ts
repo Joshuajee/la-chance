@@ -11,23 +11,33 @@ dotenv.config()
 const PRIVATE_KEY = String(process.env.PRIVATE_KEY)
 
 const config: HardhatUserConfig = {
-  solidity: {
-    compilers: [
-      {
-        version: "0.8.20",
-      },
-      {
-        version: "0.4.24",
-        settings: {},
-      },
-    ],
-  },
-  abiExporter: [
+	solidity: {
+		compilers: [
+			{
+				version: "0.8.20",
+				settings: {
+					optimizer: {
+						enabled: true,
+						runs: 200,
+					},
+				},
+			},
+			{
+				version: "0.8.18",
+				settings: {},
+			},
+			{
+				version: "0.4.24",
+				settings: {},
+			},
+		],
+	},
+	abiExporter: [
 		{
 			path: '../src/abi',
 			pretty: false,
 			runOnCompile: true,
-      only: [ "Jackpot", "LendingProtocol",  "Vault",  "DAOVault", "Pot", "TestUSDC" ]
+			only: [ "Jackpot", "LendingProtocol",  "Vault",  "DAOVault", "Pot", "Chainlink", "Governor", "TestUSDC" ]
 		}
 	],
 	contractSizer: {
@@ -35,17 +45,9 @@ const config: HardhatUserConfig = {
 		disambiguatePaths: false,
 		runOnCompile: true,
 		strict: true,
-    only: [ "Jackpot", "JackpotCore", "LendingProtocol",  "Vault",  "DAOVault", "Pot", "Chainlink", "CloneFactory" ]
+		only: [ "Jackpot", "JackpotCore", "LendingProtocol",  "Vault",  "DAOVault", "Pot", "Chainlink", "Governor", "CloneFactory" ]
 	},
 	networks: {
-		polygon_zkevm: {
-			url: "https://rpc.public.zkevm-test.net/",
-			accounts: [PRIVATE_KEY]
-		},
-		scroll_sepolia: {
-			url: "https://sly-stylish-field.scroll-testnet.quiknode.pro/4196b86d0efc48afd45910796f7285dcf01d41c4/",
-			accounts: [PRIVATE_KEY],
-		},
 		mumbai: {
 			url: 'https://polygon-mumbai.g.alchemy.com/v2/1yHVzG9cEm8g0IJKQA0VO-nczdGW4NgO',
 			accounts: [ PRIVATE_KEY ]

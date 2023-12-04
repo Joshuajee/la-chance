@@ -3,8 +3,7 @@ import { expect } from "chai";
 import hre from "hardhat";
 import { deployTest, flashloan, testUSDCPrice, ticket } from "../scripts/helper";
 
-
-const GAS_CALLBACK = 2000000n
+const GAS_CALLBACK = 5000000n
 
 describe("Jackpot", function () {
   // We define a fixture to reuse the same setup in every test.
@@ -534,6 +533,8 @@ describe("Jackpot", function () {
 
       const Vault1 = await hre.viem.getContractAt("Vault", Vaults[0])
 
+      const CommunityVault = await hre.viem.getContractAt("Vault", Vaults[6])
+
       // Increase Time by 1hr 1 min
       await hre.network.provider.send("hardhat_mine", ["0x3D", "0x3c"]);
 
@@ -545,23 +546,37 @@ describe("Jackpot", function () {
 
       const pot1Address = await Vault1.read.pots([1n])
 
+      const pot7Address = await CommunityVault.read.pots([1n])
+
       const Pot1 = await hre.viem.getContractAt("Pot", pot1Address)
+
+      const Pot7 = await hre.viem.getContractAt("Pot", pot7Address)
 
       const playerBalance = await TUSDC.read.balanceOf([user1.account.address])
 
       const initialPotBal = await TUSDC.read.balanceOf([pot1Address])
 
+      const initialComPotBal = await TUSDC.read.balanceOf([pot7Address])
+
       await Jackpot.write.claimTicket([1n, 3n])
+
+      const communityWinners = await Pot7.read.totalWinners()
 
       const totalWinners = await Pot1.read.totalWinners()
 
+      const communityShare =  initialComPotBal / communityWinners;
+
       const winnersShare =  initialPotBal / totalWinners;
+
+      expect(communityWinners).to.be.equal(5n)
 
       expect(totalWinners).to.be.equal(5n);
 
+      expect(await TUSDC.read.balanceOf([pot7Address])).to.be.equal(initialComPotBal - communityShare)
+
       expect(await TUSDC.read.balanceOf([pot1Address])).to.be.equal(initialPotBal - winnersShare)
 
-      expect(await TUSDC.read.balanceOf([user1.account.address])).to.be.equal(playerBalance + testUSDCPrice.toBigInt() + winnersShare);
+      expect(await TUSDC.read.balanceOf([user1.account.address])).to.be.equal(playerBalance + testUSDCPrice.toBigInt() + communityShare + winnersShare);
 
       expect((await JackpotCore.read.tickets([1n, 3n]))[2]).to.be.true;
 
@@ -652,6 +667,8 @@ describe("Jackpot", function () {
 
       const Vault2 = await hre.viem.getContractAt("Vault", Vaults[1])
 
+      const CommunityVault = await hre.viem.getContractAt("Vault", Vaults[6])
+
       // Increase Time by 1hr 1 min
       await hre.network.provider.send("hardhat_mine", ["0x3D", "0x3c"]);
 
@@ -669,13 +686,25 @@ describe("Jackpot", function () {
 
       const Pot2 = await hre.viem.getContractAt("Pot", pot2Address)
 
+      const pot7Address = await CommunityVault.read.pots([1n])
+
+      const Pot7 = await hre.viem.getContractAt("Pot", pot7Address)
+
       const playerBalance = await TUSDC.read.balanceOf([user1.account.address])
 
       const initialPot1Bal = await TUSDC.read.balanceOf([pot1Address])
 
       const initialPot2Bal = await TUSDC.read.balanceOf([pot2Address])
 
+      const initialComPotBal = await TUSDC.read.balanceOf([pot7Address])
+
       await Jackpot.write.claimTicket([1n, 3n])
+
+      const communityWinners = await Pot7.read.totalWinners()
+
+      const totalWinners = await Pot1.read.totalWinners()
+
+      const communityShare =  initialComPotBal / communityWinners;
 
       const totalWinners1 = await Pot1.read.totalWinners()
 
@@ -685,6 +714,12 @@ describe("Jackpot", function () {
 
       const winnersShare2 =  initialPot2Bal / totalWinners2;
 
+      expect(communityWinners).to.be.equal(10n)
+
+      expect(totalWinners).to.be.equal(20n);
+
+      expect(await TUSDC.read.balanceOf([pot7Address])).to.be.equal(initialComPotBal - communityShare)
+
       expect(totalWinners1).to.be.equal(20n);
 
       expect(totalWinners2).to.be.equal(10n);
@@ -693,7 +728,7 @@ describe("Jackpot", function () {
 
       expect(await TUSDC.read.balanceOf([pot2Address])).to.be.equal(initialPot2Bal - winnersShare2)
 
-      expect(await TUSDC.read.balanceOf([user1.account.address])).to.be.equal(playerBalance + testUSDCPrice.toBigInt() + winnersShare1 * 2n + winnersShare2);
+      expect(await TUSDC.read.balanceOf([user1.account.address])).to.be.equal(playerBalance + communityShare + testUSDCPrice.toBigInt() + winnersShare1 * 2n + winnersShare2);
 
       expect((await JackpotCore.read.tickets([1n, 3n]))[2]).to.be.true;
 
@@ -792,6 +827,8 @@ describe("Jackpot", function () {
 
       const Vault3 = await hre.viem.getContractAt("Vault", Vaults[2])
 
+      const CommunityVault = await hre.viem.getContractAt("Vault", Vaults[6])
+
       // Increase Time by 1hr 1 min
       await hre.network.provider.send("hardhat_mine", ["0x3D", "0x3c"]);
 
@@ -813,6 +850,10 @@ describe("Jackpot", function () {
 
       const Pot3 = await hre.viem.getContractAt("Pot", pot3Address)
 
+      const pot7Address = await CommunityVault.read.pots([1n])
+
+      const Pot7 = await hre.viem.getContractAt("Pot", pot7Address)
+
       const playerBalance = await TUSDC.read.balanceOf([user1.account.address])
 
       const initialPot1Bal = await TUSDC.read.balanceOf([pot1Address])
@@ -820,6 +861,10 @@ describe("Jackpot", function () {
       const initialPot2Bal = await TUSDC.read.balanceOf([pot2Address])
 
       const initialPot3Bal = await TUSDC.read.balanceOf([pot3Address])
+
+      const communityWinners = await Pot7.read.totalWinners()
+
+      const initialComPotBal = await TUSDC.read.balanceOf([pot7Address])
 
       await Jackpot.write.claimTicket([1n, 3n])
 
@@ -835,11 +880,15 @@ describe("Jackpot", function () {
 
       const winnersShare3 =  initialPot3Bal / totalWinners3;
 
+      const communityShare =  initialComPotBal / communityWinners;
+
       expect(totalWinners1).to.be.equal(30n);
 
       expect(totalWinners2).to.be.equal(30n);
 
       expect(totalWinners3).to.be.equal(10n);
+
+      expect(await TUSDC.read.balanceOf([pot7Address])).to.be.equal(initialComPotBal - communityShare)
 
       expect(await TUSDC.read.balanceOf([pot1Address])).to.be.equal(initialPot1Bal - winnersShare1 * 3n)
 
@@ -847,7 +896,7 @@ describe("Jackpot", function () {
 
       expect(await TUSDC.read.balanceOf([pot3Address])).to.be.equal(initialPot3Bal - winnersShare3)
 
-      expect(await TUSDC.read.balanceOf([user1.account.address])).to.be.equal(playerBalance + testUSDCPrice.toBigInt() + winnersShare1 * 3n + winnersShare2 * 3n + winnersShare3);
+      expect(await TUSDC.read.balanceOf([user1.account.address])).to.be.equal(playerBalance + communityShare + testUSDCPrice.toBigInt() + winnersShare1 * 3n + winnersShare2 * 3n + winnersShare3);
 
       expect((await JackpotCore.read.tickets([1n, 3n]))[2]).to.be.true;
 
@@ -942,6 +991,8 @@ describe("Jackpot", function () {
 
       const Vault4 = await hre.viem.getContractAt("Vault", Vaults[3])
 
+      const CommunityVault = await hre.viem.getContractAt("Vault", Vaults[6])
+
       // Increase Time by 1hr 1 min
       await hre.network.provider.send("hardhat_mine", ["0x3D", "0x3c"]);
 
@@ -967,6 +1018,10 @@ describe("Jackpot", function () {
 
       const Pot4 = await hre.viem.getContractAt("Pot", pot4Address)
 
+      const pot7Address = await CommunityVault.read.pots([1n])
+
+      const Pot7 = await hre.viem.getContractAt("Pot", pot7Address)
+
       const playerBalance = await TUSDC.read.balanceOf([user1.account.address])
 
       const initialPot1Bal = await TUSDC.read.balanceOf([pot1Address])
@@ -976,6 +1031,10 @@ describe("Jackpot", function () {
       const initialPot3Bal = await TUSDC.read.balanceOf([pot3Address])
 
       const initialPot4Bal = await TUSDC.read.balanceOf([pot4Address])
+
+      const communityWinners = await Pot7.read.totalWinners()
+
+      const initialComPotBal = await TUSDC.read.balanceOf([pot7Address])
 
       await Jackpot.write.claimTicket([1n, 3n])
 
@@ -995,6 +1054,8 @@ describe("Jackpot", function () {
 
       const winnersShare4 =  initialPot4Bal / totalWinners4;
 
+      const communityShare =  initialComPotBal / communityWinners;
+
       expect(totalWinners1).to.be.equal(20n);
 
       expect(totalWinners2).to.be.equal(30n);
@@ -1002,6 +1063,8 @@ describe("Jackpot", function () {
       expect(totalWinners3).to.be.equal(20n);
 
       expect(totalWinners4).to.be.equal(5n);
+
+      expect(await TUSDC.read.balanceOf([pot7Address])).to.be.equal(initialComPotBal - communityShare)
 
       expect(await TUSDC.read.balanceOf([pot1Address])).to.be.equal(initialPot1Bal - winnersShare1 * 4n)
 
@@ -1011,9 +1074,10 @@ describe("Jackpot", function () {
 
       expect(await TUSDC.read.balanceOf([pot4Address])).to.be.equal(initialPot4Bal - winnersShare4)
 
-      expect(await TUSDC.read.balanceOf([user1.account.address])).to.be.equal(playerBalance + testUSDCPrice.toBigInt() + winnersShare1 * 4n + winnersShare2 * 6n + winnersShare3 * 4n + winnersShare4);
+      expect(await TUSDC.read.balanceOf([user1.account.address])).to.be.equal(playerBalance + communityShare + testUSDCPrice.toBigInt() + winnersShare1 * 4n + winnersShare2 * 6n + winnersShare3 * 4n + winnersShare4);
 
       expect((await JackpotCore.read.tickets([1n, 3n]))[2]).to.be.true;
+
     });
 
   });
@@ -1106,6 +1170,8 @@ describe("Jackpot", function () {
 
       const Vault5 = await hre.viem.getContractAt("Vault", Vaults[4])
 
+      const CommunityVault = await hre.viem.getContractAt("Vault", Vaults[6])
+
       // Increase Time by 1hr 1 min
       await hre.network.provider.send("hardhat_mine", ["0x3D", "0x3c"]);
 
@@ -1135,6 +1201,10 @@ describe("Jackpot", function () {
 
       const Pot5 = await hre.viem.getContractAt("Pot", pot5Address)
 
+      const pot7Address = await CommunityVault.read.pots([1n])
+
+      const Pot7 = await hre.viem.getContractAt("Pot", pot7Address)
+
       const playerBalance = await TUSDC.read.balanceOf([user1.account.address])
 
       const initialPot1Bal = await TUSDC.read.balanceOf([pot1Address])
@@ -1146,6 +1216,10 @@ describe("Jackpot", function () {
       const initialPot4Bal = await TUSDC.read.balanceOf([pot4Address])
 
       const initialPot5Bal = await TUSDC.read.balanceOf([pot5Address])
+
+      const communityWinners = await Pot7.read.totalWinners()
+
+      const initialComPotBal = await TUSDC.read.balanceOf([pot7Address])
 
       await Jackpot.write.claimTicket([1n, 1n])
 
@@ -1169,6 +1243,8 @@ describe("Jackpot", function () {
 
       const winnersShare5 =  initialPot5Bal / totalWinners5;
 
+      const communityShare =  initialComPotBal / communityWinners;
+
       expect(totalWinners1).to.be.equal(5n);
 
       expect(totalWinners2).to.be.equal(10n);
@@ -1178,6 +1254,8 @@ describe("Jackpot", function () {
       expect(totalWinners4).to.be.equal(5n);
 
       expect(totalWinners5).to.be.equal(1n);
+
+      expect(await TUSDC.read.balanceOf([pot7Address])).to.be.equal(initialComPotBal - communityShare)
 
       expect(await TUSDC.read.balanceOf([pot1Address])).to.be.equal(initialPot1Bal - winnersShare1 * 5n)
 
@@ -1189,7 +1267,7 @@ describe("Jackpot", function () {
 
       expect(await TUSDC.read.balanceOf([pot5Address])).to.be.equal(initialPot5Bal - winnersShare5)
 
-      expect(await TUSDC.read.balanceOf([user1.account.address])).to.be.equal(playerBalance + testUSDCPrice.toBigInt() + winnersShare1 * 5n + winnersShare2 * 10n + winnersShare3 * 10n + winnersShare4 * 5n + winnersShare5);
+      expect(await TUSDC.read.balanceOf([user1.account.address])).to.be.equal(playerBalance + communityShare + testUSDCPrice.toBigInt() + winnersShare1 * 5n + winnersShare2 * 10n + winnersShare3 * 10n + winnersShare4 * 5n + winnersShare5);
 
       expect((await JackpotCore.read.tickets([1n, 1n]))[2]).to.be.true;
 

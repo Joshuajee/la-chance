@@ -8,7 +8,7 @@ import './Vault.sol';
 import './interface/IFlashBorrower.sol';
 import './interface/ILendingInterface.sol';
 // Uncomment this line to use console.log
-import "hardhat/console.sol";
+//import "hardhat/console.sol";
 
 
 contract LendingProtocol is Authorization, ILendingInterface {
@@ -147,7 +147,7 @@ contract LendingProtocol is Authorization, ILendingInterface {
 
 
     modifier isVault() {
-        if (vault1 != msg.sender && vault2 != msg.sender && vault3 != msg.sender && vault4 != msg.sender && vault5 != msg.sender && daoVault != msg.sender) {
+        if (vault1 != msg.sender && vault2 != msg.sender && vault3 != msg.sender && vault4 != msg.sender && vault5 != msg.sender && daoVault != msg.sender && communityVault != msg.sender) {
             revert ();
         }
         _;

@@ -1,30 +1,29 @@
 // SPDX-License-Identifier: MIT
-// pragma solidity ^0.8.19;
+pragma solidity ^0.8.19;
 
-// import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Votes.sol";
+import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Burnable.sol";
+import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Permit.sol";
+import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Votes.sol";
+
+import "./Authorization.sol";
+
+import "./interface/IGovernance.sol";
 
 
-// contract GovernaceToken is ERC20Votes {
+contract GovernanceToken is ERC20, Authorization, ERC20Burnable, ERC20Permit {
 
-//     constructor () ERC20("La Chance Token", "Chance") ERC20Permit("La Chance Token") {
+    address public immutable governance;
+    constructor(address _governance) ERC20("La Chance Governance", "LCG") ERC20Permit("LCG") {
+        governance = _governance;
+    }
 
-//     }
+    function mint(address to, uint256 amount) public  {
+        _mint(to, amount);
+    }
 
-//     function _afterTokenTransfer(
-//         address from,
-//         address to,
-//         uint256 amount
-//     ) internal override(ERC20Votes) {
-//         super._afterTokenTransfer(from, to, amount);
-//     }
-
-//     function _mint(address to, uint256 amount) internal override(ERC20Votes) {
-//         super._mint(to, amount);
-//     }
-
-//     function _burn(address account, uint256 amount) internal override(ERC20Votes) {
-//         super._burn(account, amount);
-//     }
-
-        
-// }
+    function vote(uint proposalId, uint voteWay, uint amount) external {
+        _transfer(msg.sender, governance, amount);
+        IGovernance(governance).vote(proposalId, voteWay, amount);
+    }
+}
