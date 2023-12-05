@@ -26,4 +26,9 @@ contract GovernanceToken is ERC20, Authorization, ERC20Burnable, ERC20Permit {
         _transfer(msg.sender, governance, amount);
         IGovernance(governance).vote(proposalId, voteWay, amount);
     }
+
+    function sponsorProposal(uint proposalId, uint amount) external {
+        _transfer(msg.sender, governance, amount);
+        IGovernance(governance).sponsorProposal(msg.sender, proposalId, amount);
+    }
 }

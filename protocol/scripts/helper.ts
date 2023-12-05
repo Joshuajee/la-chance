@@ -268,13 +268,15 @@ export async function deployGovernanceTest() {
   // Contracts are deployed using the first signer/account by default
   const [user1, user2] = await hre.viem.getWalletClients();
 
-  const Governance = await hre.viem.deployContract("Governance");
+  const GovernorVault = await hre.viem.deployContract("GovernorVault");
+
+  const Governance = await hre.viem.deployContract("Governance", [GovernorVault.address]);
 
   const GovernanceToken = await hre.viem.deployContract("GovernanceToken", [Governance.address]);
 
-  await GovernanceToken.write.mint([user1.account.address, 10**20])
+  await Governance.write.init([GovernanceToken.address])
 
-
+  await GovernanceToken.write.mint([user1.account.address, BigInt(10**20)])
 
   return {
     user1,

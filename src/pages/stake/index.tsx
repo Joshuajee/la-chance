@@ -71,10 +71,9 @@ const StakePage = () => {
         address: TEST_USDC,
         functionName: "allowance",
         args: [address, JACKPOT],
-        enabled: accountBal > 0n
+        enabled: accountBal > 0n,
+        watch:true
     })
-
-    console.log(balance)
 
     const approve = useContractWrite({
         abi: TestUSDCAbi,
@@ -89,6 +88,16 @@ const StakePage = () => {
         functionName: "buyTickets",
         args: [TEST_USDC, stakes.stakes]
     })
+
+    useEffect(() => {
+        if (buyTickets.isSuccess) {
+            toast.success("Ticket Bought successfully")
+            setStakes({ 
+                error: true, 
+                stakes: [ {value1: 0, value2: 0, value3: 0, value4: 0, value5: 0 }]
+            })
+        }
+    }, [buyTickets.isSuccess])
 
     useEffect(() => {
         if (buyTickets.isError) toast.error(buyTickets.error?.name)

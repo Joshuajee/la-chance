@@ -1316,4 +1316,137 @@ describe("Jackpot", function () {
 
   });
 
+
+
+
+  describe("Claim Prize on Losing Tickets", function () {
+
+    it("Should Revert when trying to claim losing tickets", async function () {
+
+      const { Jackpot, Chainlink, VRFCoordinatorV2Mock, VRFV2Wrapper, TUSDC, Vaults, LendingProtocol } = await loadFixture(deployTest);
+
+      const tickets = [
+        ticket(1, 1, 1, 1, 1),
+        ticket(11, 20, 40, 1, 100),
+        ticket(11, 20, 1, 91, 100),
+        ticket(11, 1, 40, 91, 100),
+        ticket(1, 20, 40, 91, 100),
+      ]
+
+      await TUSDC.write.approve([Jackpot.address, BigInt(10e40)])
+
+      await Jackpot.write.buyTickets([TUSDC.address, tickets]);
+
+      await flashloan(TUSDC, LendingProtocol)
+
+      // Increase Time by 1hr 1 min
+      await hre.network.provider.send("hardhat_mine", ["0x3D", "0x3c"]);
+
+      await Chainlink.write.randomRequestRandomWords([GAS_CALLBACK]);
+
+      await VRFCoordinatorV2Mock.write.fulfillRandomWordsWithOverride([
+        1n, VRFV2Wrapper.address, [10, 19, 39, 90, 99]
+      ]);
+
+      await expect(Jackpot.write.claimTicket([1n, 1n])).to.be.rejectedWith("TicketDidntWin(1, 1)");
+
+
+    });
+
+    it("Should Revert when trying to claim losing tickets", async function () {
+
+      const { Jackpot, Chainlink, VRFCoordinatorV2Mock, VRFV2Wrapper, TUSDC, LendingProtocol } = await loadFixture(deployTest);
+
+      const tickets = [
+        ticket(1, 1, 1, 1, 1),
+        ticket(11, 20, 40, 1, 100),
+        ticket(11, 20, 1, 91, 100),
+        ticket(11, 1, 40, 91, 100),
+        ticket(1, 20, 40, 91, 100),
+      ]
+
+      await TUSDC.write.approve([Jackpot.address, BigInt(10e40)])
+
+      await Jackpot.write.buyTickets([TUSDC.address, tickets]);
+
+      await flashloan(TUSDC, LendingProtocol)
+
+      // Increase Time by 1hr 1 min
+      await hre.network.provider.send("hardhat_mine", ["0x3D", "0x3c"]);
+
+      await Chainlink.write.randomRequestRandomWords([GAS_CALLBACK]);
+
+      await VRFCoordinatorV2Mock.write.fulfillRandomWordsWithOverride([
+        1n, VRFV2Wrapper.address, [10, 19, 39, 90, 99]
+      ]);
+
+      await expect(Jackpot.write.claimTicket([1n, 1n])).to.be.rejectedWith("TicketDidntWin(1, 1)");
+
+    });
+
+
+    it("Should be able to claim losing tickets after 4hrs", async function () {
+
+      const { user1, Jackpot, JackpotCore, Chainlink, Vaults, VRFCoordinatorV2Mock, VRFV2Wrapper, TUSDC, LendingProtocol } = await loadFixture(deployTest);
+
+      const tickets = [
+        ticket(1, 1, 1, 1, 1),
+        ticket(11, 20, 40, 1, 100),
+        ticket(11, 20, 1, 91, 100),
+        ticket(11, 1, 40, 91, 100),
+        ticket(1, 20, 40, 91, 100),
+      ]
+
+      await TUSDC.write.approve([Jackpot.address, BigInt(10e40)])
+
+      await Jackpot.write.buyTickets([TUSDC.address, tickets]);
+
+      await flashloan(TUSDC, LendingProtocol)
+
+      // Increase Time by 1hr 1 min
+      await hre.network.provider.send("hardhat_mine", ["0x3D", "0x3c"]);
+
+            // Increase Time by 1hr 1 min
+            await hre.network.provider.send("hardhat_mine", ["0x3D", "0x3c"]);
+
+                  // Increase Time by 1hr 1 min
+      await hre.network.provider.send("hardhat_mine", ["0x3D", "0x3c"]);
+
+            // Increase Time by 1hr 1 min
+            await hre.network.provider.send("hardhat_mine", ["0x3D", "0x3c"]);
+
+      await Chainlink.write.randomRequestRandomWords([GAS_CALLBACK]);
+
+      await VRFCoordinatorV2Mock.write.fulfillRandomWordsWithOverride([
+        1n, VRFV2Wrapper.address, [10, 19, 39, 90, 99]
+      ]);
+
+
+      const CommunityVault = await hre.viem.getContractAt("Vault", Vaults[6])
+
+      const pot7Address = await CommunityVault.read.pots([1n])
+
+      const Pot7 = await hre.viem.getContractAt("Pot", pot7Address)
+
+      const playerBalance = await TUSDC.read.balanceOf([user1.account.address])
+
+      const communityWinners = await Pot7.read.totalWinners()
+
+      const initialComPotBal = await TUSDC.read.balanceOf([pot7Address])
+
+      const communityShare =  initialComPotBal / communityWinners;
+
+      await Jackpot.write.claimTicket([1n, 1n]);
+
+      expect(await TUSDC.read.balanceOf([user1.account.address])).to.be.equal(playerBalance + communityShare + testUSDCPrice.toBigInt());
+
+      expect((await JackpotCore.read.tickets([1n, 1n]))[2]).to.be.true;
+
+    });
+
+
+  });
+
+
+
 });

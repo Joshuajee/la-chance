@@ -12,6 +12,23 @@ import "./Authorization.sol";
 contract GovernorVault is Authorization {
 
 
+    uint public supportFunds;
+    mapping(address => uint) public userSupportFunds;
+
+    uint public voteFunds;
+    mapping(address => uint) public userVoteFunds;
+
+    function support(address owner, uint amount) external onlyFactory {
+        supportFunds += amount;
+        userSupportFunds[owner] += amount;
+    }
+
+    function vote(address owner, uint amount) external onlyFactory {
+        voteFunds += amount;
+        userVoteFunds[owner] += amount;
+    }
+
+    
 
 
 }
