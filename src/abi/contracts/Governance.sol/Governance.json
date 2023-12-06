@@ -49,6 +49,33 @@
     "type": "error"
   },
   {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "proposalId",
+        "type": "uint256"
+      },
+      {
+        "internalType": "enum IProposal.ProposalStatus",
+        "name": "status",
+        "type": "uint8"
+      }
+    ],
+    "name": "CanOnlyVoteOnActiveProposals",
+    "type": "error"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "proposalId",
+        "type": "uint256"
+      }
+    ],
+    "name": "CannotExecuteProposal",
+    "type": "error"
+  },
+  {
     "inputs": [],
     "name": "FailedInnerCall",
     "type": "error"
@@ -63,6 +90,48 @@
     ],
     "name": "SafeERC20FailedOperation",
     "type": "error"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "proposalId",
+        "type": "uint256"
+      }
+    ],
+    "name": "VotingPeriodOver",
+    "type": "error"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "voter",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "uint256",
+        "name": "proposalId",
+        "type": "uint256"
+      },
+      {
+        "indexed": true,
+        "internalType": "enum IProposal.Vote",
+        "name": "vote",
+        "type": "uint8"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "amount",
+        "type": "uint256"
+      }
+    ],
+    "name": "CastVote",
+    "type": "event"
   },
   {
     "anonymous": false,
@@ -122,6 +191,25 @@
     "type": "function"
   },
   {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "proposalId",
+        "type": "uint256"
+      }
+    ],
+    "name": "excute",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
     "inputs": [],
     "name": "governanceToken",
     "outputs": [
@@ -161,7 +249,13 @@
     "type": "function"
   },
   {
-    "inputs": [],
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "currentSupply",
+        "type": "uint256"
+      }
+    ],
     "name": "minSupportThreshold",
     "outputs": [
       {
@@ -170,11 +264,17 @@
         "type": "uint256"
       }
     ],
-    "stateMutability": "nonpayable",
+    "stateMutability": "view",
     "type": "function"
   },
   {
-    "inputs": [],
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "currentSupply",
+        "type": "uint256"
+      }
+    ],
     "name": "minVotingThreshhold",
     "outputs": [
       {
@@ -183,7 +283,7 @@
         "type": "uint256"
       }
     ],
-    "stateMutability": "nonpayable",
+    "stateMutability": "view",
     "type": "function"
   },
   {
@@ -237,6 +337,16 @@
       {
         "internalType": "uint256",
         "name": "voteAbstinence",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "votingPeriod",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "currentSupply",
         "type": "uint256"
       }
     ],
@@ -332,6 +442,45 @@
   {
     "inputs": [
       {
+        "internalType": "uint32",
+        "name": "_quorum",
+        "type": "uint32"
+      }
+    ],
+    "name": "setQuorum",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint32",
+        "name": "_supportThreshold",
+        "type": "uint32"
+      }
+    ],
+    "name": "setSupportThreshold",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint32",
+        "name": "_votingPeriod",
+        "type": "uint32"
+      }
+    ],
+    "name": "setVotingPeriod",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
         "internalType": "address",
         "name": "sponsor",
         "type": "address"
@@ -368,14 +517,19 @@
   {
     "inputs": [
       {
+        "internalType": "address",
+        "name": "owner",
+        "type": "address"
+      },
+      {
         "internalType": "uint256",
         "name": "proposalId",
         "type": "uint256"
       },
       {
-        "internalType": "uint256",
-        "name": "voteWay",
-        "type": "uint256"
+        "internalType": "enum IProposal.Vote",
+        "name": "_vote",
+        "type": "uint8"
       },
       {
         "internalType": "uint256",
@@ -386,6 +540,19 @@
     "name": "vote",
     "outputs": [],
     "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "votingPeriod",
+    "outputs": [
+      {
+        "internalType": "uint64",
+        "name": "",
+        "type": "uint64"
+      }
+    ],
+    "stateMutability": "view",
     "type": "function"
   }
 ]

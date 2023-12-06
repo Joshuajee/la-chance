@@ -221,7 +221,45 @@
         "type": "address"
       }
     ],
-    "name": "userVoteFunds",
+    "name": "userVoteAbstained",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "name": "userVoteAgainst",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "name": "userVoteFor",
     "outputs": [
       {
         "internalType": "uint256",
@@ -238,6 +276,11 @@
         "internalType": "address",
         "name": "owner",
         "type": "address"
+      },
+      {
+        "internalType": "enum IProposal.Vote",
+        "name": "_vote",
+        "type": "uint8"
       },
       {
         "internalType": "uint256",

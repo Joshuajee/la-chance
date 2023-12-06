@@ -3,6 +3,12 @@ pragma solidity ^0.8.19;
 
 interface IProposal {
 
+    enum Vote {
+        abstain,
+        voteFor, 
+        voteAgainst
+    }
+
     enum ProposalStatus {
         Pending, 
         Active, 
@@ -20,5 +26,7 @@ interface IProposal {
         uint voteFor;
         uint voteAgainst;
         uint voteAbstinence;
+        uint votingPeriod;
+        uint currentSupply;
     }
 }

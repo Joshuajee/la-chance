@@ -780,9 +780,9 @@
         "type": "uint256"
       },
       {
-        "internalType": "uint256",
+        "internalType": "enum IProposal.Vote",
         "name": "voteWay",
-        "type": "uint256"
+        "type": "uint8"
       },
       {
         "internalType": "uint256",

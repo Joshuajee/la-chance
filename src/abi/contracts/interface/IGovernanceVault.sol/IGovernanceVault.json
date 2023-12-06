@@ -38,6 +38,11 @@
         "type": "address"
       },
       {
+        "internalType": "enum IProposal.Vote",
+        "name": "_vote",
+        "type": "uint8"
+      },
+      {
         "internalType": "uint256",
         "name": "amount",
         "type": "uint256"

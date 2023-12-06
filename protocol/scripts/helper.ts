@@ -276,7 +276,7 @@ export async function deployGovernanceTest() {
 
   await Governance.write.init([GovernanceToken.address])
 
-  await GovernanceToken.write.mint([user1.account.address, BigInt(10**20)])
+  await GovernanceToken.write.mint([user1.account.address, BigInt(10**24)])
 
   return {
     user1,
