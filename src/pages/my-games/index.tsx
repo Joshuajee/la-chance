@@ -6,6 +6,8 @@ import ValueBox from "@/components/utils/ValueBox"
 import PotStatus from "@/components/utils/PotStatus"
 import { TicketStanding } from "@/libs/interfaces"
 import Web3btn from "@/components/utils/Web3btn"
+import ClaimPrize from "./claimPrizeBtn"
+import WithdrawStake from "./withdrawStakeBtn"
 
 const MyGames = () => {
 
@@ -85,6 +87,7 @@ const MyGames = () => {
 
                                     return (
                                         <tr key={index} className="cursor">
+
                                             <th scope="row" className="px-6 py-4 font-medium whitespace-nowrap text-white">
                                                 <ValueBox value={value1} />
                                                 <ValueBox value={value2} />
@@ -118,9 +121,15 @@ const MyGames = () => {
 
                                             <td className="px-4">
                                                 <div className="w-36">
-                                                    <Web3btn disabled={!canWithdraw()}>
-                                                        {   won1 ? "Claim Prize" : "Withdraw Stake" }
-                                                    </Web3btn>
+                                        
+                                                        {   
+                                                            won1 ? 
+                                                                <ClaimPrize gameRound={result.gameRound} ticketId={result.ticketId} /> 
+                                                                    : 
+                                                                <WithdrawStake gameRound={result.gameRound} ticketId={result.ticketId} disabled={!canWithdraw()} />
+                                                        }
+                                        {/* <Web3btn  disabled={!canWithdraw()}></Web3btn> */}
+
                                                 </div>
                                             </td>
                                         

@@ -21,6 +21,8 @@ contract JackpotCore is Authorization, IJackpotCore {
         bool won4;
         bool won5;
         bool hasResult;
+        uint ticketId; 
+        uint gameRound;
     }
 
     event BuyTicket(address indexed staker, uint indexed gameRound, uint indexed ticketID, TicketValueStruct value);
@@ -281,6 +283,8 @@ contract JackpotCore is Authorization, IJackpotCore {
                 won3: won3,
                 won4: won4,
                 won5: won5,
+                ticketId: ticketId.ticketId,
+                gameRound: ticketId.round,
                 hasResult: ticketId.round < gameRounds
             }); 
             ++count;

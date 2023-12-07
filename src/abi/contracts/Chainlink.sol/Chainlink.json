@@ -154,12 +154,6 @@
     "type": "event"
   },
   {
-    "anonymous": false,
-    "inputs": [],
-    "name": "Test",
-    "type": "event"
-  },
-  {
     "inputs": [],
     "name": "PERCENT",
     "outputs": [
@@ -187,6 +181,19 @@
   },
   {
     "inputs": [],
+    "name": "callbackGasLimit",
+    "outputs": [
+      {
+        "internalType": "uint32",
+        "name": "",
+        "type": "uint32"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
     "name": "chainlinkAddress",
     "outputs": [
       {
@@ -209,6 +216,13 @@
       }
     ],
     "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "fakeIt",
+    "outputs": [],
+    "stateMutability": "nonpayable",
     "type": "function"
   },
   {
@@ -325,13 +339,7 @@
     "type": "function"
   },
   {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "_callbackGasLimit",
-        "type": "uint256"
-      }
-    ],
+    "inputs": [],
     "name": "randomRequestRandomWords",
     "outputs": [
       {
@@ -439,12 +447,12 @@
   {
     "inputs": [
       {
-        "internalType": "address",
-        "name": "_receiver",
-        "type": "address"
+        "internalType": "uint32",
+        "name": "_callbackGasLimit",
+        "type": "uint32"
       }
     ],
-    "name": "withdrawLink",
+    "name": "updateCallbackGasLimit",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"

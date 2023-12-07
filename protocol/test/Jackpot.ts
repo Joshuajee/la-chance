@@ -191,7 +191,7 @@ describe("Jackpot", function () {
 
       await Jackpot.write.buyTickets([TUSDC.address, ticket1]);
 
-      await expect(Chainlink.write.randomRequestRandomWords([GAS_CALLBACK])).to.be.rejectedWith("StakingPeriodIsNotOver()");
+      await expect(Chainlink.write.randomRequestRandomWords()).to.be.rejectedWith("StakingPeriodIsNotOver()");
 
     });
 
@@ -207,7 +207,7 @@ describe("Jackpot", function () {
       // Increase Time by 1hr 1 min
       await hre.network.provider.send("hardhat_mine", ["0x3D", "0x3c"]);
 
-      await Chainlink.write.randomRequestRandomWords([GAS_CALLBACK]);
+      await Chainlink.write.randomRequestRandomWords();
 
       const request = (await Chainlink.read.s_requests([1n]))
 
@@ -236,7 +236,7 @@ describe("Jackpot", function () {
       // Increase Time by 1hr 1 min
       await hre.network.provider.send("hardhat_mine", ["0x3D", "0x3c"]);
 
-      await Chainlink.write.randomRequestRandomWords([GAS_CALLBACK]);
+      await Chainlink.write.randomRequestRandomWords();
 
       await VRFCoordinatorV2Mock.write.fulfillRandomWords([1n, VRFV2Wrapper.address])
 
@@ -278,7 +278,7 @@ describe("Jackpot", function () {
       // Increase Time by 1hr 1 min
       await hre.network.provider.send("hardhat_mine", ["0x3D", "0x3c"]);
 
-      await Chainlink.write.randomRequestRandomWords([GAS_CALLBACK]);
+      await Chainlink.write.randomRequestRandomWords();
 
       await VRFCoordinatorV2Mock.write.fulfillRandomWordsWithOverride([
         1n, VRFV2Wrapper.address, [10, 19, 39, 90, 99]
@@ -320,7 +320,7 @@ describe("Jackpot", function () {
       // Increase Time by 1hr 1 min
       await hre.network.provider.send("hardhat_mine", ["0x3D", "0x3c"]);
 
-      await Chainlink.write.randomRequestRandomWords([GAS_CALLBACK]);
+      await Chainlink.write.randomRequestRandomWords();
 
       await VRFCoordinatorV2Mock.write.fulfillRandomWordsWithOverride([
         1n, VRFV2Wrapper.address, [10, 19, 39, 90, 99]
@@ -373,7 +373,7 @@ describe("Jackpot", function () {
       // Increase Time by 1hr 1 min
       await hre.network.provider.send("hardhat_mine", ["0x3D", "0x3c"]);
 
-      await Chainlink.write.randomRequestRandomWords([GAS_CALLBACK]);
+      await Chainlink.write.randomRequestRandomWords();
 
       await VRFCoordinatorV2Mock.write.fulfillRandomWordsWithOverride([
         1n, VRFV2Wrapper.address, [10, 19, 39, 90, 99]
@@ -421,7 +421,7 @@ describe("Jackpot", function () {
       // Increase Time by 1hr 1 min
       await hre.network.provider.send("hardhat_mine", ["0x3D", "0x3c"]);
 
-      await Chainlink.write.randomRequestRandomWords([GAS_CALLBACK]);
+      await Chainlink.write.randomRequestRandomWords();
 
       await VRFCoordinatorV2Mock.write.fulfillRandomWordsWithOverride([
         1n, VRFV2Wrapper.address, [10, 19, 39, 90, 99]
@@ -457,7 +457,7 @@ describe("Jackpot", function () {
       // Increase Time by 1hr 1 min
       await hre.network.provider.send("hardhat_mine", ["0x3D", "0x3c"]);
 
-      await Chainlink.write.randomRequestRandomWords([GAS_CALLBACK]);
+      await Chainlink.write.randomRequestRandomWords();
 
       await VRFCoordinatorV2Mock.write.fulfillRandomWordsWithOverride([
         1n, VRFV2Wrapper.address, [10, 19, 39, 90, 99]
@@ -501,7 +501,7 @@ describe("Jackpot", function () {
       // Increase Time by 1hr 1 min
       await hre.network.provider.send("hardhat_mine", ["0x3D", "0x3c"]);
 
-      await Chainlink.write.randomRequestRandomWords([GAS_CALLBACK]);
+      await Chainlink.write.randomRequestRandomWords();
 
       await VRFCoordinatorV2Mock.write.fulfillRandomWordsWithOverride([
         1n, VRFV2Wrapper.address, [10, 19, 39, 90, 99]
@@ -538,7 +538,7 @@ describe("Jackpot", function () {
       // Increase Time by 1hr 1 min
       await hre.network.provider.send("hardhat_mine", ["0x3D", "0x3c"]);
 
-      await Chainlink.write.randomRequestRandomWords([GAS_CALLBACK]);
+      await Chainlink.write.randomRequestRandomWords();
 
       await VRFCoordinatorV2Mock.write.fulfillRandomWordsWithOverride([
         1n, VRFV2Wrapper.address, [10, 19, 39, 90, 99]
@@ -625,7 +625,7 @@ describe("Jackpot", function () {
       // Increase Time by 1hr 1 min
       await hre.network.provider.send("hardhat_mine", ["0x3D", "0x3c"]);
 
-      await Chainlink.write.randomRequestRandomWords([GAS_CALLBACK]);
+      await Chainlink.write.randomRequestRandomWords();
 
       await VRFCoordinatorV2Mock.write.fulfillRandomWordsWithOverride([
         1n, VRFV2Wrapper.address, [10, 19, 39, 90, 99]
@@ -672,7 +672,7 @@ describe("Jackpot", function () {
       // Increase Time by 1hr 1 min
       await hre.network.provider.send("hardhat_mine", ["0x3D", "0x3c"]);
 
-      await Chainlink.write.randomRequestRandomWords([GAS_CALLBACK]);
+      await Chainlink.write.randomRequestRandomWords();
 
       await VRFCoordinatorV2Mock.write.fulfillRandomWordsWithOverride([
         1n, VRFV2Wrapper.address, [10, 19, 39, 90, 99]
@@ -781,7 +781,7 @@ describe("Jackpot", function () {
       // Increase Time by 1hr 1 min
       await hre.network.provider.send("hardhat_mine", ["0x3D", "0x3c"]);
 
-      await Chainlink.write.randomRequestRandomWords([GAS_CALLBACK]);
+      await Chainlink.write.randomRequestRandomWords();
 
       await VRFCoordinatorV2Mock.write.fulfillRandomWordsWithOverride([
         1n, VRFV2Wrapper.address, [10, 19, 39, 90, 99]
@@ -832,7 +832,7 @@ describe("Jackpot", function () {
       // Increase Time by 1hr 1 min
       await hre.network.provider.send("hardhat_mine", ["0x3D", "0x3c"]);
 
-      await Chainlink.write.randomRequestRandomWords([GAS_CALLBACK]);
+      await Chainlink.write.randomRequestRandomWords();
 
       await VRFCoordinatorV2Mock.write.fulfillRandomWordsWithOverride([
         1n, VRFV2Wrapper.address, [10, 19, 39, 90, 99]
@@ -946,7 +946,7 @@ describe("Jackpot", function () {
       // Increase Time by 1hr 1 min
       await hre.network.provider.send("hardhat_mine", ["0x3D", "0x3c"]);
 
-      await Chainlink.write.randomRequestRandomWords([GAS_CALLBACK]);
+      await Chainlink.write.randomRequestRandomWords();
 
       await VRFCoordinatorV2Mock.write.fulfillRandomWordsWithOverride([
         1n, VRFV2Wrapper.address, [10, 19, 39, 90, 99]
@@ -996,7 +996,7 @@ describe("Jackpot", function () {
       // Increase Time by 1hr 1 min
       await hre.network.provider.send("hardhat_mine", ["0x3D", "0x3c"]);
 
-      await Chainlink.write.randomRequestRandomWords([GAS_CALLBACK]);
+      await Chainlink.write.randomRequestRandomWords();
 
       await VRFCoordinatorV2Mock.write.fulfillRandomWordsWithOverride([
         1n, VRFV2Wrapper.address, [10, 19, 39, 90, 99]
@@ -1126,7 +1126,7 @@ describe("Jackpot", function () {
       // Increase Time by 1hr 1 min
       await hre.network.provider.send("hardhat_mine", ["0x3D", "0x3c"]);
 
-      await Chainlink.write.randomRequestRandomWords([GAS_CALLBACK]);
+      await Chainlink.write.randomRequestRandomWords();
 
       await VRFCoordinatorV2Mock.write.fulfillRandomWordsWithOverride([
         1n, VRFV2Wrapper.address, [10, 19, 39, 90, 99]
@@ -1175,7 +1175,7 @@ describe("Jackpot", function () {
       // Increase Time by 1hr 1 min
       await hre.network.provider.send("hardhat_mine", ["0x3D", "0x3c"]);
 
-      await Chainlink.write.randomRequestRandomWords([GAS_CALLBACK]);
+      await Chainlink.write.randomRequestRandomWords();
 
       await VRFCoordinatorV2Mock.write.fulfillRandomWordsWithOverride([
         1n, VRFV2Wrapper.address, [10, 19, 39, 90, 99]
@@ -1306,7 +1306,7 @@ describe("Jackpot", function () {
       // Increase Time by 1hr 1 min
       await hre.network.provider.send("hardhat_mine", ["0x3D", "0x3c"]);
 
-      await Chainlink.write.randomRequestRandomWords([GAS_CALLBACK]);
+      await Chainlink.write.randomRequestRandomWords();
 
       await VRFCoordinatorV2Mock.write.fulfillRandomWordsWithOverride([
         1n, VRFV2Wrapper.address, [10, 19, 39, 90, 99]
@@ -1342,7 +1342,7 @@ describe("Jackpot", function () {
       // Increase Time by 1hr 1 min
       await hre.network.provider.send("hardhat_mine", ["0x3D", "0x3c"]);
 
-      await Chainlink.write.randomRequestRandomWords([GAS_CALLBACK]);
+      await Chainlink.write.randomRequestRandomWords();
 
       await VRFCoordinatorV2Mock.write.fulfillRandomWordsWithOverride([
         1n, VRFV2Wrapper.address, [10, 19, 39, 90, 99]
@@ -1374,7 +1374,7 @@ describe("Jackpot", function () {
       // Increase Time by 1hr 1 min
       await hre.network.provider.send("hardhat_mine", ["0x3D", "0x3c"]);
 
-      await Chainlink.write.randomRequestRandomWords([GAS_CALLBACK]);
+      await Chainlink.write.randomRequestRandomWords();
 
       await VRFCoordinatorV2Mock.write.fulfillRandomWordsWithOverride([
         1n, VRFV2Wrapper.address, [10, 19, 39, 90, 99]
@@ -1415,7 +1415,7 @@ describe("Jackpot", function () {
             // Increase Time by 1hr 1 min
             await hre.network.provider.send("hardhat_mine", ["0x3D", "0x3c"]);
 
-      await Chainlink.write.randomRequestRandomWords([GAS_CALLBACK]);
+      await Chainlink.write.randomRequestRandomWords();
 
       await VRFCoordinatorV2Mock.write.fulfillRandomWordsWithOverride([
         1n, VRFV2Wrapper.address, [10, 19, 39, 90, 99]

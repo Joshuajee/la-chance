@@ -122,6 +122,17 @@ contract Governance is IGovernance, CloneFactory, IProposal {
 
     }
 
+    function claimFunds (uint proposalId) external {
+
+        IProposal.ProposalInfo storage proposal = proposalMapping[proposalId];
+
+        if (proposal.status != ProposalStatus.Pending || proposal.status != ProposalStatus.Active) revert();
+
+        
+    
+    }
+
+
 
 
     function propose(

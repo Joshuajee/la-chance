@@ -399,6 +399,16 @@
             "internalType": "bool",
             "name": "hasResult",
             "type": "bool"
+          },
+          {
+            "internalType": "uint256",
+            "name": "ticketId",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "gameRound",
+            "type": "uint256"
           }
         ],
         "internalType": "struct JackpotCore.TicketStanding[]",

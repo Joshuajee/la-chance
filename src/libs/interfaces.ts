@@ -47,6 +47,8 @@ export interface TicketStanding {
     won3: boolean,
     won4: boolean,
     won5: boolean,
-    hasResult: boolean
+    hasResult: boolean,
+    gameRound: bigint,
+    ticketId: bigint
 }
 

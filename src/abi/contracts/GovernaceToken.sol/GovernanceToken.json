@@ -650,7 +650,7 @@
         "type": "uint256"
       }
     ],
-    "name": "sponsorProposal",
+    "name": "supportProposal",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"

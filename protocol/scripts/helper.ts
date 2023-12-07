@@ -147,7 +147,7 @@ export async function deployLendingProtocol() {
 
   const DAOVault = await hre.viem.deployContract("DAOVault");
 
-  const CommunityVault = await hre.viem.deployContract("CommunityVault");
+  const CommunityVault = await hre.viem.deployContract("Vault");
 
   const LendingProtocol = await hre.viem.deployContract("LendingProtocol");
 
