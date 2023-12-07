@@ -12,6 +12,7 @@ interface IProposal {
     enum ProposalStatus {
         Pending, 
         Active, 
+        Failed,
         Rejected, 
         Executed 
     }
@@ -27,6 +28,6 @@ interface IProposal {
         uint voteAgainst;
         uint voteAbstinence;
         uint votingPeriod;
-        uint currentSupply;
+        uint threshold;
     }
 }

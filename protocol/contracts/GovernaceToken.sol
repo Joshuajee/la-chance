@@ -28,8 +28,8 @@ contract GovernanceToken is ERC20, Authorization, ERC20Burnable, ERC20Permit, IP
         IGovernance(governance).vote(msg.sender, proposalId, voteWay, amount);
     }
 
-    function sponsorProposal(uint proposalId, uint amount) external {
+    function supportProposal(uint proposalId, uint amount) external {
         _transfer(msg.sender, governance, amount);
-        IGovernance(governance).sponsorProposal(msg.sender, proposalId, amount);
+        IGovernance(governance).supportProposal(msg.sender, proposalId, amount);
     }
 }

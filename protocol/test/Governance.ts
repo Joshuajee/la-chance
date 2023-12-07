@@ -1,8 +1,9 @@
 import {loadFixture } from "@nomicfoundation/hardhat-toolbox-viem/network-helpers";
 import { expect } from "chai";
-import { deployGovernanceTest } from "../scripts/helper";
+import { DAOVaultTest, deployGovernanceTest, mineBlocks } from "../scripts/helper";
 import { zeroAddress } from "viem";
 import hre from "hardhat";
+import { ethers } from "ethers";
 
 describe("Governance", function () {
 
@@ -13,21 +14,19 @@ describe("Governance", function () {
     "First proposal"
   ]
 
-  const amount = BigInt(10**20)
+  const amount = ethers.utils.parseUnits("101","ether").toBigInt();
 
   async function deployAndSponsor() {
 
-    const { Governance, GovernanceToken, user1, user2 } = await loadFixture(deployGovernanceTest);
+    const { Governance, GovernanceToken, DAOVault, TUSDC, user1, user2 } = await loadFixture(deployGovernanceTest);
 
     await Governance.write.propose(proposalArg)
 
-    const amount = BigInt(10**20)
-
-    await GovernanceToken.write.sponsorProposal([1n, amount]);
+    await GovernanceToken.write.supportProposal([1n, amount]);
 
     const proposal = await Governance.read.proposalMapping([1n])
 
-    return { Governance, GovernanceToken, user1, user2, proposal }
+    return { Governance, GovernanceToken, DAOVault, TUSDC, user1, user2, proposal }
     
   }
 
@@ -53,7 +52,7 @@ describe("Governance", function () {
 
       const amount = BigInt(10**20)
 
-      await GovernanceToken.write.sponsorProposal([1n, amount]);
+      await GovernanceToken.write.supportProposal([1n, amount]);
 
       expect(await Governance.read.proposalCounter()).to.be.equal(1n)
 
@@ -74,7 +73,7 @@ describe("Governance", function () {
 
       const amount = BigInt(10**2)
 
-      await GovernanceToken.write.sponsorProposal([1n, amount]);
+      await GovernanceToken.write.supportProposal([1n, amount]);
 
       expect(await Governance.read.proposalCounter()).to.be.equal(1n)
 
@@ -161,40 +160,211 @@ describe("Governance", function () {
   });
 
 
-  describe("Testing Execute ", function () {
-    
-    it("Should execute votes Abstained ", async function () {
 
-      const { GovernanceToken, user1, proposal } = await loadFixture(deployAndSponsor);
+
+  describe("Withdrawal ", function () {
+
+    it("Should be able to withdraw Support ", async function () {
+
+      const { Governance, GovernanceToken, user1 } = await loadFixture(deployGovernanceTest);
+
+      await Governance.write.propose(proposalArg)
+
+      const amount = BigInt(10)
+
+      await GovernanceToken.write.supportProposal([1n, amount]);
+
+      const proposal = await Governance.read.proposalMapping([1n])
+
+      const GovernorVault = await hre.viem.getContractAt("GovernorVault", proposal[1])
+      await Governance.write.withdrawSupport([1n])
+
+      expect(await GovernorVault.read.userSupportFunds([user1.account.address])).to.be.equal(0n)
+
+      expect(await GovernorVault.read.supportFunds()).to.be.equal(0n)
+
+    });
+
+    it("Abstienace = Should be able to withdraw vote on active proposals ", async function () {
+
+      const { GovernanceToken, Governance, user1 } = await loadFixture(deployAndSponsor);
 
       await GovernanceToken.write.vote([1n, 0, amount])
 
-      const GovernorVault = await hre.viem.getContractAt("GovernorVault", proposal[1])
+      const playerBalance = await GovernanceToken.read.balanceOf([user1.account.address])
+
+      await Governance.write.withdrawVote([1n, 0])    
+      
+      expect(await GovernanceToken.read.balanceOf([user1.account.address])).to.be.equal(playerBalance + amount)
+
+    });
+
+    it("For = Should be able to withdraw vote on active proposals ", async function () {
+
+      const { GovernanceToken, Governance, user1 } = await loadFixture(deployAndSponsor);
+
+      await GovernanceToken.write.vote([1n, 1, amount])
+
+      const playerBalance = await GovernanceToken.read.balanceOf([user1.account.address])
+
+      await Governance.write.withdrawVote([1n, 1])    
+      
+      expect(await GovernanceToken.read.balanceOf([user1.account.address])).to.be.equal(playerBalance + amount)
+
+    });
+
+
+    it("Against = Should be able to withdraw vote on active proposals ", async function () {
+
+      const { GovernanceToken, Governance, user1 } = await loadFixture(deployAndSponsor);
+
+      await GovernanceToken.write.vote([1n, 2, amount])
+
+      const playerBalance = await GovernanceToken.read.balanceOf([user1.account.address])
+
+      await Governance.write.withdrawVote([1n, 2])    
+      
+      expect(await GovernanceToken.read.balanceOf([user1.account.address])).to.be.equal(playerBalance + amount)
+
+    });
+
+
+  })
+
+
+  describe("Testing Execute ", function () {
+
+    it("Should revert if voting period has to elasped ", async function () {
+
+      const { GovernanceToken, Governance } = await loadFixture(deployAndSponsor);
+
+      await GovernanceToken.write.vote([1n, 0, amount])
+
+      await expect(Governance.write.execute([1n])).to.be.rejectedWith("CannotExecuteProposal(1)");
+
+    });
+    
+    it("Should execute votes Abstained ", async function () {
+
+      const { GovernanceToken, Governance, TUSDC } = await loadFixture(deployAndSponsor);
+
+      await GovernanceToken.write.vote([1n, 0, amount])
+
+      await mineBlocks(hre, 3600)
+
+      await Governance.write.execute([1n])
+
+      const proposal = await Governance.read.proposalMapping([1n])
+
+      expect(await TUSDC.read.balanceOf([proposal[1]])).to.not.be.equal(0n)
+
+      expect(proposal[2]).to.be.equal(3);     
 
     });
 
 
     it("Should execute votes For ", async function () {
 
-      const { GovernanceToken, user1, proposal } = await loadFixture(deployAndSponsor);
+      const { GovernanceToken, Governance, TUSDC, proposal } = await loadFixture(deployAndSponsor);
 
       await GovernanceToken.write.vote([1n, 1, amount])
 
-      const GovernorVault = await hre.viem.getContractAt("GovernorVault", proposal[1])
+      await mineBlocks(hre, 3600)
+
+      await Governance.write.execute([1n])
+
+      const proposal2 = await Governance.read.proposalMapping([1n])
+
+      expect(proposal2[2]).to.be.equal(4);  
+
+      expect(await TUSDC.read.balanceOf([proposal[1]])).to.not.be.equal(0n)
 
     });
 
 
     it("Should execute votes Against ", async function () {
 
-      const { GovernanceToken, user1, proposal } = await loadFixture(deployAndSponsor);
+      const { GovernanceToken, Governance, TUSDC, proposal } = await loadFixture(deployAndSponsor);
 
       await GovernanceToken.write.vote([1n, 2, amount])
 
-      const GovernorVault = await hre.viem.getContractAt("GovernorVault", proposal[1])
+      await mineBlocks(hre, 3600)
+
+      await Governance.write.execute([1n])
+
+      const proposal2 = await Governance.read.proposalMapping([1n])
+      
+      expect(proposal2[2]).to.be.equal(3); 
+
+      expect(await TUSDC.read.balanceOf([proposal[1]])).to.not.be.equal(0n)
 
     });
 
   });
+
+
+  describe("Testing Claim ", function () {
+
+    
+    it("Should execute votes Abstained ", async function () {
+
+      const { GovernanceToken, Governance, TUSDC } = await loadFixture(deployAndSponsor);
+
+      await GovernanceToken.write.vote([1n, 0, amount])
+
+      await mineBlocks(hre, 3600)
+
+      await Governance.write.execute([1n])
+
+      const proposal = await Governance.read.proposalMapping([1n])
+
+      expect(await TUSDC.read.balanceOf([proposal[1]])).to.not.be.equal(0n)
+
+ 
+      f 
+
+    });
+
+
+    it("Should execute votes For ", async function () {
+
+      const { GovernanceToken, Governance, TUSDC, proposal } = await loadFixture(deployAndSponsor);
+
+      await GovernanceToken.write.vote([1n, 1, amount])
+
+      await mineBlocks(hre, 3600)
+
+      await Governance.write.execute([1n])
+
+      const proposal2 = await Governance.read.proposalMapping([1n])
+
+
+      f
+
+    });
+
+
+    it("Should execute votes Against ", async function () {
+
+      const { GovernanceToken, Governance, TUSDC, proposal } = await loadFixture(deployAndSponsor);
+
+      await GovernanceToken.write.vote([1n, 2, amount])
+
+      await mineBlocks(hre, 3600)
+
+      await Governance.write.execute([1n])
+
+      const proposal2 = await Governance.read.proposalMapping([1n])
+      
+      expect(proposal2[2]).to.be.equal(3); 
+
+      expect(await TUSDC.read.balanceOf([proposal[1]])).to.not.be.equal(0n)
+
+      f
+
+    });
+
+  });
+
   
 });

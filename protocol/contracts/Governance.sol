@@ -10,18 +10,25 @@ import "./interface/IProposal.sol";
 import "./CloneFactory.sol";
 import "./interface/IAuthorization.sol";
 import "./interface/IGovernanceVault.sol";
+import "./interface/IDAOVault.sol";
+
+import "hardhat/console.sol";
 
 contract Governance is IGovernance, CloneFactory, IProposal {
 
     event CreateProposal(address indexed creator, uint indexed proposalId);
-    event SponsorProposal(address indexed sponsor, uint indexed proposalId, uint amount);
+    event SupportProposal(address indexed sponsor, uint indexed proposalId, uint amount);
     event CastVote(address indexed voter, uint indexed proposalId, Vote indexed vote, uint amount);
+    event WithdrawVote(address indexed voter, uint indexed proposalId, Vote indexed _vote, uint amount);
+    event WithdrawSupport(address indexed voter, uint indexed proposalId, uint amount);
     //event d
 
     error CanOnlyFundPendingProposals(uint proposalId, ProposalStatus status);
     error CanOnlyVoteOnActiveProposals(uint proposalId, ProposalStatus status);
     error VotingPeriodOver(uint proposalId);
     error CannotExecuteProposal(uint proposalId);
+    error CannotWithdrawSupportNow();
+    error CallerNotDAOVault();
 
     using SafeERC20 for IERC20;
 
@@ -33,6 +40,7 @@ contract Governance is IGovernance, CloneFactory, IProposal {
     uint [] executedProposals;
 
     address public governorVaultFactory;
+    address public daoVault;
     address public governanceToken;
 
     uint public proposalCounter;
@@ -47,8 +55,9 @@ contract Governance is IGovernance, CloneFactory, IProposal {
     }
 
 
-    function init(address _governanceToken) external {
+    function init(address _governanceToken, address _daoVault) external {
         governanceToken = _governanceToken;
+        daoVault = _daoVault;
     }
 
 
@@ -79,6 +88,42 @@ contract Governance is IGovernance, CloneFactory, IProposal {
 
     }
 
+    function withdrawVote(uint proposalId, Vote _vote) external  {
+
+        IProposal.ProposalInfo storage proposal = proposalMapping[proposalId];
+
+        address vault = proposal.vault;
+
+        uint amount = IGovernanceVault(vault).withdrawVote(msg.sender, _vote);
+
+        if (_vote == Vote.voteFor)
+            proposal.voteFor -= amount;
+        else if (_vote == Vote.voteAgainst)
+            proposal.voteAgainst -= amount;
+        else if (_vote == Vote.abstain)
+            proposal.voteAbstinence -= amount;
+
+        emit WithdrawVote(msg.sender, proposalId, _vote, amount);
+
+    }
+
+
+    function withdrawSupport(uint proposalId) external  {
+
+        IProposal.ProposalInfo storage proposal = proposalMapping[proposalId];
+
+        if (proposal.status != ProposalStatus.Pending) revert CannotWithdrawSupportNow();
+
+        address vault = proposal.vault;
+
+        uint amount = IGovernanceVault(vault).withdrawSupport(msg.sender);
+
+        emit WithdrawSupport(msg.sender, proposalId, amount);
+
+    }
+
+
+
     function propose(
         address[] memory targets,
         uint256[] memory values,
@@ -88,51 +133,75 @@ contract Governance is IGovernance, CloneFactory, IProposal {
         return _propose(targets, values, calldatas, description);
     }
 
-    function excute(uint proposalId) public returns (uint256) {
+    function execute(uint proposalId) public returns (uint256) {
         
         ProposalInfo storage proposal = proposalMapping[proposalId]; 
 
-        if (proposal.votingPeriod > block.timestamp && proposal.status != ProposalStatus.Active) {
+        if (proposal.votingPeriod > block.timestamp || proposal.status != ProposalStatus.Active) {
             revert CannotExecuteProposal(proposalId);
         } 
 
-        address [] memory targets = proposal.targets;
-        uint [] memory values = proposal.values;
-        bytes [] memory calldatas = proposal.calldatas;
+        uint totalVotes = proposal.voteAbstinence + proposal.voteAgainst + proposal.voteFor;
 
-        uint length = proposal.targets.length;
+        if (totalVotes > proposal.threshold) {
 
-        for (uint i = 0; i < length; ++i) {
-            (bool success, bytes memory returndata) = targets[i].call{value: values[i]}(calldatas[i]);
-            //Address.verifyCallResult(success, returndata);
+            if (proposal.voteFor > proposal.voteAgainst) {
+                address [] memory targets = proposal.targets;
+                uint [] memory values = proposal.values;
+                bytes [] memory calldatas = proposal.calldatas;
+
+                uint length = proposal.targets.length;
+
+                for (uint i = 0; i < length; ++i) {
+                    (bool success, bytes memory returndata) = targets[i].call{value: values[i]}(calldatas[i]);
+                    //Address.verifyCallResult(success, returndata);
+                }
+                proposal.status = ProposalStatus.Executed;
+            } else {
+                proposal.status = ProposalStatus.Rejected;
+            }
+        } else {
+            proposal.status = ProposalStatus.Failed;
         }
+
+        IDAOVault(daoVault).withdrawForDAO(proposal.vault, totalVotes, IERC20(governanceToken).totalSupply());
 
         return proposalId;
     }
 
-    function proposeAndFund(
-        address[] memory targets,
-        uint256[] memory values,
-        bytes[] memory calldatas,
-        string memory description,
-        uint amount
-    ) public returns (uint256) {
-        uint id = _propose(targets, values, calldatas, description);
-        IGovernance(address(this)).sponsorProposal(msg.sender, id, amount);
-        return id;
+
+    function fundVault(address vault, address [] memory assets, uint [] memory assetBalances) external {
+        if (msg.sender != daoVault) revert CallerNotDAOVault();
+        IGovernanceVault(vault).fund(assets, assetBalances);
+    }
+
+    // function proposeAndFund(
+    //     address[] memory targets,
+    //     uint256[] memory values,
+    //     bytes[] memory calldatas,
+    //     string memory description,
+    //     uint amount
+    // ) public returns (uint256) {
+    //     uint id = _propose(targets, values, calldatas, description);
+    //     IGovernance(address(this)).supportProposal(msg.sender, id, amount);
+    //     return id;
+    // }
+
+
+    function supportProposal (address sponsor, uint proposalId, uint amount) external onlyGovernorToken {
+        _supportProposal(sponsor, proposalId, amount);
     }
 
 
-    function sponsorProposal (address sponsor, uint proposalId, uint amount) external onlyGovernorToken {
-        _sponsorProposal(sponsor, proposalId, amount);
+
+    function minSupportThreshold() public view returns(uint) {
+        uint bal = IERC20(governanceToken).totalSupply();
+        return bal * supportThreshold / PERCENT;
     }
 
-    function minSupportThreshold(uint currentSupply) public view returns(uint) {
-        return currentSupply * supportThreshold / PERCENT;
-    }
-
-    function minVotingThreshhold (uint currentSupply) public view returns(uint) {
-        return currentSupply * quorum / PERCENT;
+    function minVotingThreshhold() public view returns(uint) {
+        uint bal = IERC20(governanceToken).totalSupply();
+        return bal * quorum / PERCENT;
     }
 
     // Governance Functions
@@ -141,7 +210,7 @@ contract Governance is IGovernance, CloneFactory, IProposal {
     }
 
     function setSupportThreshold(uint32 _supportThreshold) external onlyGovernorToken() {
-        quorum = _supportThreshold;
+        supportThreshold = _supportThreshold;
     }
 
     function setVotingPeriod(uint32 _votingPeriod) external onlyGovernorToken() {
@@ -149,7 +218,7 @@ contract Governance is IGovernance, CloneFactory, IProposal {
     }
 
     // Internal Functions
-    function _sponsorProposal (address sponsor, uint proposalId, uint amount) internal {
+    function _supportProposal (address sponsor, uint proposalId, uint amount) internal {
 
         IProposal.ProposalInfo storage proposal = proposalMapping[proposalId];
 
@@ -161,18 +230,18 @@ contract Governance is IGovernance, CloneFactory, IProposal {
 
         IERC20(governanceToken).safeTransfer(vault, balance);
 
-        IGovernanceVault(vault).support(msg.sender, amount);
+        IGovernanceVault(vault).support(sponsor, amount);
 
         uint fundingAmount = IGovernanceVault(vault).supportFunds();
 
-        if (fundingAmount > minSupportThreshold(proposal.currentSupply)) {
+        if (fundingAmount > proposal.threshold) {
             proposal.status = ProposalStatus.Active;
             proposal.votingPeriod = block.timestamp + votingPeriod;
-            proposal.currentSupply = IERC20(governanceToken).totalSupply();
+            proposal.threshold = minVotingThreshhold();
             activeProposals.push(proposalId);
         }
 
-        emit SponsorProposal(sponsor, proposalId, amount);
+        emit SupportProposal(sponsor, proposalId, amount);
     }
 
     function _propose(
@@ -183,6 +252,7 @@ contract Governance is IGovernance, CloneFactory, IProposal {
     ) internal returns(uint) {
         address vault = createClone(governorVaultFactory);
         IAuthorization(vault).initFactory(address(this));
+        IGovernanceVault(vault).initGovernorToken(governanceToken);
         proposalCounter++;
         proposalMapping[proposalCounter] = IProposal.ProposalInfo({
             targets: targets,
@@ -195,7 +265,7 @@ contract Governance is IGovernance, CloneFactory, IProposal {
             voteAgainst: 0,
             voteAbstinence: 0,
             votingPeriod: block.timestamp + votingPeriod,
-            currentSupply: IERC20(governanceToken).totalSupply()
+            threshold: minSupportThreshold()
         });
         pendingProposals.push(proposalCounter);
         emit CreateProposal(msg.sender, proposalCounter);
