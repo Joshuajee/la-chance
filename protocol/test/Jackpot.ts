@@ -3,8 +3,7 @@ import { expect } from "chai";
 import hre from "hardhat";
 import { deployTest, flashloan, testUSDCPrice, ticket } from "../scripts/helper";
 
-
-const GAS_CALLBACK = 2000000n
+const GAS_CALLBACK = 5000000n
 
 describe("Jackpot", function () {
   // We define a fixture to reuse the same setup in every test.
@@ -192,7 +191,7 @@ describe("Jackpot", function () {
 
       await Jackpot.write.buyTickets([TUSDC.address, ticket1]);
 
-      await expect(Chainlink.write.randomRequestRandomWords([GAS_CALLBACK])).to.be.rejectedWith("StakingPeriodIsNotOver()");
+      await expect(Chainlink.write.randomRequestRandomWords()).to.be.rejectedWith("StakingPeriodIsNotOver()");
 
     });
 
@@ -208,7 +207,7 @@ describe("Jackpot", function () {
       // Increase Time by 1hr 1 min
       await hre.network.provider.send("hardhat_mine", ["0x3D", "0x3c"]);
 
-      await Chainlink.write.randomRequestRandomWords([GAS_CALLBACK]);
+      await Chainlink.write.randomRequestRandomWords();
 
       const request = (await Chainlink.read.s_requests([1n]))
 
@@ -237,7 +236,7 @@ describe("Jackpot", function () {
       // Increase Time by 1hr 1 min
       await hre.network.provider.send("hardhat_mine", ["0x3D", "0x3c"]);
 
-      await Chainlink.write.randomRequestRandomWords([GAS_CALLBACK]);
+      await Chainlink.write.randomRequestRandomWords();
 
       await VRFCoordinatorV2Mock.write.fulfillRandomWords([1n, VRFV2Wrapper.address])
 
@@ -279,7 +278,7 @@ describe("Jackpot", function () {
       // Increase Time by 1hr 1 min
       await hre.network.provider.send("hardhat_mine", ["0x3D", "0x3c"]);
 
-      await Chainlink.write.randomRequestRandomWords([GAS_CALLBACK]);
+      await Chainlink.write.randomRequestRandomWords();
 
       await VRFCoordinatorV2Mock.write.fulfillRandomWordsWithOverride([
         1n, VRFV2Wrapper.address, [10, 19, 39, 90, 99]
@@ -321,7 +320,7 @@ describe("Jackpot", function () {
       // Increase Time by 1hr 1 min
       await hre.network.provider.send("hardhat_mine", ["0x3D", "0x3c"]);
 
-      await Chainlink.write.randomRequestRandomWords([GAS_CALLBACK]);
+      await Chainlink.write.randomRequestRandomWords();
 
       await VRFCoordinatorV2Mock.write.fulfillRandomWordsWithOverride([
         1n, VRFV2Wrapper.address, [10, 19, 39, 90, 99]
@@ -374,7 +373,7 @@ describe("Jackpot", function () {
       // Increase Time by 1hr 1 min
       await hre.network.provider.send("hardhat_mine", ["0x3D", "0x3c"]);
 
-      await Chainlink.write.randomRequestRandomWords([GAS_CALLBACK]);
+      await Chainlink.write.randomRequestRandomWords();
 
       await VRFCoordinatorV2Mock.write.fulfillRandomWordsWithOverride([
         1n, VRFV2Wrapper.address, [10, 19, 39, 90, 99]
@@ -422,7 +421,7 @@ describe("Jackpot", function () {
       // Increase Time by 1hr 1 min
       await hre.network.provider.send("hardhat_mine", ["0x3D", "0x3c"]);
 
-      await Chainlink.write.randomRequestRandomWords([GAS_CALLBACK]);
+      await Chainlink.write.randomRequestRandomWords();
 
       await VRFCoordinatorV2Mock.write.fulfillRandomWordsWithOverride([
         1n, VRFV2Wrapper.address, [10, 19, 39, 90, 99]
@@ -458,7 +457,7 @@ describe("Jackpot", function () {
       // Increase Time by 1hr 1 min
       await hre.network.provider.send("hardhat_mine", ["0x3D", "0x3c"]);
 
-      await Chainlink.write.randomRequestRandomWords([GAS_CALLBACK]);
+      await Chainlink.write.randomRequestRandomWords();
 
       await VRFCoordinatorV2Mock.write.fulfillRandomWordsWithOverride([
         1n, VRFV2Wrapper.address, [10, 19, 39, 90, 99]
@@ -502,7 +501,7 @@ describe("Jackpot", function () {
       // Increase Time by 1hr 1 min
       await hre.network.provider.send("hardhat_mine", ["0x3D", "0x3c"]);
 
-      await Chainlink.write.randomRequestRandomWords([GAS_CALLBACK]);
+      await Chainlink.write.randomRequestRandomWords();
 
       await VRFCoordinatorV2Mock.write.fulfillRandomWordsWithOverride([
         1n, VRFV2Wrapper.address, [10, 19, 39, 90, 99]
@@ -516,7 +515,7 @@ describe("Jackpot", function () {
 
     it("Player should be able to withdraw from pot 1, with winning ticket", async function () {
 
-      const { user1, Jackpot, Chainlink, VRFCoordinatorV2Mock, VRFV2Wrapper, TUSDC, Vaults, LendingProtocol } = await loadFixture(deployTest);
+      const { user1, Jackpot, JackpotCore, Chainlink, VRFCoordinatorV2Mock, VRFV2Wrapper, TUSDC, Vaults, LendingProtocol } = await loadFixture(deployTest);
 
       const tickets = [
         ticket(11, 1, 1, 1, 1),
@@ -534,10 +533,12 @@ describe("Jackpot", function () {
 
       const Vault1 = await hre.viem.getContractAt("Vault", Vaults[0])
 
+      const CommunityVault = await hre.viem.getContractAt("Vault", Vaults[6])
+
       // Increase Time by 1hr 1 min
       await hre.network.provider.send("hardhat_mine", ["0x3D", "0x3c"]);
 
-      await Chainlink.write.randomRequestRandomWords([GAS_CALLBACK]);
+      await Chainlink.write.randomRequestRandomWords();
 
       await VRFCoordinatorV2Mock.write.fulfillRandomWordsWithOverride([
         1n, VRFV2Wrapper.address, [10, 19, 39, 90, 99]
@@ -545,23 +546,39 @@ describe("Jackpot", function () {
 
       const pot1Address = await Vault1.read.pots([1n])
 
+      const pot7Address = await CommunityVault.read.pots([1n])
+
       const Pot1 = await hre.viem.getContractAt("Pot", pot1Address)
+
+      const Pot7 = await hre.viem.getContractAt("Pot", pot7Address)
 
       const playerBalance = await TUSDC.read.balanceOf([user1.account.address])
 
       const initialPotBal = await TUSDC.read.balanceOf([pot1Address])
 
+      const initialComPotBal = await TUSDC.read.balanceOf([pot7Address])
+
       await Jackpot.write.claimTicket([1n, 3n])
+
+      const communityWinners = await Pot7.read.totalWinners()
 
       const totalWinners = await Pot1.read.totalWinners()
 
+      const communityShare =  initialComPotBal / communityWinners;
+
       const winnersShare =  initialPotBal / totalWinners;
+
+      expect(communityWinners).to.be.equal(5n)
 
       expect(totalWinners).to.be.equal(5n);
 
+      expect(await TUSDC.read.balanceOf([pot7Address])).to.be.equal(initialComPotBal - communityShare)
+
       expect(await TUSDC.read.balanceOf([pot1Address])).to.be.equal(initialPotBal - winnersShare)
 
-      expect(await TUSDC.read.balanceOf([user1.account.address])).to.be.equal(playerBalance + winnersShare);
+      expect(await TUSDC.read.balanceOf([user1.account.address])).to.be.equal(playerBalance + testUSDCPrice.toBigInt() + communityShare + winnersShare);
+
+      expect((await JackpotCore.read.tickets([1n, 3n]))[2]).to.be.true;
 
     });
 
@@ -608,7 +625,7 @@ describe("Jackpot", function () {
       // Increase Time by 1hr 1 min
       await hre.network.provider.send("hardhat_mine", ["0x3D", "0x3c"]);
 
-      await Chainlink.write.randomRequestRandomWords([GAS_CALLBACK]);
+      await Chainlink.write.randomRequestRandomWords();
 
       await VRFCoordinatorV2Mock.write.fulfillRandomWordsWithOverride([
         1n, VRFV2Wrapper.address, [10, 19, 39, 90, 99]
@@ -625,7 +642,7 @@ describe("Jackpot", function () {
 
     it("Player should be able to withdraw from pot 1 and 2, with winning ticket", async function () {
 
-      const { user1, Jackpot, Chainlink, VRFCoordinatorV2Mock, VRFV2Wrapper, TUSDC, Vaults, LendingProtocol } = await loadFixture(deployTest);
+      const { user1, Jackpot, JackpotCore, Chainlink, VRFCoordinatorV2Mock, VRFV2Wrapper, TUSDC, Vaults, LendingProtocol } = await loadFixture(deployTest);
 
       const tickets = [
         ticket(11, 20, 1, 1, 1),
@@ -650,10 +667,12 @@ describe("Jackpot", function () {
 
       const Vault2 = await hre.viem.getContractAt("Vault", Vaults[1])
 
+      const CommunityVault = await hre.viem.getContractAt("Vault", Vaults[6])
+
       // Increase Time by 1hr 1 min
       await hre.network.provider.send("hardhat_mine", ["0x3D", "0x3c"]);
 
-      await Chainlink.write.randomRequestRandomWords([GAS_CALLBACK]);
+      await Chainlink.write.randomRequestRandomWords();
 
       await VRFCoordinatorV2Mock.write.fulfillRandomWordsWithOverride([
         1n, VRFV2Wrapper.address, [10, 19, 39, 90, 99]
@@ -667,13 +686,25 @@ describe("Jackpot", function () {
 
       const Pot2 = await hre.viem.getContractAt("Pot", pot2Address)
 
+      const pot7Address = await CommunityVault.read.pots([1n])
+
+      const Pot7 = await hre.viem.getContractAt("Pot", pot7Address)
+
       const playerBalance = await TUSDC.read.balanceOf([user1.account.address])
 
       const initialPot1Bal = await TUSDC.read.balanceOf([pot1Address])
 
       const initialPot2Bal = await TUSDC.read.balanceOf([pot2Address])
 
+      const initialComPotBal = await TUSDC.read.balanceOf([pot7Address])
+
       await Jackpot.write.claimTicket([1n, 3n])
+
+      const communityWinners = await Pot7.read.totalWinners()
+
+      const totalWinners = await Pot1.read.totalWinners()
+
+      const communityShare =  initialComPotBal / communityWinners;
 
       const totalWinners1 = await Pot1.read.totalWinners()
 
@@ -683,6 +714,12 @@ describe("Jackpot", function () {
 
       const winnersShare2 =  initialPot2Bal / totalWinners2;
 
+      expect(communityWinners).to.be.equal(10n)
+
+      expect(totalWinners).to.be.equal(20n);
+
+      expect(await TUSDC.read.balanceOf([pot7Address])).to.be.equal(initialComPotBal - communityShare)
+
       expect(totalWinners1).to.be.equal(20n);
 
       expect(totalWinners2).to.be.equal(10n);
@@ -691,7 +728,9 @@ describe("Jackpot", function () {
 
       expect(await TUSDC.read.balanceOf([pot2Address])).to.be.equal(initialPot2Bal - winnersShare2)
 
-      expect(await TUSDC.read.balanceOf([user1.account.address])).to.be.equal(playerBalance + winnersShare1 * 2n + winnersShare2);
+      expect(await TUSDC.read.balanceOf([user1.account.address])).to.be.equal(playerBalance + communityShare + testUSDCPrice.toBigInt() + winnersShare1 * 2n + winnersShare2);
+
+      expect((await JackpotCore.read.tickets([1n, 3n]))[2]).to.be.true;
 
     });
 
@@ -742,7 +781,7 @@ describe("Jackpot", function () {
       // Increase Time by 1hr 1 min
       await hre.network.provider.send("hardhat_mine", ["0x3D", "0x3c"]);
 
-      await Chainlink.write.randomRequestRandomWords([GAS_CALLBACK]);
+      await Chainlink.write.randomRequestRandomWords();
 
       await VRFCoordinatorV2Mock.write.fulfillRandomWordsWithOverride([
         1n, VRFV2Wrapper.address, [10, 19, 39, 90, 99]
@@ -761,7 +800,7 @@ describe("Jackpot", function () {
 
     it("Player should be able to withdraw from pot 1, 2 and 3, with winning ticket", async function () {
 
-      const { user1, Jackpot, Chainlink, VRFCoordinatorV2Mock, VRFV2Wrapper, TUSDC, Vaults, LendingProtocol } = await loadFixture(deployTest);
+      const { user1, Jackpot, JackpotCore, Chainlink, VRFCoordinatorV2Mock, VRFV2Wrapper, TUSDC, Vaults, LendingProtocol } = await loadFixture(deployTest);
 
       const tickets = [
         ticket(11, 20, 40, 1, 1),
@@ -788,10 +827,12 @@ describe("Jackpot", function () {
 
       const Vault3 = await hre.viem.getContractAt("Vault", Vaults[2])
 
+      const CommunityVault = await hre.viem.getContractAt("Vault", Vaults[6])
+
       // Increase Time by 1hr 1 min
       await hre.network.provider.send("hardhat_mine", ["0x3D", "0x3c"]);
 
-      await Chainlink.write.randomRequestRandomWords([GAS_CALLBACK]);
+      await Chainlink.write.randomRequestRandomWords();
 
       await VRFCoordinatorV2Mock.write.fulfillRandomWordsWithOverride([
         1n, VRFV2Wrapper.address, [10, 19, 39, 90, 99]
@@ -809,6 +850,10 @@ describe("Jackpot", function () {
 
       const Pot3 = await hre.viem.getContractAt("Pot", pot3Address)
 
+      const pot7Address = await CommunityVault.read.pots([1n])
+
+      const Pot7 = await hre.viem.getContractAt("Pot", pot7Address)
+
       const playerBalance = await TUSDC.read.balanceOf([user1.account.address])
 
       const initialPot1Bal = await TUSDC.read.balanceOf([pot1Address])
@@ -816,6 +861,10 @@ describe("Jackpot", function () {
       const initialPot2Bal = await TUSDC.read.balanceOf([pot2Address])
 
       const initialPot3Bal = await TUSDC.read.balanceOf([pot3Address])
+
+      const communityWinners = await Pot7.read.totalWinners()
+
+      const initialComPotBal = await TUSDC.read.balanceOf([pot7Address])
 
       await Jackpot.write.claimTicket([1n, 3n])
 
@@ -831,11 +880,15 @@ describe("Jackpot", function () {
 
       const winnersShare3 =  initialPot3Bal / totalWinners3;
 
+      const communityShare =  initialComPotBal / communityWinners;
+
       expect(totalWinners1).to.be.equal(30n);
 
       expect(totalWinners2).to.be.equal(30n);
 
       expect(totalWinners3).to.be.equal(10n);
+
+      expect(await TUSDC.read.balanceOf([pot7Address])).to.be.equal(initialComPotBal - communityShare)
 
       expect(await TUSDC.read.balanceOf([pot1Address])).to.be.equal(initialPot1Bal - winnersShare1 * 3n)
 
@@ -843,7 +896,9 @@ describe("Jackpot", function () {
 
       expect(await TUSDC.read.balanceOf([pot3Address])).to.be.equal(initialPot3Bal - winnersShare3)
 
-      expect(await TUSDC.read.balanceOf([user1.account.address])).to.be.equal(playerBalance + winnersShare1 * 3n + winnersShare2 * 3n + winnersShare3);
+      expect(await TUSDC.read.balanceOf([user1.account.address])).to.be.equal(playerBalance + communityShare + testUSDCPrice.toBigInt() + winnersShare1 * 3n + winnersShare2 * 3n + winnersShare3);
+
+      expect((await JackpotCore.read.tickets([1n, 3n]))[2]).to.be.true;
 
     });
 
@@ -891,7 +946,7 @@ describe("Jackpot", function () {
       // Increase Time by 1hr 1 min
       await hre.network.provider.send("hardhat_mine", ["0x3D", "0x3c"]);
 
-      await Chainlink.write.randomRequestRandomWords([GAS_CALLBACK]);
+      await Chainlink.write.randomRequestRandomWords();
 
       await VRFCoordinatorV2Mock.write.fulfillRandomWordsWithOverride([
         1n, VRFV2Wrapper.address, [10, 19, 39, 90, 99]
@@ -912,7 +967,7 @@ describe("Jackpot", function () {
 
     it("Player should be able to withdraw from pot 1, 2, 3, and 4 with winning ticket", async function () {
 
-      const { user1, Jackpot, Chainlink, VRFCoordinatorV2Mock, VRFV2Wrapper, TUSDC, Vaults, LendingProtocol } = await loadFixture(deployTest);
+      const { user1, Jackpot, JackpotCore, Chainlink, VRFCoordinatorV2Mock, VRFV2Wrapper, TUSDC, Vaults, LendingProtocol } = await loadFixture(deployTest);
 
       const tickets = [
         ticket(11, 20, 40, 91, 1),
@@ -936,10 +991,12 @@ describe("Jackpot", function () {
 
       const Vault4 = await hre.viem.getContractAt("Vault", Vaults[3])
 
+      const CommunityVault = await hre.viem.getContractAt("Vault", Vaults[6])
+
       // Increase Time by 1hr 1 min
       await hre.network.provider.send("hardhat_mine", ["0x3D", "0x3c"]);
 
-      await Chainlink.write.randomRequestRandomWords([GAS_CALLBACK]);
+      await Chainlink.write.randomRequestRandomWords();
 
       await VRFCoordinatorV2Mock.write.fulfillRandomWordsWithOverride([
         1n, VRFV2Wrapper.address, [10, 19, 39, 90, 99]
@@ -961,6 +1018,10 @@ describe("Jackpot", function () {
 
       const Pot4 = await hre.viem.getContractAt("Pot", pot4Address)
 
+      const pot7Address = await CommunityVault.read.pots([1n])
+
+      const Pot7 = await hre.viem.getContractAt("Pot", pot7Address)
+
       const playerBalance = await TUSDC.read.balanceOf([user1.account.address])
 
       const initialPot1Bal = await TUSDC.read.balanceOf([pot1Address])
@@ -970,6 +1031,10 @@ describe("Jackpot", function () {
       const initialPot3Bal = await TUSDC.read.balanceOf([pot3Address])
 
       const initialPot4Bal = await TUSDC.read.balanceOf([pot4Address])
+
+      const communityWinners = await Pot7.read.totalWinners()
+
+      const initialComPotBal = await TUSDC.read.balanceOf([pot7Address])
 
       await Jackpot.write.claimTicket([1n, 3n])
 
@@ -989,6 +1054,8 @@ describe("Jackpot", function () {
 
       const winnersShare4 =  initialPot4Bal / totalWinners4;
 
+      const communityShare =  initialComPotBal / communityWinners;
+
       expect(totalWinners1).to.be.equal(20n);
 
       expect(totalWinners2).to.be.equal(30n);
@@ -996,6 +1063,8 @@ describe("Jackpot", function () {
       expect(totalWinners3).to.be.equal(20n);
 
       expect(totalWinners4).to.be.equal(5n);
+
+      expect(await TUSDC.read.balanceOf([pot7Address])).to.be.equal(initialComPotBal - communityShare)
 
       expect(await TUSDC.read.balanceOf([pot1Address])).to.be.equal(initialPot1Bal - winnersShare1 * 4n)
 
@@ -1005,7 +1074,9 @@ describe("Jackpot", function () {
 
       expect(await TUSDC.read.balanceOf([pot4Address])).to.be.equal(initialPot4Bal - winnersShare4)
 
-      expect(await TUSDC.read.balanceOf([user1.account.address])).to.be.equal(playerBalance + winnersShare1 * 4n + winnersShare2 * 6n + winnersShare3 * 4n + winnersShare4);
+      expect(await TUSDC.read.balanceOf([user1.account.address])).to.be.equal(playerBalance + communityShare + testUSDCPrice.toBigInt() + winnersShare1 * 4n + winnersShare2 * 6n + winnersShare3 * 4n + winnersShare4);
+
+      expect((await JackpotCore.read.tickets([1n, 3n]))[2]).to.be.true;
 
     });
 
@@ -1055,7 +1126,7 @@ describe("Jackpot", function () {
       // Increase Time by 1hr 1 min
       await hre.network.provider.send("hardhat_mine", ["0x3D", "0x3c"]);
 
-      await Chainlink.write.randomRequestRandomWords([GAS_CALLBACK]);
+      await Chainlink.write.randomRequestRandomWords();
 
       await VRFCoordinatorV2Mock.write.fulfillRandomWordsWithOverride([
         1n, VRFV2Wrapper.address, [10, 19, 39, 90, 99]
@@ -1077,7 +1148,7 @@ describe("Jackpot", function () {
 
     it("Player should be able to withdraw from pot 1, 2, 3, 4, and 5 with winning ticket", async function () {
 
-      const { user1, Jackpot, Chainlink, VRFCoordinatorV2Mock, VRFV2Wrapper, TUSDC, Vaults, LendingProtocol } = await loadFixture(deployTest);
+      const { user1, Jackpot, JackpotCore, Chainlink, VRFCoordinatorV2Mock, VRFV2Wrapper, TUSDC, Vaults, LendingProtocol } = await loadFixture(deployTest);
 
       const tickets = [
         ticket(11, 20, 40, 91, 100)
@@ -1099,10 +1170,12 @@ describe("Jackpot", function () {
 
       const Vault5 = await hre.viem.getContractAt("Vault", Vaults[4])
 
+      const CommunityVault = await hre.viem.getContractAt("Vault", Vaults[6])
+
       // Increase Time by 1hr 1 min
       await hre.network.provider.send("hardhat_mine", ["0x3D", "0x3c"]);
 
-      await Chainlink.write.randomRequestRandomWords([GAS_CALLBACK]);
+      await Chainlink.write.randomRequestRandomWords();
 
       await VRFCoordinatorV2Mock.write.fulfillRandomWordsWithOverride([
         1n, VRFV2Wrapper.address, [10, 19, 39, 90, 99]
@@ -1128,6 +1201,10 @@ describe("Jackpot", function () {
 
       const Pot5 = await hre.viem.getContractAt("Pot", pot5Address)
 
+      const pot7Address = await CommunityVault.read.pots([1n])
+
+      const Pot7 = await hre.viem.getContractAt("Pot", pot7Address)
+
       const playerBalance = await TUSDC.read.balanceOf([user1.account.address])
 
       const initialPot1Bal = await TUSDC.read.balanceOf([pot1Address])
@@ -1139,6 +1216,10 @@ describe("Jackpot", function () {
       const initialPot4Bal = await TUSDC.read.balanceOf([pot4Address])
 
       const initialPot5Bal = await TUSDC.read.balanceOf([pot5Address])
+
+      const communityWinners = await Pot7.read.totalWinners()
+
+      const initialComPotBal = await TUSDC.read.balanceOf([pot7Address])
 
       await Jackpot.write.claimTicket([1n, 1n])
 
@@ -1162,6 +1243,8 @@ describe("Jackpot", function () {
 
       const winnersShare5 =  initialPot5Bal / totalWinners5;
 
+      const communityShare =  initialComPotBal / communityWinners;
+
       expect(totalWinners1).to.be.equal(5n);
 
       expect(totalWinners2).to.be.equal(10n);
@@ -1171,6 +1254,8 @@ describe("Jackpot", function () {
       expect(totalWinners4).to.be.equal(5n);
 
       expect(totalWinners5).to.be.equal(1n);
+
+      expect(await TUSDC.read.balanceOf([pot7Address])).to.be.equal(initialComPotBal - communityShare)
 
       expect(await TUSDC.read.balanceOf([pot1Address])).to.be.equal(initialPot1Bal - winnersShare1 * 5n)
 
@@ -1182,21 +1267,20 @@ describe("Jackpot", function () {
 
       expect(await TUSDC.read.balanceOf([pot5Address])).to.be.equal(initialPot5Bal - winnersShare5)
 
-      //expect(await TUSDC.read.balanceOf([user1.account.address])).to.be.equal(playerBalance + winnersShare1 * 5n + winnersShare2 * 10n + winnersShare3 * 10n + winnersShare4 * 5n + winnersShare5);
+      expect(await TUSDC.read.balanceOf([user1.account.address])).to.be.equal(playerBalance + communityShare + testUSDCPrice.toBigInt() + winnersShare1 * 5n + winnersShare2 * 10n + winnersShare3 * 10n + winnersShare4 * 5n + winnersShare5);
+
+      expect((await JackpotCore.read.tickets([1n, 1n]))[2]).to.be.true;
 
     });
 
   });
 
 
-
-
-
   describe("Getters", function () {
 
     it("Get all my the tickets", async function () {
 
-      const { Jackpot, JackpotCore, Chainlink, VRFCoordinatorV2Mock, VRFV2Wrapper, TUSDC, LendingProtocol, user1 } = await loadFixture(deployTest);
+      const { Jackpot, Chainlink, VRFCoordinatorV2Mock, VRFV2Wrapper, TUSDC, LendingProtocol, user1 } = await loadFixture(deployTest);
 
       const tickets = [
         ticket(11, 20, 40, 1, 1),
@@ -1222,21 +1306,147 @@ describe("Jackpot", function () {
       // Increase Time by 1hr 1 min
       await hre.network.provider.send("hardhat_mine", ["0x3D", "0x3c"]);
 
-      await Chainlink.write.randomRequestRandomWords([GAS_CALLBACK]);
+      await Chainlink.write.randomRequestRandomWords();
+
+      await VRFCoordinatorV2Mock.write.fulfillRandomWordsWithOverride([
+        1n, VRFV2Wrapper.address, [10, 19, 39, 90, 99]
+      ]);
+
+    });
+
+  });
+
+
+
+
+  describe("Claim Prize on Losing Tickets", function () {
+
+    it("Should Revert when trying to claim losing tickets", async function () {
+
+      const { Jackpot, Chainlink, VRFCoordinatorV2Mock, VRFV2Wrapper, TUSDC, Vaults, LendingProtocol } = await loadFixture(deployTest);
+
+      const tickets = [
+        ticket(1, 1, 1, 1, 1),
+        ticket(11, 20, 40, 1, 100),
+        ticket(11, 20, 1, 91, 100),
+        ticket(11, 1, 40, 91, 100),
+        ticket(1, 20, 40, 91, 100),
+      ]
+
+      await TUSDC.write.approve([Jackpot.address, BigInt(10e40)])
+
+      await Jackpot.write.buyTickets([TUSDC.address, tickets]);
+
+      await flashloan(TUSDC, LendingProtocol)
+
+      // Increase Time by 1hr 1 min
+      await hre.network.provider.send("hardhat_mine", ["0x3D", "0x3c"]);
+
+      await Chainlink.write.randomRequestRandomWords();
+
+      await VRFCoordinatorV2Mock.write.fulfillRandomWordsWithOverride([
+        1n, VRFV2Wrapper.address, [10, 19, 39, 90, 99]
+      ]);
+
+      await expect(Jackpot.write.claimTicket([1n, 1n])).to.be.rejectedWith("TicketDidntWin(1, 1)");
+
+
+    });
+
+    it("Should Revert when trying to claim losing tickets", async function () {
+
+      const { Jackpot, Chainlink, VRFCoordinatorV2Mock, VRFV2Wrapper, TUSDC, LendingProtocol } = await loadFixture(deployTest);
+
+      const tickets = [
+        ticket(1, 1, 1, 1, 1),
+        ticket(11, 20, 40, 1, 100),
+        ticket(11, 20, 1, 91, 100),
+        ticket(11, 1, 40, 91, 100),
+        ticket(1, 20, 40, 91, 100),
+      ]
+
+      await TUSDC.write.approve([Jackpot.address, BigInt(10e40)])
+
+      await Jackpot.write.buyTickets([TUSDC.address, tickets]);
+
+      await flashloan(TUSDC, LendingProtocol)
+
+      // Increase Time by 1hr 1 min
+      await hre.network.provider.send("hardhat_mine", ["0x3D", "0x3c"]);
+
+      await Chainlink.write.randomRequestRandomWords();
+
+      await VRFCoordinatorV2Mock.write.fulfillRandomWordsWithOverride([
+        1n, VRFV2Wrapper.address, [10, 19, 39, 90, 99]
+      ]);
+
+      await expect(Jackpot.write.claimTicket([1n, 1n])).to.be.rejectedWith("TicketDidntWin(1, 1)");
+
+    });
+
+
+    it("Should be able to claim losing tickets after 4hrs", async function () {
+
+      const { user1, Jackpot, JackpotCore, Chainlink, Vaults, VRFCoordinatorV2Mock, VRFV2Wrapper, TUSDC, LendingProtocol } = await loadFixture(deployTest);
+
+      const tickets = [
+        ticket(1, 1, 1, 1, 1),
+        ticket(11, 20, 40, 1, 100),
+        ticket(11, 20, 1, 91, 100),
+        ticket(11, 1, 40, 91, 100),
+        ticket(1, 20, 40, 91, 100),
+      ]
+
+      await TUSDC.write.approve([Jackpot.address, BigInt(10e40)])
+
+      await Jackpot.write.buyTickets([TUSDC.address, tickets]);
+
+      await flashloan(TUSDC, LendingProtocol)
+
+      // Increase Time by 1hr 1 min
+      await hre.network.provider.send("hardhat_mine", ["0x3D", "0x3c"]);
+
+            // Increase Time by 1hr 1 min
+            await hre.network.provider.send("hardhat_mine", ["0x3D", "0x3c"]);
+
+                  // Increase Time by 1hr 1 min
+      await hre.network.provider.send("hardhat_mine", ["0x3D", "0x3c"]);
+
+            // Increase Time by 1hr 1 min
+            await hre.network.provider.send("hardhat_mine", ["0x3D", "0x3c"]);
+
+      await Chainlink.write.randomRequestRandomWords();
 
       await VRFCoordinatorV2Mock.write.fulfillRandomWordsWithOverride([
         1n, VRFV2Wrapper.address, [10, 19, 39, 90, 99]
       ]);
 
 
-      console.log(await JackpotCore.read.getRecentResults([0n, 1n]))
+      const CommunityVault = await hre.viem.getContractAt("Vault", Vaults[6])
 
-      console.log(await JackpotCore.read.getMyRecentTickets([user1.account.address, 1n, 10n]))
+      const pot7Address = await CommunityVault.read.pots([1n])
+
+      const Pot7 = await hre.viem.getContractAt("Pot", pot7Address)
+
+      const playerBalance = await TUSDC.read.balanceOf([user1.account.address])
+
+      const communityWinners = await Pot7.read.totalWinners()
+
+      const initialComPotBal = await TUSDC.read.balanceOf([pot7Address])
+
+      const communityShare =  initialComPotBal / communityWinners;
+
+      await Jackpot.write.claimTicket([1n, 1n]);
+
+      expect(await TUSDC.read.balanceOf([user1.account.address])).to.be.equal(playerBalance + communityShare + testUSDCPrice.toBigInt());
+
+      expect((await JackpotCore.read.tickets([1n, 1n]))[2]).to.be.true;
 
     });
 
-    
 
   });
+
+
 
 });

@@ -7,13 +7,12 @@ import "@chainlink/contracts/src/v0.8/vrf/VRFV2WrapperConsumerBase.sol";
 import './interface/IJackpot.sol';
 import "./interface/IJackpotCore.sol";
 import './Authorization.sol';
+import "hardhat/console.sol";
 
 
 // Note the factory address for this contract is the jackpot address
 
 contract Chainlink is VRFV2WrapperConsumerBase, Authorization {
-
-    event Test();
 
     error StakingPeriodIsNotOver();
 
@@ -37,13 +36,14 @@ contract Chainlink is VRFV2WrapperConsumerBase, Authorization {
     
     uint constant public PERCENT = 100;
 
+    uint32 public callbackGasLimit = 2000000;
 
     
     constructor(address _linkAddress, address _wrapperAddress) VRFV2WrapperConsumerBase(_linkAddress, _wrapperAddress) {}
 
-    function randomRequestRandomWords(uint _callbackGasLimit) external canRequestVRF returns (uint randomRequestId) {
-        randomRequestId = requestRandomness(uint32(_callbackGasLimit),3, 5);
-        uint paid = VRF_V2_WRAPPER.calculateRequestPrice(uint32(_callbackGasLimit));
+    function randomRequestRandomWords() external canRequestVRF returns (uint randomRequestId) {
+        randomRequestId = requestRandomness(callbackGasLimit,3, 5);
+        uint paid = VRF_V2_WRAPPER.calculateRequestPrice(callbackGasLimit);
         uint balance = LINK.balanceOf(address(this));
         if (balance < paid) revert InsufficientFunds(balance, paid);
         s_requests[randomRequestId] = RandomRequestStatus({
@@ -53,16 +53,17 @@ contract Chainlink is VRFV2WrapperConsumerBase, Authorization {
         });
         randomRequestIds.push(randomRequestId);
         lastRequestId = randomRequestId;
+        console.log("YES");
         emit RandomRequestSent(randomRequestId, 5, paid);
     }
 
 
-    function fulfillRandomWords( uint _requestId, uint[] memory _randomWords) internal override {
+    function fulfillRandomWords(uint _requestId, uint[] memory _randomWords) internal override {
+        console.log("No");
         RandomRequestStatus storage request = s_requests[_requestId];
         if (request.paid == 0) revert RandomRequestNotFound(_requestId);
         request.fulfilled = true;
         request.randomWords = _randomWords;
-        emit Test();
         IJackpot(factoryAddress).receiveResults([
             _increaseRandomness(_randomWords[0]),
             _increaseRandomness(_randomWords[1]),
@@ -71,6 +72,18 @@ contract Chainlink is VRFV2WrapperConsumerBase, Authorization {
             _increaseRandomness(_randomWords[4])
         ]);
         emit RandomRequestFulfilled(_requestId, _randomWords, request.paid);
+    }
+
+
+    //for some reason VRF doesn't work on localhost so, I improvised
+    function fakeIt () external {
+        IJackpot(factoryAddress).receiveResults([
+            _increaseRandomness(11),
+            _increaseRandomness(20),
+            _increaseRandomness(60),
+            _increaseRandomness(90),
+            _increaseRandomness(39)
+        ]);
     }
 
     function getNumberOfRandomRequests() external view returns (uint) {
@@ -90,26 +103,21 @@ contract Chainlink is VRFV2WrapperConsumerBase, Authorization {
     /**
      * Allow withdraw of Link tokens from the contract
      */
-    function withdrawLink(address _receiver) external onlyGovernor  {
-        bool success = LINK.transfer(_receiver, LINK.balanceOf(address(this)));
-        if (!success)
-            revert LinkTransferError(
-                msg.sender,
-                _receiver,
-                LINK.balanceOf(address(this))
-            );
-    }
 
 
-
-
-    function _increaseRandomness(uint word) view internal returns(uint) {
+    function _increaseRandomness(uint word) pure internal returns(uint) {
         return  word % PERCENT + 1;
         // unchecked {
         //     return  word * block.timestamp  * block.number % PERCENT + 1;   
         // }
     }
 
+
+    // only Governor
+
+    function updateCallbackGasLimit(uint32 _callbackGasLimit) external onlyGovernor {
+        callbackGasLimit = _callbackGasLimit;
+    }
 
 
     modifier canRequestVRF() {

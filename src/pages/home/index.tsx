@@ -3,19 +3,26 @@ import RecentResults from "./recentResults"
 import LoadingButton from "@/components/utils/LoadingButton"
 import { useNavigate } from "react-router-dom"
 import JackpotAbi from "./../../abi/contracts/Jackpot.sol/Jackpot.json"
-import { useContractRead } from "wagmi"
-import { JACKPOT } from "@/libs/constants"
+import { Address, useContractRead } from "wagmi"
+import { ADDRESS_ZERO, JACKPOT } from "@/libs/constants"
+import { useEffect, useState } from "react"
+
 
 const HomePage = () => {
 
     const navigate = useNavigate()
 
+    const [vaults, setVaults] = useState<Address[7]>(Array(7).fill(ADDRESS_ZERO) as any)
 
     const { data, isLoading } = useContractRead({
         abi: JackpotAbi,
         address: JACKPOT,
         functionName: "vaultAddresses",
     })
+
+    useEffect(() => {
+        setVaults(data as Address[7])
+    }, [data])
 
     console.log({ data, isLoading } )
 
@@ -24,15 +31,23 @@ const HomePage = () => {
 
             <div className="flex gap-10 mt-20">
 
-                <Pots title="Pot #1" contractAddr={(data as any)?.[0]} />
+                <Pots title="DOA Pot" contractAddr={vaults[5]} />
 
-                <Pots title="Pot #2" contractAddr={(data as any)?.[1]} />
+                <Pots title="Community Pot" contractAddr={vaults[6]} />
 
-                <Pots title="Pot #3" contractAddr={(data as any)?.[2]} />
+            </div>
 
-                <Pots title="Pot #4" contractAddr={(data as any)?.[3]} />
+            <div className="flex gap-10 mt-20">
 
-                <Pots title="Pot #5" contractAddr={(data as any)?.[4]} />
+                <Pots title="Pot #1" contractAddr={vaults[0]} />
+
+                <Pots title="Pot #2" contractAddr={vaults[1]} />
+
+                <Pots title="Pot #3" contractAddr={vaults[2]} />
+
+                <Pots title="Pot #4" contractAddr={vaults[3]} />
+
+                <Pots title="Pot #5" contractAddr={vaults[4]} />
 
             </div>
 

@@ -21,6 +21,8 @@ contract JackpotCore is Authorization, IJackpotCore {
         bool won4;
         bool won5;
         bool hasResult;
+        uint ticketId; 
+        uint gameRound;
     }
 
     event BuyTicket(address indexed staker, uint indexed gameRound, uint indexed ticketID, TicketValueStruct value);
@@ -94,16 +96,17 @@ contract JackpotCore is Authorization, IJackpotCore {
     }
 
 
-    function saveTicket(address owner, TicketValueStruct calldata ticket, VaultShare memory _vaultShare, uint pricePerTicket) external onlyFactory {
+    function saveTicket(address owner, address asset, TicketValueStruct calldata ticket, VaultShare memory _vaultShare, uint pricePerTicket) external onlyFactory {
 
         uint _gameRounds = gameRounds;
         uint _gameTickets = ++gameTickets;
 
         // store tickets
         tickets[gameRounds][_gameTickets] = TicketStruct({
-            stakeTime: uint(block.timestamp),
+            stakePeriod: uint(block.timestamp) + stakingDuration,
             amount: pricePerTicket,
             hasClaimedPrize: false,
+            asset: asset,
             owner: owner,
             ticketValue: ticket,
             vaultShare: _vaultShare
@@ -117,6 +120,11 @@ contract JackpotCore is Authorization, IJackpotCore {
         _increaseFrequencies(ticket);
 
         emit BuyTicket(owner, gameRounds, _gameTickets, ticket);
+    }
+
+
+    function withdraw(uint round, uint ticketId) external onlyFactory {
+        tickets[round][ticketId].hasClaimedPrize = true;
     }
 
     function saveResult(TicketValueStruct memory ticket) external onlyFactory {
@@ -177,7 +185,7 @@ contract JackpotCore is Authorization, IJackpotCore {
     }
 
     /*********************************************************************
-     *                          External Functions                         *
+     *                          External Functions                       *
      *********************************************************************/
 
     function potOneWinners(uint rounds, TicketValueStruct memory result) public view returns (uint) {
@@ -275,6 +283,8 @@ contract JackpotCore is Authorization, IJackpotCore {
                 won3: won3,
                 won4: won4,
                 won5: won5,
+                ticketId: ticketId.ticketId,
+                gameRound: ticketId.round,
                 hasResult: ticketId.round < gameRounds
             }); 
             ++count;

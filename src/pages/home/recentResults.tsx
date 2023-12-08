@@ -40,7 +40,7 @@ const RecentResults = () => {
 
 
     return (
-        <div className="relative overflow-x-auto shadow-md sm:rounded-lg border-[1px]">
+        <div className="overflow-x-auto shadow-md sm:rounded-lg border-[1px] max-w-[900px] w-full ">
             <table className="w-full text-sm text-left text-white">
                 <thead className="text-xs uppercase text-white">
                     <tr>

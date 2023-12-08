@@ -7,6 +7,7 @@ import TestUSDCAbi from "../../abi/contracts/mocks/TestUSDC.sol/TestUSDC.json"
 import { useAccount, useContractRead, useContractWrite } from "wagmi"
 import { JACKPOT, TEST_USDC } from "@/libs/constants"
 import { toast } from "react-toastify"
+import { moneyFormat } from "@/libs/utils"
 export interface IStake {
     value1: number;
     value2: number;
@@ -24,16 +25,21 @@ const StakePage = () => {
 
     const { address, isConnected } = useAccount()
 
+    const [accountBal, setAccountBal] = useState(0n)
+    const [allowance, setAllowance] = useState(0n)
+    const [prize, setPrize] = useState(0n)
+
     const [stakes, setStakes] = useState<IStakeForm>({ 
         error: true, 
         stakes: [ {value1: 0, value2: 0, value3: 0, value4: 0, value5: 0 }]
     })
 
-
     const add = () => {
         const temp = [...stakes.stakes, {value1: 0, value2: 0, value3: 0, value4: 0, value5: 0 }]
         setStakes({...stakes, stakes: temp})
     }
+
+    const cost = prize * BigInt(stakes.stakes.length)
 
     // const updateStakes = () => {
     //     setStakes()
@@ -45,6 +51,13 @@ const StakePage = () => {
     //     setStakes({...stakes, stakes: temp})
     // }
 
+    const getPrice = useContractRead({
+        abi: JackpotAbi,
+        address: JACKPOT,
+        functionName: "acceptedTokenPrize",
+        args: [TEST_USDC]
+    })
+
     const balance = useContractRead({
         abi: TestUSDCAbi,
         address: TEST_USDC,
@@ -53,13 +66,20 @@ const StakePage = () => {
         enabled: isConnected
     })
 
-    console.log(balance)
+    const getAllowance = useContractRead({
+        abi: TestUSDCAbi,
+        address: TEST_USDC,
+        functionName: "allowance",
+        args: [address, JACKPOT],
+        enabled: accountBal > 0n,
+        watch:true
+    })
 
     const approve = useContractWrite({
         abi: TestUSDCAbi,
         address: TEST_USDC,
         functionName: "approve",
-        args: [JACKPOT, "1000000000000000000000000"]
+        args: [JACKPOT, cost]
     })
 
     const buyTickets = useContractWrite({
@@ -70,13 +90,42 @@ const StakePage = () => {
     })
 
     useEffect(() => {
-        if (buyTickets.isError) toast.error(buyTickets.error?.message)
-    }, [buyTickets.isError, buyTickets.error])
-
+        if (buyTickets.isSuccess) {
+            toast.success("Ticket Bought successfully")
+            setStakes({ 
+                error: true, 
+                stakes: [ {value1: 0, value2: 0, value3: 0, value4: 0, value5: 0 }]
+            })
+        }
+    }, [buyTickets.isSuccess])
 
     useEffect(() => {
-        if (approve.isError) toast.error(approve.error?.message)
+        if (buyTickets.isError) toast.error(buyTickets.error?.name)
+    }, [buyTickets.isError, buyTickets.error])
+
+    useEffect(() => {
+        if (approve.isError) toast.error(approve.error?.name)
     }, [approve.isError, approve.error])
+
+    useEffect(() => {
+        if (getAllowance.data) {
+            setAllowance(getAllowance.data as bigint)
+        }
+    }, [getAllowance.data])
+
+    useEffect(() => {
+        if (balance.data) {
+            setAccountBal(balance.data as bigint)
+        }
+    }, [balance.data])
+
+    useEffect(() => {
+        if (getPrice.data) {
+            setPrize(getPrice.data as bigint)
+        }
+    }, [getPrice.data])
+
+    console.log(getAllowance)
 
     return (
         <main className="flex flex-col ">
@@ -84,6 +133,12 @@ const StakePage = () => {
             <div className="bg-white px-4 rounded-lg  w-[600px] border-slate-200">
 
                 <h3 className="text-center text-3xl font-bold text-gray-800 mt-4">Stake </h3>
+                
+                <div className="text-center">Balance {balance.data ? moneyFormat(accountBal) : "" }</div>
+
+                <div className="text-center">Allowance {getAllowance.data ? moneyFormat(allowance) : "" }</div>
+
+                <h3 className="text-center"> {moneyFormat(prize)} USDT Per Ticket </h3>
 
                 <div className="flex flex-col items-center justify-center my-10">
 
@@ -94,12 +149,14 @@ const StakePage = () => {
                         )
                     })}
 
-                    <div className="w-80 mt-4">
-                        <Web3btn loading={approve.isLoading} onClick={approve.write} color="gray">Approve </Web3btn>
-                    </div>
+                    {  allowance < cost &&
+                        <div className="w-80 mt-4">
+                            <Web3btn color="green" loading={approve.isLoading} onClick={approve.write}>Approve </Web3btn>
+                        </div>
+                    }
 
                     <div className="w-80">
-                        <Web3btn loading={buyTickets.isLoading} onClick={buyTickets.write}>Stake</Web3btn>
+                        <Web3btn disabled={allowance < cost} loading={buyTickets.isLoading} onClick={buyTickets.write}>Stake</Web3btn>
                     </div>     
 
                     <div className="w-80">
@@ -109,7 +166,6 @@ const StakePage = () => {
                 </div>
 
             </div>
-
 
         </main>
     )

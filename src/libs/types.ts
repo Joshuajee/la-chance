@@ -1,2 +1,2 @@
 export type SUPPORTED_WALLETS = 'walletConnect' | 'coinbaseWallet'
-export type SUPPORTED_SYMBOLS = '' | 'MATIC' | 'AVAX' | 'CELO'
+export type ADDRESS_ZERO = "0x0000000000000000000000000000000000000000"

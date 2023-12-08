@@ -25,17 +25,22 @@ const Predition = ({ index, stakes, setStakes } : {index: number, stakes: IStake
     }
 
     useEffect(() => {
-        const current = stakes.stakes[index];
+
+        const newStakes = [...stakes.stakes];
+
+        const current = newStakes[index];
+
         current.value1 = parseInt(value1.value.toString())
         current.value2 = parseInt(value2.value.toString())
         current.value3 = parseInt(value3.value.toString())
         current.value4 = parseInt(value4.value.toString())
         current.value5 = parseInt(value5.value.toString())
 
-        setStakes({ error: false, stakes: [current] })
 
-        console.log(stakes)
 
+        setStakes({ error: false, stakes: newStakes })
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [value1.value, value2.value, value3.value, value4.value, value5.value, index])
 
   

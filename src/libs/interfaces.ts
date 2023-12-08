@@ -1,18 +1,4 @@
 import { Address } from "wagmi";
-import { CHAIN_ID, CONTRACT_ADDRESS } from "./enums";
-import { SUPPORTED_SYMBOLS } from "./types";
-
-export interface SUPPORTED_NETWORKS {
-    name: string,
-    description: string,
-    icon: string,
-    chainId: CHAIN_ID,
-    domainId: number,
-    contractAddress: CONTRACT_ADDRESS,
-    symbol: SUPPORTED_SYMBOLS;
-}
-
-
 
 // struct TicketIDStruct {
 //     round: boolean,
@@ -37,7 +23,7 @@ export interface TicketValueStruct {
 }
 
 export interface TicketStruct {
-    stakeTime: boolean,
+    stakePeriod: bigint,
     amount: boolean,
     hasClaimedPrize: boolean,
     owner: Address,
@@ -61,6 +47,8 @@ export interface TicketStanding {
     won3: boolean,
     won4: boolean,
     won5: boolean,
-    hasResult: boolean
+    hasResult: boolean,
+    gameRound: bigint,
+    ticketId: bigint
 }
 

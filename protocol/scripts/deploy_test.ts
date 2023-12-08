@@ -1,5 +1,4 @@
-import { formatEther, parseEther } from "viem";
-import hre from "hardhat";
+import hre from "hardhat"
 import { deployTest } from "./helper";
 
 async function main() {
@@ -30,6 +29,10 @@ async function main() {
   console.log("MockV3Aggregator ", MockV3Aggregator.address)
 
   console.log("VRFV2Wrapper ", VRFV2Wrapper.address)
+
+  const BorrowerContract = await hre.viem.deployContract("FlashBorrowerExample")
+
+  console.log("Borrower: ", BorrowerContract.address)
 
 
 }

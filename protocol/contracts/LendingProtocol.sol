@@ -8,7 +8,7 @@ import './Vault.sol';
 import './interface/IFlashBorrower.sol';
 import './interface/ILendingInterface.sol';
 // Uncomment this line to use console.log
-import "hardhat/console.sol";
+//import "hardhat/console.sol";
 
 
 contract LendingProtocol is Authorization, ILendingInterface {
@@ -27,6 +27,7 @@ contract LendingProtocol is Authorization, ILendingInterface {
     address public vault4; 
     address public vault5; 
     address public daoVault; 
+    address public communityVault; 
 
 
     uint public vaultShare1; 
@@ -35,8 +36,9 @@ contract LendingProtocol is Authorization, ILendingInterface {
     uint public vaultShare4; 
     uint public vaultShare5; 
     uint public daoVaultShare; 
+    uint public communityVaultShare; 
 
-    function initialize (address [6] memory vaults, uint[6] memory vaultShare, address token) external onlyOnInitalization {
+    function initialize (address [7] memory vaults, uint[7] memory vaultShare, address token) external onlyOnInitalization {
 
         initialized = true;
 
@@ -50,13 +52,15 @@ contract LendingProtocol is Authorization, ILendingInterface {
         vault4 = vaults[3]; 
         vault5 = vaults[4];  
         daoVault = vaults[5];  
+        communityVault = vaults[6];
 
         vaultShare1 = vaultShare[0]; 
         vaultShare2 = vaultShare[1];  
         vaultShare3 = vaultShare[2]; 
         vaultShare4 = vaultShare[3]; 
         vaultShare5 = vaultShare[4];  
-        daoVaultShare = vaultShare[5]; 
+        daoVaultShare = vaultShare[5];
+        communityVaultShare = vaultShare[6]; 
 
         supportedToken[token] = true;
         supportedTokenArray.push(token);
@@ -76,7 +80,9 @@ contract LendingProtocol is Authorization, ILendingInterface {
             vault5 = _vault; 
         } else if (_vaultNumber == 6) {
             daoVault = _vault; 
-        }
+        } else if (_vaultNumber == 7) {
+            communityVault = _vault; 
+        } 
 
     }
 
@@ -84,6 +90,7 @@ contract LendingProtocol is Authorization, ILendingInterface {
     function flashLoan(address _token, address _contract, uint _amount) external {
 
         uint interest = _amount * interestRate / PERCENT;
+        
         uint debt = _amount + interest;
 
         IERC20(_token).safeTransfer(_contract, _amount);
@@ -104,6 +111,7 @@ contract LendingProtocol is Authorization, ILendingInterface {
         uint length = supportedTokenArray.length;
 
         address [] memory assets = new address[](length);
+        
         uint [] memory assetBalances = new uint[](length);
 
         uint count = 0;
@@ -123,6 +131,10 @@ contract LendingProtocol is Authorization, ILendingInterface {
         return (assets, assetBalances);
     }
 
+    function withdrawStake(address owner, address asset, uint amount) external onlyFactory {
+        IERC20(asset).safeTransfer(owner, amount);
+    }
+
     function _shareInterestToVaults (address _token, uint interest) internal {
         Vault(vault1).addInterest(_token, interest * vaultShare1 / PERCENT);
         Vault(vault2).addInterest(_token, interest * vaultShare2 / PERCENT);
@@ -130,11 +142,12 @@ contract LendingProtocol is Authorization, ILendingInterface {
         Vault(vault4).addInterest(_token, interest * vaultShare4 / PERCENT);
         Vault(vault5).addInterest(_token, interest * vaultShare5 / PERCENT);
         Vault(daoVault).addInterest(_token, interest * daoVaultShare / PERCENT);
+        Vault(communityVault).addInterest(_token, interest * communityVaultShare / PERCENT);
     }
 
 
     modifier isVault() {
-        if (vault1 != msg.sender && vault2 != msg.sender && vault3 != msg.sender && vault4 != msg.sender && vault5 != msg.sender && daoVault != msg.sender) {
+        if (vault1 != msg.sender && vault2 != msg.sender && vault3 != msg.sender && vault4 != msg.sender && vault5 != msg.sender && daoVault != msg.sender && communityVault != msg.sender) {
             revert ();
         }
         _;

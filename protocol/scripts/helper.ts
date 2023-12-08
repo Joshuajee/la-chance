@@ -1,7 +1,14 @@
 import hre from "hardhat";
 import { ethers } from "ethers";
+import { HardhatRuntimeEnvironment } from "hardhat/types";
+import { loadFixture } from "@nomicfoundation/hardhat-network-helpers";
+import { Address } from "viem";
 
-export const vaultShare = [BigInt(30), BigInt(15), BigInt(15), BigInt(15), BigInt(15), BigInt(10)]
+export const LENDING_PROTOCOL = process.env.LENDING_PROTOCOL as Address
+export const TEST_USDC = process.env.TEST_USDC as Address
+export const CHAINLINK = process.env.CHAINLINK as Address
+
+export const vaultShare = [BigInt(25), BigInt(15), BigInt(15), BigInt(15), BigInt(15), BigInt(10), 5n]
 
 export const testUSDCPrice = ethers.utils.parseUnits("10","ether")
 
@@ -75,9 +82,6 @@ export async function chainLinkConfig () {
 
 }
 
-export async function deploy() {
-
-}
 
 
 export async function deployTest() {
@@ -101,12 +105,13 @@ export async function deployTest() {
 
   const Jackpot = await hre.viem.deployContract("Jackpot", [JackpotCore.address, LendingProtocol.address, Vault.address, Pot.address, TUSDC.address, testUSDCPrice.toBigInt()]);
 
-
   await LinkToken.write.transfer([Chainlink.address, oneHundredLink.toBigInt()])
 
   await Chainlink.write.initFactory([Jackpot.address])
 
   await JackpotCore.write.initFactory([Jackpot.address])
+
+  await LendingProtocol.write.initFactory([Jackpot.address])
 
   const Vaults = await Jackpot.read.vaultAddresses()
 
@@ -128,45 +133,6 @@ export async function deployTest() {
 
 
 
-export async function deployTestAfterGame() {
-
-
-  const {
-    Jackpot,
-    LendingProtocol,
-    user1,
-    user2,
-    TUSDC,
-    LinkToken, VRFCoordinatorV2Mock, MockV3Aggregator, VRFV2Wrapper,
-    publicClient,
-  } = await deployTest()
-
-  // Contracts are deployed using the first signer/account by default
-
-  const tickets = ticket(21, 12, 40, 50, 20)
-
-  await TUSDC.write.approve([Jackpot.address, BigInt(10e40)])
-
-  await Jackpot.write.buyTickets([TUSDC.address, tickets]);
-
-  // Increase Time by 1hr 1 min
-  await hre.network.provider.send("hardhat_mine", ["0x3D", "0x3c"]);
-
-  await Jackpot.write.randomRequestRandomWords([300_000]);
- 
-  return {
-    Jackpot,
-    LendingProtocol,
-    user1,
-    user2,
-    TUSDC,
-    LinkToken, VRFCoordinatorV2Mock, MockV3Aggregator, VRFV2Wrapper,
-    publicClient,
-    tickets
-  };
-}
-
-
 export async function deployLendingProtocol() {
 
   // Contracts are deployed using the first signer/account by default
@@ -186,10 +152,12 @@ export async function deployLendingProtocol() {
 
   const DAOVault = await hre.viem.deployContract("DAOVault");
 
+  const CommunityVault = await hre.viem.deployContract("Vault");
+
   const LendingProtocol = await hre.viem.deployContract("LendingProtocol");
 
   await LendingProtocol.write.initialize([
-    [Vault1.address, Vault2.address, Vault3.address, Vault4.address, Vault5.address, DAOVault.address],
+    [Vault1.address, Vault2.address, Vault3.address, Vault4.address, Vault5.address, DAOVault.address, CommunityVault.address],
     vaultShare,
     TUSDC.address
   ])
@@ -207,6 +175,7 @@ export async function deployLendingProtocol() {
     Vault4,
     Vault5,
     DAOVault,
+    CommunityVault,
     publicClient,
   };
 }
@@ -225,6 +194,7 @@ export async function deployLendingProtocolInitVaults() {
     Vault4,
     Vault5,
     DAOVault,
+    CommunityVault,
     publicClient,
   } = await deployLendingProtocol()
 
@@ -236,6 +206,7 @@ export async function deployLendingProtocolInitVaults() {
   await Vault4.write.initialize([LendingProtocol.address, Pot.address])
   await Vault5.write.initialize([LendingProtocol.address, Pot.address])
   await DAOVault.write.initialize([LendingProtocol.address, Pot.address])
+  await CommunityVault.write.initialize([LendingProtocol.address, Pot.address])
 
 
   return {
@@ -249,6 +220,7 @@ export async function deployLendingProtocolInitVaults() {
     Vault4,
     Vault5,
     DAOVault,
+    CommunityVault,
     publicClient,
   };
 }
@@ -295,3 +267,72 @@ export const generateTickets = (numberOfTickets: number) => {
 
   return tickets
 }
+
+
+
+export async function deployGovernanceTest() {
+
+  // Contracts are deployed using the first signer/account by default
+  const [user1, user2] = await hre.viem.getWalletClients();
+
+
+  const { DAOVault, TUSDC } = await loadFixture(DAOVaultTest);
+
+  const GovernorVault = await hre.viem.deployContract("GovernorVault");
+
+  const Governance = await hre.viem.deployContract("Governance", [GovernorVault.address]);
+
+  const GovernanceToken = await hre.viem.deployContract("GovernanceToken", [Governance.address]);
+
+  await DAOVault.write.initGovernor([Governance.address])
+
+  await Governance.write.init([GovernanceToken.address, DAOVault.address])
+
+  await GovernanceToken.write.mint([user1.account.address, ethers.utils.parseUnits("1000","ether").toBigInt()])
+
+  return {
+    user1,
+    user2,
+    GovernanceToken,
+    Governance,
+    DAOVault,
+    TUSDC
+  };
+}
+
+
+
+
+export async function DAOVaultTest() {
+
+  // Contracts are deployed using the first signer/account by default
+  const [user1, user2] = await hre.viem.getWalletClients();
+
+  const DAOVault = await hre.viem.deployContract("DAOVault");
+
+  await DAOVault.write.initialize([user1.account.address, user1.account.address])
+
+  const TUSDC = await hre.viem.deployContract("TestUSDC");
+
+  const amount = ethers.utils.parseUnits("100","ether")
+
+  await TUSDC.write.transfer([DAOVault.address, amount.toBigInt()])
+
+  await DAOVault.write.addInterest([TUSDC.address, amount.toBigInt()])
+
+  await DAOVault.write.initFactory([user1.account.address])
+
+  await DAOVault.write.addSupportedToken([TUSDC.address])
+
+  return {
+    user1,
+    user2,
+    DAOVault,
+    TUSDC,
+  };
+}
+
+export const mineBlocks = async (hre: HardhatRuntimeEnvironment, minutes: number) => {
+  await hre.network.provider.send("hardhat_mine", [ethers.utils.hexValue(minutes), "0x3c"]);
+}
+

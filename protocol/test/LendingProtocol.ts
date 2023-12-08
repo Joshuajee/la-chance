@@ -61,7 +61,7 @@ describe("LendingProtocol", function () {
 
     it("Flash Loan should increase value balance by vault share of interest Percentage", async function () {
 
-      const { LendingProtocol, TUSDC, Vault1, Vault2, Vault3, Vault4, Vault5, DAOVault } = await loadFixture(deployLendingProtocolInitVaults);
+      const { LendingProtocol, TUSDC, Vault1, Vault2, Vault3, Vault4, Vault5, DAOVault, CommunityVault } = await loadFixture(deployLendingProtocolInitVaults);
 
       const funds = ethers.utils.parseUnits("100000","ether")
 
@@ -105,6 +105,11 @@ describe("LendingProtocol", function () {
       expect(
         await DAOVault.read.tokenInterest([TUSDC.address])
       ).to.be.equal(interest.mul(vaultShare[5]).div(1000).toBigInt())
+
+
+      expect(
+        await CommunityVault.read.tokenInterest([TUSDC.address])
+      ).to.be.equal(interest.mul(vaultShare[6]).div(1000).toBigInt())
 
     });
 
