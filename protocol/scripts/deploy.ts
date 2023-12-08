@@ -40,6 +40,10 @@ async function main() {
 
   console.log("Chainlink ", Chainlink.address)
 
+  const BorrowerContract = await hre.viem.deployContract("FlashBorrowerExample")
+
+  console.log("Borrower: ", BorrowerContract.address)
+
 }
 
 // We recommend this pattern to be able to use async/await everywhere

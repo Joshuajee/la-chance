@@ -2,6 +2,11 @@ import hre from "hardhat";
 import { ethers } from "ethers";
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { loadFixture } from "@nomicfoundation/hardhat-network-helpers";
+import { Address } from "viem";
+
+export const LENDING_PROTOCOL = process.env.LENDING_PROTOCOL as Address
+export const TEST_USDC = process.env.TEST_USDC as Address
+export const CHAINLINK = process.env.CHAINLINK as Address
 
 export const vaultShare = [BigInt(25), BigInt(15), BigInt(15), BigInt(15), BigInt(15), BigInt(10), 5n]
 

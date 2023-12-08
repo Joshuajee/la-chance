@@ -18,6 +18,7 @@ const Navbar = () => {
                 <ul className="flex gap-x-4">
                     <li><Link to="/"> Home </Link> </li>
                     <li><Link to="/my-games"> My Games  </Link> </li>
+                    <li><Link to="/lending"> Lending </Link> </li>
                     <li><Link to="/get-tokens"> Get Token </Link> </li>
                     <li><Link to="/proposals"> Proposals </Link> </li>
                 </ul>

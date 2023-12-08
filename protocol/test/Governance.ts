@@ -306,9 +306,9 @@ describe("Governance", function () {
   describe("Testing Claim ", function () {
 
     
-    it("Should execute votes Abstained ", async function () {
+    it("Should Claim Reward for abstained ", async function () {
 
-      const { GovernanceToken, Governance, TUSDC } = await loadFixture(deployAndSponsor);
+      const { GovernanceToken, Governance, TUSDC, user1 } = await loadFixture(deployAndSponsor);
 
       await GovernanceToken.write.vote([1n, 0, amount])
 
@@ -316,7 +316,13 @@ describe("Governance", function () {
 
       await Governance.write.execute([1n])
 
+      const initialTUSDCBal = await TUSDC.read.balanceOf([user1.account.address])
+
+      const initialGoverTBal = await GovernanceToken.read.balanceOf([user1.account.address])
+
       const proposal = await Governance.read.proposalMapping([1n])
+
+      await Governance.write.claimFunds([1n])
 
       expect(await TUSDC.read.balanceOf([proposal[1]])).to.not.be.equal(0n)
 

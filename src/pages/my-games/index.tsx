@@ -5,7 +5,6 @@ import { useEffect, useState } from "react"
 import ValueBox from "@/components/utils/ValueBox"
 import PotStatus from "@/components/utils/PotStatus"
 import { TicketStanding } from "@/libs/interfaces"
-import Web3btn from "@/components/utils/Web3btn"
 import ClaimPrize from "./claimPrizeBtn"
 import WithdrawStake from "./withdrawStakeBtn"
 
