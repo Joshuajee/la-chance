@@ -1,34 +1,30 @@
-// import { AiOutlineClockCircle } from "react-icons/ai"
-import date from 'date-and-time';
-//import Poll from "./poll"
-import { IProposal } from ".";
-import Badge from "@/components/utils/Badge";
-import { AiOutlineClockCircle } from "react-icons/ai";
-import { useNavigate } from "react-router-dom";
 import Poll from "./poll";
 import { useAccount, useContractWrite } from 'wagmi';
 import LoadingButtonSM from '@/components/utils/LoadingButtonSM';
 import { toast } from 'react-toastify';
-// import Badge from "@/components/utils/Badge";
-// import Countdown from "react-countdown";
+import Status from "./Status";
+import { IProposalData } from "@/libs/interfaces";
+import Countdown from "react-countdown";
+import { PROPSAL_STATUS } from "@/libs/enums";
+
+
 
 
 
 interface IProps {
-    proposal: IProposal
+    data: IProposalData
 }
 
+const id = 2
 
-const ProposalCard = ({proposal } : IProps) => {
+const ProposalCard = ({ data } : IProps) => {
 
     const { isConnected } = useAccount()
 
-    const navigate = useNavigate()
+    const { status, description, voteFor, voteAgainst, votingPeriod } = data
 
-    const { id, title, creationTime, status, description, votesFor, votesAgainst, votingPeriod } = proposal
-
-    const yes = Number(votesFor?.toString())
-    const no = Number(votesAgainst?.toString())
+    const yes = Number(voteFor?.toString())
+    const no = Number(voteAgainst?.toString())
 
     const voteYes = useContractWrite({
         // address: contractAddress,
@@ -60,29 +56,33 @@ const ProposalCard = ({proposal } : IProps) => {
     return (
         <div className="flex flex-col text-gray-700 bg-white rounded-md p-4 md:px-4 shadow-lg w-full">
            
-            <h3 className="mb-3 text-sm">POSTED {date.format(new Date(Number(creationTime.toString()) * 1000), 'ddd, MMM DD YYYY')}  | POLL ID {id.toString()}</h3>
-            <h2 className="text-black text-xl md:text-2xl font-semibold mb-3">{title}</h2>
+            <h3 className="mb-3 text-sm"> POLL ID {id.toString()}</h3>
+            <h2 className="text-black text-xl md:text-2xl font-semibold mb-3 text-ellipsis">{description.slice(0, 60)}</h2>
             <p className="mb-3">{description}</p>
 
             <div className="flex flex-col lg:flex-row justify-between font-medium">
                 
                 <div>
-                    <Badge color={"green"}> 
-                        <AiOutlineClockCircle size={18} /> 
-                        <p className="ml-2 text-sm">{"Open"}</p> 
-                    </Badge>
+                    <Status status={status} />
                 </div> 
-{/* 
+
                 <div>
 
                     {
-                        proposalStatus?.state === 1 &&
+                        status === PROPSAL_STATUS.Pending &&
                             <>
-                                Voting ends in:  <Countdown date={Number(deadline)} />
+                                Proposal Expires in:  <Countdown date={Number(votingPeriod) * 1000} />
                             </> 
                     }
 
-                </div> */}
+                    {
+                        status === PROPSAL_STATUS.Active &&
+                            <>
+                                Voting ends in:  <Countdown date={Number(votingPeriod) * 1000} />
+                            </> 
+                    }
+
+                </div>
 
             </div>
 
@@ -92,10 +92,6 @@ const ProposalCard = ({proposal } : IProps) => {
 
             <div className="flex justify-between">
             
-            <button 
-                onClick={() => navigate(id.toString())} 
-                className="text-gray-600"> View Details </button> 
-                
             </div>
 
             <div className="flex flex-row space-x-2">

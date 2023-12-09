@@ -39,7 +39,7 @@ async function main() {
 
   console.log("Governance Vault ", GovernorVault.address)
 
-  const BorrowerContract = await hre.viem.deployContract("FlashBorrowerExample")
+  const BorrowerContract = await hre.viem.deployContract("BorrowerExample")
 
   console.log("Borrower: ", BorrowerContract.address)
 

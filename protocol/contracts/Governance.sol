@@ -34,7 +34,7 @@ contract Governance is IGovernance, CloneFactory, IProposal {
 
     using SafeERC20 for IERC20;
 
-    mapping(uint => IProposal.ProposalInfo) public proposalMapping;
+    mapping(uint => ProposalInfo) public proposalMapping;
 
     uint [] pendingProposals;
     uint [] activeProposals;
@@ -221,6 +221,26 @@ contract Governance is IGovernance, CloneFactory, IProposal {
     function minVotingThreshhold() public view returns(uint) {
         uint bal = IERC20(governanceToken).totalSupply();
         return bal * quorum / PERCENT;
+    }
+
+
+    function getProposals(uint start, uint end) external view returns (ProposalInfo [] memory) {
+
+        ProposalInfo [] memory proposals = new ProposalInfo[] (end - start);
+        
+        uint count = 0;
+
+        for (uint i = end; i > start; --i) {
+            proposals[count] = proposalMapping[i];
+            ++count;
+        }
+
+        return proposals;
+        
+    }
+
+    function getTotalProposals () view external returns(uint) {
+        return proposalCounter;
     }
 
     // Governance Functions

@@ -2,6 +2,57 @@
   {
     "inputs": [
       {
+        "internalType": "enum IProposal.ProposalStatus",
+        "name": "status",
+        "type": "uint8"
+      },
+      {
+        "internalType": "uint256",
+        "name": "voteFor",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "voteAgainst",
+        "type": "uint256"
+      }
+    ],
+    "name": "burnTokens",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "owner",
+        "type": "address"
+      },
+      {
+        "internalType": "enum IProposal.ProposalStatus",
+        "name": "status",
+        "type": "uint8"
+      },
+      {
+        "internalType": "uint256",
+        "name": "voteFor",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "voteAgainst",
+        "type": "uint256"
+      }
+    ],
+    "name": "claimFunds",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
         "internalType": "address[]",
         "name": "assets",
         "type": "address[]"

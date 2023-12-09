@@ -1,4 +1,5 @@
 import { Address } from "wagmi";
+import { PROPSAL_STATUS } from "./enums";
 
 // struct TicketIDStruct {
 //     round: boolean,
@@ -52,3 +53,22 @@ export interface TicketStanding {
     ticketId: bigint
 }
 
+
+export interface IProposalInfo {
+    id: bigint,
+    calldatas: string,
+    description: string, 
+    status: PROPSAL_STATUS,
+    targets: Address[],
+    threshold: number,
+    values: bigint[],
+    vault: Address,
+    voteAbstinence: bigint,
+    voteAgainst: bigint,
+    voteFor: bigint,
+    votingPeriod: bigint
+}
+
+export interface IProposalData extends IProposalInfo {
+    id: bigint
+}

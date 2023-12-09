@@ -15,7 +15,7 @@ import "./interface/IProposal.sol";
 contract GovernanceToken is ERC20, Authorization, ERC20Burnable, ERC20Permit, IProposal {
 
     address public immutable governance;
-    constructor(address _governance) ERC20("La Chance Governance", "LCG") ERC20Permit("LCG") {
+    constructor(address _governance) ERC20("La Chance Governance Token", "LGT") ERC20Permit("LCG") {
         governance = _governance;
     }
 

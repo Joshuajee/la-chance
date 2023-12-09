@@ -9,9 +9,11 @@ const Navbar = () => {
 
     const trigger = scrollPosition > 80
 
+    console.log(trigger)
+
 
     return (
-        <nav data-aos="fade-in" className={`${trigger && "shadow-lg backdrop-blur-xl bg-blue/50 z-10"} fixed w-full flex justify-between text-white py-4 px-2 md:px-10`}>
+        <nav className={`${trigger && "shadow-lg backdrop-blur-xl bg-white z-10"} sticky top-0 z-10 w-full flex justify-between text-white py-4 px-2 md:px-10`}>
 
             <Link to={"/"} className="text-white font-bold text-sm md:text-2xl">La chance</Link>
 

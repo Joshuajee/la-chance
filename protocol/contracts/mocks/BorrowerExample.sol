@@ -6,7 +6,7 @@ import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import './FlashBorrowerExample.sol';
 import '../LendingProtocol.sol';
 
-contract MultiplyBorrow {
+contract BorrowerExample {
 
     using SafeERC20 for IERC20;
 

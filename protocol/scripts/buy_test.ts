@@ -5,13 +5,13 @@ async function main() {
 
   //const [user1, user2] = await hre.viem.getWalletClients();
 
-  const TestUSDC = await hre.viem.getContractAt("TestUSDC", "0x5fbdb2315678afecb367f032d93f642f64180aa3")
+  const TestUSDC = await hre.viem.getContractAt("TestUSDC", "0x0165878a594ca255338adfa4d48449f69242eb8f")
 
-  const Jackpot = await hre.viem.getContractAt("Jackpot", "0xa51c1fc2f0d1a1b8494ed1fe312d7c3a78ed91c0")
+  const Jackpot = await hre.viem.getContractAt("Jackpot", "0x9a9f2ccfde556a7e9ff0848998aa4a0cfd8863ae")
 
   await TestUSDC.write.approve([Jackpot.address, testUSDCPrice.toBigInt() * 200000n])
 
-  for (let i = 0; i < 10; i++) {
+  for (let i = 0; i < 3; i++) {
     await Jackpot.write.buyTickets([TestUSDC.address, generateTickets(20)]);
     console.log("Process ", i + 1, " / 10")
   }
