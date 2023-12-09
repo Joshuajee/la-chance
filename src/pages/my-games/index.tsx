@@ -7,10 +7,21 @@ import PotStatus from "@/components/utils/PotStatus"
 import { TicketStanding } from "@/libs/interfaces"
 import ClaimPrize from "./claimPrizeBtn"
 import WithdrawStake from "./withdrawStakeBtn"
+import ReactPaginate from 'react-paginate';
 
 const MyGames = () => {
 
+    const itemsPerPage = 20
+
     const [myTickets, setMyTickets] = useState<TicketStanding[]>([])
+    const [start, setStart] = useState(0n)
+    const [itemOffset, setItemOffset] = useState(0);
+
+
+    const endOffset = itemOffset + itemsPerPage;
+    console.log(`Loading items from ${itemOffset} to ${endOffset}`);
+
+
 
     const { address } = useAccount()
 
@@ -23,9 +34,11 @@ const MyGames = () => {
 
     const myTicketLength = (getMyTicketLength.data || 1n) as bigint
 
-    const start = myTicketLength - 1n
-    const max = 20n
+    const max = BigInt(itemsPerPage)
+
     const showing = start - max
+
+    const pageCount = Math.ceil(Number(myTicketLength) / itemsPerPage);
 
     const myGames = useContractRead({
         address: JACKPOT_CORE,
@@ -40,8 +53,22 @@ const MyGames = () => {
         if (myGames.data) setMyTickets(myGames.data as TicketStanding[])
     }, [myGames.data])
 
+    useEffect(() => {
+        setStart(myTicketLength - 1n)
+    }, [myTicketLength])
+
+    // Invoke when user click to request another page.
+    const handlePageClick = (event: any) => {
+        const newOffset = (event.selected * itemsPerPage) % Number(myTicketLength.toString());
+        console.log(
+        `User requested page number ${event.selected}, which is offset ${newOffset}`
+        );
+        setItemOffset(newOffset);
+        setStart(BigInt(newOffset))
+    };
+
     return (
-        <main className="flex flex-col items-center ">
+        <main className="flex flex-col items-center mb-20">
 
             <div className="my-10 mb-20">
                 <div className="relative overflow-x-auto shadow-md sm:rounded-lg border-[1px]">
@@ -121,14 +148,13 @@ const MyGames = () => {
                                             <td className="px-4">
                                                 <div className="w-36">
                                         
-                                                        {   
-                                                            won1 ? 
-                                                                <ClaimPrize gameRound={result.gameRound} ticketId={result.ticketId} /> 
-                                                                    : 
-                                                                <WithdrawStake gameRound={result.gameRound} ticketId={result.ticketId} disabled={!canWithdraw()} />
-                                                        }
-                                        {/* <Web3btn  disabled={!canWithdraw()}></Web3btn> */}
-
+                                                    {   
+                                                        won1 ? 
+                                                            <ClaimPrize gameRound={result.gameRound} ticketId={result.ticketId} /> 
+                                                                : 
+                                                            <WithdrawStake gameRound={result.gameRound} ticketId={result.ticketId} disabled={!canWithdraw()} />
+                                                    }
+             
                                                 </div>
                                             </td>
                                         
@@ -144,6 +170,28 @@ const MyGames = () => {
                 </div>
 
             </div>
+
+            <div className="page-wrapper flex w-full justify-end">
+                <ReactPaginate
+                    nextLabel="next >"
+                    onPageChange={handlePageClick}
+                    pageRangeDisplayed={3}
+                    marginPagesDisplayed={2}
+                    pageCount={pageCount}
+                    previousLabel="< previous"
+                    pageClassName="page-item"
+                    pageLinkClassName="page-link"
+                    previousClassName="page-item"
+                    previousLinkClassName="page-link"
+                    nextClassName="page-item"
+                    nextLinkClassName="page-link"
+                    breakLabel="..."
+                    breakClassName="page-item"
+                    breakLinkClassName="page-link"
+                    containerClassName="pagination"
+                    activeClassName="active"
+                    renderOnZeroPageCount={null}/>
+                </div>
 
         </main>
     )

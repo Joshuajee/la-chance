@@ -24,7 +24,7 @@ const HomePage = () => {
         setVaults(data as Address[7])
     }, [data])
 
-    console.log({ data, isLoading } )
+    console.log(isLoading)
 
     return (
         <main className="flex flex-col items-center justify-center">

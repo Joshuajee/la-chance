@@ -83,8 +83,7 @@ export async function chainLinkConfig () {
 }
 
 
-
-export async function deployTest() {
+export async function deploy(LinkToken, VRFCoordinatorV2Mock, MockV3Aggregator, VRFV2Wrapper) {
 
   // Contracts are deployed using the first signer/account by default
   const [user1, user2] = await hre.viem.getWalletClients();
@@ -97,21 +96,26 @@ export async function deployTest() {
 
   const LendingProtocol = await hre.viem.deployContract("LendingProtocol");
 
-  const { LinkToken, VRFCoordinatorV2Mock, MockV3Aggregator, VRFV2Wrapper } = await chainLinkConfig()
+  // Deploying Governance
 
+  const DAOVault = await hre.viem.deployContract("DAOVault");
+
+  const GovernorVault = await hre.viem.deployContract("GovernorVault");
+  
+  const Governance = await hre.viem.deployContract("Governance", [GovernorVault.address]);
+
+  const GovernanceToken = await hre.viem.deployContract("GovernanceToken", [Governance.address]);
+
+  await Governance.write.init([GovernanceToken.address, DAOVault.address])
+
+  // Deploying Protocol
   const Chainlink = await hre.viem.deployContract("Chainlink", [LinkToken.address, VRFV2Wrapper.address])
 
   const JackpotCore = await hre.viem.deployContract("JackpotCore");
 
-  const Jackpot = await hre.viem.deployContract("Jackpot", [JackpotCore.address, LendingProtocol.address, Vault.address, Pot.address, TUSDC.address, testUSDCPrice.toBigInt()]);
+  const Jackpot = await hre.viem.deployContract("Jackpot", [JackpotCore.address, LendingProtocol.address, Chainlink.address, Governance.address, GovernanceToken.address, DAOVault.address, Vault.address, Pot.address, TUSDC.address, testUSDCPrice.toBigInt()]);
 
   await LinkToken.write.transfer([Chainlink.address, oneHundredLink.toBigInt()])
-
-  await Chainlink.write.initFactory([Jackpot.address])
-
-  await JackpotCore.write.initFactory([Jackpot.address])
-
-  await LendingProtocol.write.initFactory([Jackpot.address])
 
   const Vaults = await Jackpot.read.vaultAddresses()
 
@@ -127,6 +131,34 @@ export async function deployTest() {
     LinkToken, VRFCoordinatorV2Mock, MockV3Aggregator, VRFV2Wrapper,
     Chainlink,
     Vaults,
+    Governance,
+    GovernanceToken,
+    GovernorVault,
+    publicClient,
+  };
+}
+
+
+
+export async function deployTest() {
+
+  const { LinkToken, VRFCoordinatorV2Mock, MockV3Aggregator, VRFV2Wrapper } = await chainLinkConfig()
+
+  const { user1, user2, Jackpot, JackpotCore, Governance, GovernanceToken, GovernorVault, LendingProtocol, TUSDC, Chainlink, Vaults, publicClient } = await deploy(LinkToken, VRFCoordinatorV2Mock, MockV3Aggregator, VRFV2Wrapper)
+  
+  return {
+    Jackpot,
+    JackpotCore,
+    LendingProtocol,
+    user1,
+    user2,
+    TUSDC,
+    LinkToken, VRFCoordinatorV2Mock, MockV3Aggregator, VRFV2Wrapper,
+    Chainlink,
+    Vaults,
+    Governance,
+    GovernanceToken,
+    GovernorVault,
     publicClient,
   };
 }
@@ -287,6 +319,8 @@ export async function deployGovernanceTest() {
   await DAOVault.write.initGovernor([Governance.address])
 
   await Governance.write.init([GovernanceToken.address, DAOVault.address])
+
+  await GovernanceToken.write.initFactory([user1.account.address])
 
   await GovernanceToken.write.mint([user1.account.address, ethers.utils.parseUnits("1000","ether").toBigInt()])
 

@@ -1,13 +1,13 @@
 import { HardhatUserConfig } from "hardhat/config";
 import "@nomicfoundation/hardhat-toolbox-viem";
+//import "@nomiclabs/hardhat-etherscan";
 import 'hardhat-abi-exporter';
 import 'hardhat-contract-sizer';
-import dotenv from 'dotenv'
+import dotenv from 'dotenv';
 
 dotenv.config()
 
-// import "@nomiclabs/hardhat-etherscan";
-
+// 
 const PRIVATE_KEY = String(process.env.PRIVATE_KEY)
 
 const config: HardhatUserConfig = {
@@ -37,7 +37,7 @@ const config: HardhatUserConfig = {
 			path: '../src/abi',
 			pretty: false,
 			runOnCompile: true,
-			only: [ "Jackpot", "LendingProtocol",  "Vault",  "DAOVault", "Pot", "Chainlink", "Governance", "TestUSDC" ]
+			only: [ "Jackpot", "LendingProtocol",  "Vault",  "DAOVault", "Pot", "Chainlink", "Governance", "GovernanceToken", "TestUSDC" ]
 		}
 	],
 	contractSizer: {
@@ -45,7 +45,7 @@ const config: HardhatUserConfig = {
 		disambiguatePaths: false,
 		runOnCompile: true,
 		strict: true,
-		only: [ "Jackpot", "JackpotCore", "LendingProtocol",  "Vault",  "DAOVault", "Pot", "Chainlink", "Governance", "CloneFactory" ]
+		only: [ "Jackpot", "JackpotCore", "LendingProtocol",  "Vault",  "DAOVault", "Pot", "Chainlink", "Governance", "GovernanceToken", "CloneFactory" ]
 	},
 	networks: {
 		mumbai: {

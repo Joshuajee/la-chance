@@ -13,6 +13,26 @@
       },
       {
         "internalType": "address",
+        "name": "_chainlinkContractAddress",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "_governanceAddress",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "_governanceTokenAddress",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "_daoVault",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
         "name": "_vaultFactoryAddress",
         "type": "address"
       },
@@ -95,6 +115,11 @@
   {
     "inputs": [],
     "name": "GovernorAlreadyInitialized",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "MessageNotFromChainlink",
     "type": "error"
   },
   {
@@ -236,6 +261,19 @@
     "type": "function"
   },
   {
+    "inputs": [],
+    "name": "chainlinkContractAddress",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
     "inputs": [
       {
         "internalType": "uint256",
@@ -299,6 +337,19 @@
         "internalType": "uint256",
         "name": "tokenPrize",
         "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "governanceTokenAddress",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
       }
     ],
     "stateMutability": "view",

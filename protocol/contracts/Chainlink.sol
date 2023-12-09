@@ -3,6 +3,7 @@
 pragma solidity ^0.8.7;
 
 import "@chainlink/contracts/src/v0.8/vrf/VRFV2WrapperConsumerBase.sol";
+import "@chainlink/contracts/src/v0.8/automation/AutomationCompatible.sol";
 
 import './interface/IJackpot.sol';
 import "./interface/IJackpotCore.sol";
@@ -12,7 +13,7 @@ import "hardhat/console.sol";
 
 // Note the factory address for this contract is the jackpot address
 
-contract Chainlink is VRFV2WrapperConsumerBase, Authorization {
+contract Chainlink is VRFV2WrapperConsumerBase, Authorization, AutomationCompatibleInterface {
 
     error StakingPeriodIsNotOver();
 
@@ -41,7 +42,7 @@ contract Chainlink is VRFV2WrapperConsumerBase, Authorization {
     
     constructor(address _linkAddress, address _wrapperAddress) VRFV2WrapperConsumerBase(_linkAddress, _wrapperAddress) {}
 
-    function randomRequestRandomWords() external canRequestVRF returns (uint randomRequestId) {
+    function randomRequestRandomWords() public canRequestVRF returns (uint randomRequestId) {
         randomRequestId = requestRandomness(callbackGasLimit,3, 5);
         uint paid = VRF_V2_WRAPPER.calculateRequestPrice(callbackGasLimit);
         uint balance = LINK.balanceOf(address(this));
@@ -53,13 +54,11 @@ contract Chainlink is VRFV2WrapperConsumerBase, Authorization {
         });
         randomRequestIds.push(randomRequestId);
         lastRequestId = randomRequestId;
-        console.log("YES");
         emit RandomRequestSent(randomRequestId, 5, paid);
     }
 
 
     function fulfillRandomWords(uint _requestId, uint[] memory _randomWords) internal override {
-        console.log("No");
         RandomRequestStatus storage request = s_requests[_requestId];
         if (request.paid == 0) revert RandomRequestNotFound(_requestId);
         request.fulfilled = true;
@@ -100,9 +99,20 @@ contract Chainlink is VRFV2WrapperConsumerBase, Authorization {
         return (randomRequest.paid, randomRequest.fulfilled, randomRequest.randomWords);
     }
 
-    /**
-     * Allow withdraw of Link tokens from the contract
-     */
+    function checkUpkeep(
+        bytes calldata /* checkData */
+    )
+        external
+        view
+        override
+        returns (bool upkeepNeeded, bytes memory /* performData */)
+    {
+        upkeepNeeded = !IJackpot(factoryAddress).gamePeriodHasElasped();
+    }
+
+    function performUpkeep(bytes calldata /* performData */) external override {
+        randomRequestRandomWords();
+    }
 
 
     function _increaseRandomness(uint word) pure internal returns(uint) {

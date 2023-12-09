@@ -7,7 +7,7 @@ const Poll = ({yes, no}: {yes: number, no: number}) => {
     return (
         <div className="block py-4 w-full max-w-xs">
 
-            <h4 className="text-right text-sm mb-2">Votes casted: <strong> {total} </strong> </h4>
+            <h4 className="text-right text-sm mb-2">Votes casted: <strong> {total} LGT </strong> </h4>
 
             { 
                 total > 0 &&

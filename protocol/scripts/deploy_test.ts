@@ -9,6 +9,9 @@ async function main() {
       TUSDC,
       LinkToken, VRFCoordinatorV2Mock, MockV3Aggregator, VRFV2Wrapper,
       Chainlink,
+      Governance,
+      GovernanceToken,
+      GovernorVault
   } = await deployTest()
 
 
@@ -24,16 +27,21 @@ async function main() {
 
   console.log("Chainlink ", Chainlink.address)
 
-  console.log("VRFCoordinatorV2Mock ", VRFCoordinatorV2Mock.address)
+  // console.log("VRFCoordinatorV2Mock ", VRFCoordinatorV2Mock.address)
 
-  console.log("MockV3Aggregator ", MockV3Aggregator.address)
+  // console.log("MockV3Aggregator ", MockV3Aggregator.address)
 
-  console.log("VRFV2Wrapper ", VRFV2Wrapper.address)
+  // console.log("VRFV2Wrapper ", VRFV2Wrapper.address)
 
-  const BorrowerContract = await hre.viem.deployContract("FlashBorrowerExample")
+  console.log("Governance ", Governance.address)
+
+  console.log("Governance Token ", GovernanceToken.address)
+
+  console.log("Governance Vault ", GovernorVault.address)
+
+  const BorrowerContract = await hre.viem.deployContract("BorrowerExample")
 
   console.log("Borrower: ", BorrowerContract.address)
-
 
 }
 

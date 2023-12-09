@@ -17,4 +17,6 @@ interface IGovernanceVault {
     function initGovernorToken(address _governorToken) external;
 
     function fund(address[] memory assets, uint[] memory assetBalances) external;
+    function burnTokens(IProposal.ProposalStatus status, uint voteFor, uint voteAgainst) external;
+    function claimFunds(address owner, IProposal.ProposalStatus status, uint voteFor, uint voteAgainst) external;
 }

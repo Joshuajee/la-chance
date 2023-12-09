@@ -86,6 +86,29 @@
     "type": "function"
   },
   {
+    "inputs": [
+      {
+        "internalType": "enum IProposal.ProposalStatus",
+        "name": "status",
+        "type": "uint8"
+      },
+      {
+        "internalType": "uint256",
+        "name": "voteFor",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "voteAgainst",
+        "type": "uint256"
+      }
+    ],
+    "name": "burnTokens",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
     "inputs": [],
     "name": "chainlinkAddress",
     "outputs": [
@@ -96,6 +119,34 @@
       }
     ],
     "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "owner",
+        "type": "address"
+      },
+      {
+        "internalType": "enum IProposal.ProposalStatus",
+        "name": "status",
+        "type": "uint8"
+      },
+      {
+        "internalType": "uint256",
+        "name": "voteFor",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "voteAgainst",
+        "type": "uint256"
+      }
+    ],
+    "name": "claimFunds",
+    "outputs": [],
+    "stateMutability": "nonpayable",
     "type": "function"
   },
   {
@@ -120,7 +171,7 @@
       },
       {
         "internalType": "uint256[]",
-        "name": "assetBalances",
+        "name": "_assetBalances",
         "type": "uint256[]"
       }
     ],
@@ -192,6 +243,32 @@
     "name": "initGovernorToken",
     "outputs": [],
     "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "percentForSponsors",
+    "outputs": [
+      {
+        "internalType": "uint8",
+        "name": "",
+        "type": "uint8"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "percentToBurn",
+    "outputs": [
+      {
+        "internalType": "uint8",
+        "name": "",
+        "type": "uint8"
+      }
+    ],
+    "stateMutability": "view",
     "type": "function"
   },
   {
@@ -342,6 +419,25 @@
       }
     ],
     "name": "userVoteFor",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "name": "userVotes",
     "outputs": [
       {
         "internalType": "uint256",

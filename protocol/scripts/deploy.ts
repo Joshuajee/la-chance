@@ -13,7 +13,6 @@ async function main() {
 
   const Pot = await hre.viem.deployContract("Pot");
 
-
   const LendingProtocol = await hre.viem.deployContract("LendingProtocol");
 
   const Chainlink = await hre.viem.deployContract("Chainlink", [linkToken, vrfV2Wrapper])
@@ -43,6 +42,11 @@ async function main() {
   const BorrowerContract = await hre.viem.deployContract("FlashBorrowerExample")
 
   console.log("Borrower: ", BorrowerContract.address)
+
+  console.log("Governance: ")
+  Governance,
+  GovernanceToken,
+  GovernorVault,
 
 }
 
