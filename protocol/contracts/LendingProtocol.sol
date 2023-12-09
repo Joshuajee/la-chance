@@ -18,7 +18,7 @@ contract LendingProtocol is Authorization, ILendingInterface {
     using SafeERC20 for IERC20;
 
     uint public interestRate = 9;
-    uint16 constant PERCENT = 1000;
+    uint16 public constant PERCENT = 1000;
     uint32 public constant minLoanAmount = 99999999;
 
     address public vault1; 

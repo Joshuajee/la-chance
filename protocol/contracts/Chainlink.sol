@@ -3,6 +3,7 @@
 pragma solidity ^0.8.7;
 
 import "@chainlink/contracts/src/v0.8/vrf/VRFV2WrapperConsumerBase.sol";
+import "@chainlink/contracts/src/v0.8/automation/AutomationCompatible.sol";
 
 import './interface/IJackpot.sol';
 import "./interface/IJackpotCore.sol";
@@ -12,7 +13,7 @@ import "hardhat/console.sol";
 
 // Note the factory address for this contract is the jackpot address
 
-contract Chainlink is VRFV2WrapperConsumerBase, Authorization {
+contract Chainlink is VRFV2WrapperConsumerBase, Authorization, AutomationCompatibleInterface {
 
     error StakingPeriodIsNotOver();
 
@@ -98,9 +99,20 @@ contract Chainlink is VRFV2WrapperConsumerBase, Authorization {
         return (randomRequest.paid, randomRequest.fulfilled, randomRequest.randomWords);
     }
 
-    /**
-     * Allow withdraw of Link tokens from the contract
-     */
+    function checkUpkeep(
+        bytes calldata /* checkData */
+    )
+        external
+        view
+        override
+        returns (bool upkeepNeeded, bytes memory /* performData */)
+    {
+        upkeepNeeded = !IJackpot(factoryAddress).gamePeriodHasElasped();
+    }
+
+    function performUpkeep(bytes calldata /* performData */) external override {
+        randomRequestRandomWords();
+    }
 
 
     function _increaseRandomness(uint word) pure internal returns(uint) {

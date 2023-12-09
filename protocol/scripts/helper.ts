@@ -131,6 +131,9 @@ export async function deploy(LinkToken, VRFCoordinatorV2Mock, MockV3Aggregator, 
     LinkToken, VRFCoordinatorV2Mock, MockV3Aggregator, VRFV2Wrapper,
     Chainlink,
     Vaults,
+    Governance,
+    GovernanceToken,
+    GovernorVault,
     publicClient,
   };
 }
@@ -141,9 +144,8 @@ export async function deployTest() {
 
   const { LinkToken, VRFCoordinatorV2Mock, MockV3Aggregator, VRFV2Wrapper } = await chainLinkConfig()
 
-  const { user1, user2, Jackpot, JackpotCore, LendingProtocol, TUSDC, Chainlink, Vaults, publicClient } = await deploy(LinkToken, VRFCoordinatorV2Mock, MockV3Aggregator, VRFV2Wrapper)
+  const { user1, user2, Jackpot, JackpotCore, Governance, GovernanceToken, GovernorVault, LendingProtocol, TUSDC, Chainlink, Vaults, publicClient } = await deploy(LinkToken, VRFCoordinatorV2Mock, MockV3Aggregator, VRFV2Wrapper)
   
-
   return {
     Jackpot,
     JackpotCore,
@@ -154,6 +156,9 @@ export async function deployTest() {
     LinkToken, VRFCoordinatorV2Mock, MockV3Aggregator, VRFV2Wrapper,
     Chainlink,
     Vaults,
+    Governance,
+    GovernanceToken,
+    GovernorVault,
     publicClient,
   };
 }
