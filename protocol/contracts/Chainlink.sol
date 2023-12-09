@@ -41,7 +41,7 @@ contract Chainlink is VRFV2WrapperConsumerBase, Authorization {
     
     constructor(address _linkAddress, address _wrapperAddress) VRFV2WrapperConsumerBase(_linkAddress, _wrapperAddress) {}
 
-    function randomRequestRandomWords() external canRequestVRF returns (uint randomRequestId) {
+    function randomRequestRandomWords() public canRequestVRF returns (uint randomRequestId) {
         randomRequestId = requestRandomness(callbackGasLimit,3, 5);
         uint paid = VRF_V2_WRAPPER.calculateRequestPrice(callbackGasLimit);
         uint balance = LINK.balanceOf(address(this));
@@ -53,13 +53,11 @@ contract Chainlink is VRFV2WrapperConsumerBase, Authorization {
         });
         randomRequestIds.push(randomRequestId);
         lastRequestId = randomRequestId;
-        console.log("YES");
         emit RandomRequestSent(randomRequestId, 5, paid);
     }
 
 
     function fulfillRandomWords(uint _requestId, uint[] memory _randomWords) internal override {
-        console.log("No");
         RandomRequestStatus storage request = s_requests[_requestId];
         if (request.paid == 0) revert RandomRequestNotFound(_requestId);
         request.fulfilled = true;

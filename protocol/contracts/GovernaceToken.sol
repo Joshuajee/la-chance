@@ -19,7 +19,7 @@ contract GovernanceToken is ERC20, Authorization, ERC20Burnable, ERC20Permit, IP
         governance = _governance;
     }
 
-    function mint(address to, uint256 amount) public  {
+    function mint(address to, uint256 amount) external onlyFactory  {
         _mint(to, amount);
     }
 

@@ -21,6 +21,7 @@ contract Governance is IGovernance, CloneFactory, IProposal {
     event CastVote(address indexed voter, uint indexed proposalId, Vote indexed vote, uint amount);
     event WithdrawVote(address indexed voter, uint indexed proposalId, Vote indexed _vote, uint amount);
     event WithdrawSupport(address indexed voter, uint indexed proposalId, uint amount);
+    
     //event d
 
     error CanOnlyFundPendingProposals(uint proposalId, ProposalStatus status);
@@ -29,6 +30,7 @@ contract Governance is IGovernance, CloneFactory, IProposal {
     error CannotExecuteProposal(uint proposalId);
     error CannotWithdrawSupportNow();
     error CallerNotDAOVault();
+    error CannotClaimFundsNow();
 
     using SafeERC20 for IERC20;
 
@@ -126,10 +128,12 @@ contract Governance is IGovernance, CloneFactory, IProposal {
 
         IProposal.ProposalInfo storage proposal = proposalMapping[proposalId];
 
-        if (proposal.status != ProposalStatus.Pending || proposal.status != ProposalStatus.Active) revert();
+        ProposalStatus status = proposal.status;
 
+        if (status == ProposalStatus.Pending || status == ProposalStatus.Active) revert CannotClaimFundsNow();
+
+        IGovernanceVault(proposal.vault).claimFunds(msg.sender, status, proposal.voteFor, proposal.voteAgainst);
         
-    
     }
 
 
@@ -175,7 +179,11 @@ contract Governance is IGovernance, CloneFactory, IProposal {
             proposal.status = ProposalStatus.Failed;
         }
 
-        IDAOVault(daoVault).withdrawForDAO(proposal.vault, totalVotes, IERC20(governanceToken).totalSupply());
+        address vault = proposal.vault;
+
+        IDAOVault(daoVault).withdrawForDAO(vault, totalVotes, IERC20(governanceToken).totalSupply());
+
+        IGovernanceVault(vault).burnTokens(proposal.status, proposal.voteFor, proposal.voteAgainst);
 
         return proposalId;
     }
@@ -235,17 +243,34 @@ contract Governance is IGovernance, CloneFactory, IProposal {
 
         if (proposal.status != ProposalStatus.Pending) revert CanOnlyFundPendingProposals(proposalId, proposal.status);
 
+        uint threshold = proposal.threshold;
+
         uint balance = IERC20(governanceToken).balanceOf(address(this));
 
         address vault = proposal.vault;
 
-        IERC20(governanceToken).safeTransfer(vault, balance);
+        // make sure we don't over support the proposal
 
-        IGovernanceVault(vault).support(sponsor, amount);
+        uint currentFundingAmount = IGovernanceVault(vault).supportFunds();
+
+        if (currentFundingAmount + balance > threshold) {
+            uint returningTokens = currentFundingAmount + balance - threshold;
+
+            // return execess funds to sponsor
+            IERC20(governanceToken).safeTransfer(sponsor, returningTokens);
+            balance = proposal.threshold - currentFundingAmount;
+            IGovernanceVault(vault).support(sponsor, balance);
+
+        } else {
+            IGovernanceVault(vault).support(sponsor, amount);
+        }
+
+
+        IERC20(governanceToken).safeTransfer(vault, balance);
 
         uint fundingAmount = IGovernanceVault(vault).supportFunds();
 
-        if (fundingAmount > proposal.threshold) {
+        if (fundingAmount >= threshold) {
             proposal.status = ProposalStatus.Active;
             proposal.votingPeriod = block.timestamp + votingPeriod;
             proposal.threshold = minVotingThreshhold();

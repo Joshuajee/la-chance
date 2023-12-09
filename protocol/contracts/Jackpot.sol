@@ -12,8 +12,9 @@ import "./JackpotCore.sol";
 import "./LendingProtocol.sol";
 import './interface/IVault.sol';
 import './interface/ILendingInterface.sol';
+import './interface/IGovernanceToken.sol';
 
-import "hardhat/console.sol";
+//import "hardhat/console.sol";
 
 
 contract Jackpot is IJackpot, Authorization, CloneFactory {
@@ -21,6 +22,7 @@ contract Jackpot is IJackpot, Authorization, CloneFactory {
     error TicketAlreadyClaimed(uint round, uint ticketId);
 
     error TicketDidntWin(uint round, uint ticketId);
+    error MessageNotFromChainlink();
 
     using SafeERC20 for IERC20;
 
@@ -39,6 +41,8 @@ contract Jackpot is IJackpot, Authorization, CloneFactory {
     address public lendingProtocolAddress;
     address public vaultFactoryAddress; 
     address public potFactoryAddress; 
+    address public governanceTokenAddress;
+    address public chainlinkContractAddress;
 
     VaultAddressStruct public vaultAddresses;
 
@@ -51,17 +55,24 @@ contract Jackpot is IJackpot, Authorization, CloneFactory {
     // mapping of game rounds to pots
     //mapping(uint => PotAddressStruct) public potAddressess;
 
-    constructor (address _jackpotCore, address _lendingProtocolAddress, address _vaultFactoryAddress, address _potFactoryAddress, address tokenAddress, uint amount) {
+    constructor (address _jackpotCore, address _lendingProtocolAddress, address _chainlinkContractAddress, address _governanceAddress, address _governanceTokenAddress, address _daoVault, address _vaultFactoryAddress, address _potFactoryAddress, address tokenAddress, uint amount) {
         
         _isAddressZero(_jackpotCore);
         _isAddressZero(_lendingProtocolAddress);
+        _isAddressZero(_governanceAddress);
+        _isAddressZero(_governanceTokenAddress);
+        _isAddressZero(_daoVault);
         _isAddressZero(_vaultFactoryAddress);
         _isAddressZero(tokenAddress);
+        _isAddressZero(_chainlinkContractAddress);
+
 
         acceptedTokenPrize[tokenAddress] = amount;
         jackpotCoreAddress = _jackpotCore;
         lendingProtocolAddress = _lendingProtocolAddress;
         vaultFactoryAddress = _vaultFactoryAddress;
+        governanceTokenAddress = _governanceTokenAddress;
+        chainlinkContractAddress = _chainlinkContractAddress;
 
         // Create vaultFactoryAddress
         vaultAddresses = VaultAddressStruct(
@@ -70,7 +81,7 @@ contract Jackpot is IJackpot, Authorization, CloneFactory {
             createClone(vaultFactoryAddress),
             createClone(vaultFactoryAddress),
             createClone(vaultFactoryAddress),
-            createClone(vaultFactoryAddress),
+            _daoVault,
             createClone(vaultFactoryAddress)
         );
 
@@ -119,6 +130,30 @@ contract Jackpot is IJackpot, Authorization, CloneFactory {
         supportedToken[tokenAddress] = true;
         supportedTokenArray.push(tokenAddress);
 
+        // Init Governance 
+        IAuthorization(vaultAddresses.vault1).initGovernor(_governanceAddress);
+        IAuthorization(vaultAddresses.vault2).initGovernor(_governanceAddress);
+        IAuthorization(vaultAddresses.vault3).initGovernor(_governanceAddress);
+        IAuthorization(vaultAddresses.vault4).initGovernor(_governanceAddress);
+        IAuthorization(vaultAddresses.vault5).initGovernor(_governanceAddress);
+        IAuthorization(vaultAddresses.daoVault).initGovernor(_governanceAddress);
+        IAuthorization(vaultAddresses.communityVault).initGovernor(_governanceAddress);
+
+        IAuthorization(_jackpotCore).initGovernor(_governanceAddress);
+        IAuthorization(_lendingProtocolAddress).initGovernor(_governanceAddress);
+        IAuthorization(_governanceTokenAddress).initGovernor(_governanceAddress);
+        IAuthorization(_vaultFactoryAddress).initGovernor(_governanceAddress);
+        IAuthorization(_potFactoryAddress).initGovernor(_governanceAddress);
+        IAuthorization(_chainlinkContractAddress).initGovernor(_governanceAddress);
+        // IAuthorization(vaultAddresses.communityVault).initGovernor(_governanceAddress);
+        
+        // Init Factory
+        IAuthorization(_jackpotCore).initFactory(address(this));
+        IAuthorization(_lendingProtocolAddress).initFactory(address(this));
+        IAuthorization(_chainlinkContractAddress).initFactory(address(this));
+        IAuthorization(_governanceTokenAddress).initFactory(address(this));
+        IAuthorization(_vaultFactoryAddress).initFactory(address(this));
+        IAuthorization(_potFactoryAddress).initFactory(address(this));
     }
 
 
@@ -139,6 +174,8 @@ contract Jackpot is IJackpot, Authorization, CloneFactory {
         for (uint i = 0; i < length; i++) {
             IJackpotCore(jackpotCoreAddress).saveTicket(msg.sender, token, tickets[i], _vaultShare, pricePerTicket);
         }
+
+        IGovernanceToken(governanceTokenAddress).mint(msg.sender, amount);
 
     }
 
@@ -234,6 +271,7 @@ contract Jackpot is IJackpot, Authorization, CloneFactory {
 
 
     function receiveResults(uint[5] memory _results) external {
+        if (msg.sender != chainlinkContractAddress) revert MessageNotFromChainlink();
         TicketValueStruct memory result = TicketValueStruct({
             value1: _results[0],
             value2: _results[1],
