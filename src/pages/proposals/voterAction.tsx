@@ -1,8 +1,8 @@
 import ModalWrapper from "@/components/modals/ModalWrapper"
 import { GOVERNANCE_TOKEN } from "@/libs/constants";
 import governanceTokenAbi from "@/abi/contracts/GovernaceToken.sol/GovernanceToken.json";
-import { useEffect, useState } from "react"
-import { useAccount, useContractRead, useContractWrite } from "wagmi"
+import { useEffect } from "react"
+import { useContractWrite } from "wagmi"
 import Input from "@/components/utils/Input";
 import Web3btn from "@/components/utils/Web3btn";
 import useInput from "@/hooks/useInput";

@@ -135,6 +135,32 @@ contract LendingProtocol is Authorization, ILendingInterface {
         IERC20(asset).safeTransfer(owner, amount);
     }
 
+    // meant for only the DAO vault
+    function withdrawDAO(address vault, uint percent) external isVault returns (address[] memory, uint[] memory) {
+
+        uint length = supportedTokenArray.length;
+
+        address [] memory assets = new address[](length);
+        
+        uint [] memory assetBalances = new uint[](length);
+
+        uint count = 0;
+
+        for (uint i = 0; i < length; ++i) {
+            address token = supportedTokenArray[i];
+            uint amount = Vault(msg.sender).tokenInterest(token) * percent / 1 ether; 
+            Vault(msg.sender).decreaseInterest(token, amount);  
+            if (amount > 0) {
+                IERC20(token).safeTransfer(vault, amount);   
+                assets[count] = token;
+                assetBalances[count] = amount;
+                ++count;
+            }      
+        }
+
+        return (assets, assetBalances);
+    }
+
     function _shareInterestToVaults (address _token, uint interest) internal {
         Vault(vault1).addInterest(_token, interest * vaultShare1 / PERCENT);
         Vault(vault2).addInterest(_token, interest * vaultShare2 / PERCENT);

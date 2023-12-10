@@ -52,7 +52,10 @@ const config: HardhatUserConfig = {
 			url: 'https://polygon-mumbai.g.alchemy.com/v2/1yHVzG9cEm8g0IJKQA0VO-nczdGW4NgO',
 			accounts: [ PRIVATE_KEY ]
 		},
-		
+		fuji: {
+			url: 'https://api.avax-test.network/ext/C/rpc',
+			accounts: [ PRIVATE_KEY ]
+		},
 	},
 };
 

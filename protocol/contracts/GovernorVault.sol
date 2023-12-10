@@ -94,14 +94,11 @@ contract GovernorVault is Authorization, IProposal {
         if (mySupport > 0) {     
 
             if (status == ProposalStatus.Executed) {
-                IERC20(governorToken).safeTransfer(owner, mySupport);
                 uint share = percentForSponsors * supportFunds / mySupport;
                 _withdraw(owner, share);
+                IERC20(governorToken).safeTransfer(owner, mySupport);
             } else if (status == ProposalStatus.Failed) {
-                uint amountToBurn = mySupport * percentToBurn / 100;
-                uint amountToSend = mySupport - amountToBurn;
-                IERC20(governorToken).safeTransfer(owner, amountToSend);
-                ERC20Burnable(governorToken).burn(amountToBurn);
+                IERC20(governorToken).safeTransfer(owner, mySupport);
             } else {
                 uint total = voteFor + voteAgainst;
                 if (total == 0) total = 1;
@@ -112,26 +109,23 @@ contract GovernorVault is Authorization, IProposal {
                 ERC20Burnable(governorToken).burn(amountToBurn);
             }
 
-            console.log(mySupport);
-
         }
 
         if (myVotes > 0) {     
-            uint amountToBurn = myVotes * percentToBurn / 100;
-            uint amountToSend = myVotes - amountToBurn;
+            //uint amountToBurn = myVotes * percentToBurn / 100;
+            //uint amountToSend = myVotes - amountToBurn;
 
             if (status == ProposalStatus.Executed) {
                 uint share = (100 - percentForSponsors) * voteFunds / myVotes;
                 _withdraw(owner, share);
             } else {
                 uint share = 100 * voteFunds / myVotes;
-                _withdraw(owner, share);
+               _withdraw(owner, share);
             }
 
-            IERC20(governorToken).safeTransfer(owner, amountToSend);
-            ERC20Burnable(governorToken).burn(amountToBurn);
+            IERC20(governorToken).safeTransfer(owner, myVotes);
+            // ERC20Burnable(governorToken).burn(amountToBurn);
 
-    
         }
 
     }
@@ -173,6 +167,7 @@ contract GovernorVault is Authorization, IProposal {
             console.log("my share");
             console.log(share);
             uint amount = assetBalances[i] * share / 100;  
+            console.log(amount);
             IERC20(token).safeTransfer(owner, amount);   
         }
     }

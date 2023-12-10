@@ -1,6 +1,6 @@
 import {loadFixture } from "@nomicfoundation/hardhat-toolbox-viem/network-helpers";
 import { expect } from "chai";
-import { DAOVaultTest, deployGovernanceTest, mineBlocks } from "../scripts/helper";
+import { deployGovernanceTest, mineBlocks } from "../scripts/helper";
 import { zeroAddress } from "viem";
 import hre from "hardhat";
 import { ethers } from "ethers";
@@ -415,11 +415,13 @@ describe("Governance", function () {
 
       expect(await GovernanceToken.read.balanceOf([GovernorVault.address])).to.be.equal(0n)
 
-      expect(await GovernanceToken.read.balanceOf([user1.account.address])).to.be.equal(initialGoverTBal + supportFunds + ((initialGoverTBalV * 90n) / 100n))
+      expect(await GovernanceToken.read.balanceOf([user1.account.address])).to.be.equal(initialGoverTBal + 0n + initialGoverTBalV)
 
       console.log(initialGoverTBal)
 
       console.log(initialTUSDCBal)
+
+      console.log(await TUSDC.read.balanceOf([user1.account.address]))
 
     });
 

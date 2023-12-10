@@ -17,14 +17,14 @@ import { RPC_URL } from './libs/constants.ts'
 const { publicClient, webSocketPublicClient } = configureChains(
   [avalancheFuji, hardhat],
   [
-    // jsonRpcProvider({
-    //   rpc: () => {
-    //     return {
-    //       http: RPC_URL,
-    //       webSocket:  RPC_URL
-    //     } 
-    //   }
-    // }),
+    jsonRpcProvider({
+      rpc: () => {
+        return {
+          http: RPC_URL,
+          webSocket:  undefined
+        } 
+      }
+    }),
     publicProvider()
   ],
 )
