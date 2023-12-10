@@ -1,4 +1,6 @@
-const Poll = ({yes, no}: {yes: number, no: number}) => {
+import convert from "ethereum-unit-converter"
+
+const Poll = ({yes, no, threshold }: {yes: number, no: number, threshold: bigint}) => {
 
     const total = yes + no
     const yesPercent = Math.round(yes * 100 / total)
@@ -7,7 +9,14 @@ const Poll = ({yes, no}: {yes: number, no: number}) => {
     return (
         <div className="block py-4 w-full max-w-xs">
 
-            <h4 className="text-right text-sm mb-2">Votes casted: <strong> {total} LGT </strong> </h4>
+            <h4 className="text-right text-sm mb-2">Minimum Passing Threshold: <strong> {convert(threshold, "wei").ether} LGT </strong> </h4>
+
+            <h4 className="text-right text-sm mb-2">Votes casted: <strong> {convert(total, "wei").ether} LGT </strong> </h4>
+
+            {
+                total > threshold ? 
+                    <h4 className="text-right text-sm mb-2">Votes has met the Minimum Passing Threshhold </h4>: ""
+            }
 
             { 
                 total > 0 &&

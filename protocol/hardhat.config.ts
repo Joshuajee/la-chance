@@ -37,7 +37,7 @@ const config: HardhatUserConfig = {
 			path: '../src/abi',
 			pretty: false,
 			runOnCompile: true,
-			only: [ "Jackpot", "LendingProtocol",  "Vault",  "DAOVault", "Pot", "Chainlink", "Governance", "GovernanceToken", "TestUSDC" ]
+			only: [ "Jackpot", "LendingProtocol",  "Vault",  "DAOVault", "Pot", "Chainlink", "Governance", "GovernanceToken", "TestUSDC", "BorrowerExample" ]
 		}
 	],
 	contractSizer: {
@@ -45,14 +45,17 @@ const config: HardhatUserConfig = {
 		disambiguatePaths: false,
 		runOnCompile: true,
 		strict: true,
-		only: [ "Jackpot", "JackpotCore", "LendingProtocol",  "Vault",  "DAOVault", "Pot", "Chainlink", "Governance", "GovernanceToken", "CloneFactory" ]
+		only: [ "Jackpot", "JackpotCore", "LendingProtocol",  "Vault",  "DAOVault", "Pot", "Chainlink", "Governance", "GovernanceToken", "CloneFactory", "BorrowerExample" ]
 	},
 	networks: {
 		mumbai: {
 			url: 'https://polygon-mumbai.g.alchemy.com/v2/1yHVzG9cEm8g0IJKQA0VO-nczdGW4NgO',
 			accounts: [ PRIVATE_KEY ]
 		},
-		
+		fuji: {
+			url: 'https://api.avax-test.network/ext/C/rpc',
+			accounts: [ PRIVATE_KEY ]
+		},
 	},
 };
 

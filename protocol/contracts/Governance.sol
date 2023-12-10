@@ -82,9 +82,7 @@ contract Governance is IGovernance, CloneFactory, IProposal {
 
         IGovernanceVault(vault).vote(owner, _vote, amount);
 
-        uint balance = IGovernanceVault(vault).voteFunds();
-
-        IERC20(governanceToken).safeTransfer(vault, balance);
+        IERC20(governanceToken).safeTransfer(vault, amount);
 
         emit CastVote(owner, proposalId, _vote, amount);
 
@@ -224,14 +222,35 @@ contract Governance is IGovernance, CloneFactory, IProposal {
     }
 
 
-    function getProposals(uint start, uint end) external view returns (ProposalInfo [] memory) {
+    function getProposals(address owner, uint start, uint end) external view returns (ProposalData [] memory) {
 
-        ProposalInfo [] memory proposals = new ProposalInfo[] (end - start);
+        ProposalData [] memory proposals = new ProposalData[] (end - start);
         
         uint count = 0;
 
         for (uint i = end; i > start; --i) {
-            proposals[count] = proposalMapping[i];
+            ProposalInfo memory proposal = proposalMapping[i];
+            address vault = proposal.vault;
+            uint votingPeriod = proposal.votingPeriod;
+            proposals[count] = ProposalData({
+                targets: proposal.targets,
+                values: proposal.values,
+                calldatas: proposal.calldatas,
+                description: proposal.description,
+                vault: vault,
+                status: proposal.status,
+                voteFor: proposal.voteFor,
+                voteAgainst: proposal.voteAgainst,
+                voteAbstinence: proposal.voteAbstinence,
+                votingPeriod: block.timestamp > votingPeriod ? 0 : votingPeriod - block.timestamp,
+                threshold: proposal.threshold,
+                id: i,
+                supportFunds: IGovernanceVault(vault).supportFunds(),
+                mySupport: IGovernanceVault(vault).userSupportFunds(owner),
+                myVotesFor: IGovernanceVault(vault).userVoteFor(owner),
+                myVotesAgainst: IGovernanceVault(vault).userVoteAgainst(owner),
+                myVotesAbstained: IGovernanceVault(vault).userVoteAbstained(owner)
+            });
             ++count;
         }
 

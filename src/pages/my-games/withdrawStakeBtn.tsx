@@ -1,4 +1,4 @@
-import { useContractWrite } from "wagmi"
+import { useChainId, useContractWrite } from "wagmi"
 import JackpotAbi from "./../../abi/contracts/Jackpot.sol/Jackpot.json"
 import Web3btn from "@/components/utils/Web3btn"
 import { JACKPOT } from "@/libs/constants"
@@ -8,11 +8,14 @@ import { toast } from "react-toastify"
 
 const WithdrawStake = ({ gameRound, ticketId, disabled }: { gameRound: bigint, ticketId: bigint, disabled: boolean }) => {
 
+    const currentChainId = useChainId()
+
     const { write,  isLoading, isSuccess, isError, error } = useContractWrite({
         address: JACKPOT,
         abi: JackpotAbi,
         functionName: "claimTicket",
-        args: [gameRound, ticketId]
+        args: [gameRound, ticketId],
+        chainId: currentChainId
     })
 
 

@@ -8,6 +8,8 @@ import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Votes.sol";
 
 import "./Authorization.sol";
 
+import "hardhat/console.sol";
+
 import "./interface/IGovernance.sol";
 import "./interface/IProposal.sol";
 

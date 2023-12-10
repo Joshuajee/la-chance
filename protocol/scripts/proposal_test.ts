@@ -12,9 +12,9 @@ async function main() {
     ]
     
 
-    for (let i = 0; i < 10; i++) {
+    for (let i = 0; i < 5; i++) {
         await Governance.write.propose(proposalArg)
-        console.log("Process ", i + 1, " / 10")
+        console.log("Process ", i + 1, " / 5")
     }
 
 }

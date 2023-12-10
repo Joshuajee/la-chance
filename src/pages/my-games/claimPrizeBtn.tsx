@@ -4,15 +4,19 @@ import Web3btn from "@/components/utils/Web3btn"
 import { JACKPOT } from "@/libs/constants"
 import { useEffect } from "react"
 import { toast } from "react-toastify"
+import useCurrentChainId from "@/hooks/useCurrentChainId"
 
 
 const ClaimPrize = ({gameRound, ticketId}: { gameRound: bigint, ticketId: bigint }) => {
+
+    const currentChainId = useCurrentChainId()
 
     const { write,  isLoading, isSuccess, isError, error } = useContractWrite({
         address: JACKPOT,
         abi: JackpotAbi,
         functionName: "claimTicket",
-        args: [gameRound, ticketId]
+        args: [gameRound, ticketId],
+        chainId: currentChainId
     })
 
 

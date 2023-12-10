@@ -15,10 +15,9 @@ interface IProps {
     open: boolean,
     accountBal: string,
     setOpen: (open: boolean) => void;
-    vote: 1 | 2
 }
 
-const VoterAction = ({id, open, vote, accountBal, setOpen}: IProps) => {
+const SupportProposal = ({id, open, accountBal, setOpen}: IProps) => {
 
     const currentChainId = useCurrentChainId()
 
@@ -26,17 +25,22 @@ const VoterAction = ({id, open, vote, accountBal, setOpen}: IProps) => {
 
     const amountInEther = convert(amount.value, "ether").wei
 
+    const handleClose = () => {
+        setOpen(false)
+    }
+
     const { write, isLoading, isError, isSuccess, error } = useContractWrite({
         address: GOVERNANCE_TOKEN,
         abi: governanceTokenAbi,
-        functionName: 'vote',
-        args: [id, vote, amountInEther],
+        functionName: 'supportProposal',
+        args: [id, amountInEther],
         chainId: currentChainId
     })
 
+
     useEffect(() => {
         if (isSuccess) {
-            toast.success("Vote Recorded")
+            toast.success("Proposal Sponsored")
             setOpen(false)
         }
     }, [isSuccess, error, setOpen])
@@ -45,23 +49,16 @@ const VoterAction = ({id, open, vote, accountBal, setOpen}: IProps) => {
         if (isError) toast.error(error?.name)
     }, [isError, error])
 
-    const handleClose = () => {
-        setOpen(false)
-    }
-
-    console.log(error)
-
     return (
-        <ModalWrapper title="Cast your Vote" open={open} handleClose={handleClose}>
+        <ModalWrapper title="Sponsor Proposal" open={open} handleClose={handleClose}>
 
             <h3 className="text-center">Balance: { accountBal } <strong>LGT</strong> </h3>
 
             <Input type="number" value={amount.value} onChange={amount.setValue} />
 
-
             <div className="w-full">
                 
-                <Web3btn loading={isLoading} onClick={write}>  Cast Vote </Web3btn>
+                <Web3btn loading={isLoading} onClick={write}>  Support </Web3btn>
 
             </div>
 
@@ -69,4 +66,4 @@ const VoterAction = ({id, open, vote, accountBal, setOpen}: IProps) => {
     )
 }
 
-export default VoterAction
+export default SupportProposal

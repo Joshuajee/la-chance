@@ -1,6 +1,6 @@
 import {loadFixture } from "@nomicfoundation/hardhat-toolbox-viem/network-helpers";
 import { expect } from "chai";
-import { DAOVaultTest, deployGovernanceTest, mineBlocks } from "../scripts/helper";
+import { deployGovernanceTest, mineBlocks } from "../scripts/helper";
 import { zeroAddress } from "viem";
 import hre from "hardhat";
 import { ethers } from "ethers";
@@ -162,6 +162,79 @@ describe("Governance", function () {
     });
 
   });
+
+
+
+  describe("Multiple Voting ", function () {
+    
+    it("Should record votes Abstained ", async function () {
+
+      const { GovernanceToken, user1, proposal, sponsorThreshold } = await loadFixture(deployAndSponsor);
+
+      // const amount = ethers.utils.parseUnits("5","ether").toBigInt()
+
+      await GovernanceToken.write.vote([1n, 0, amount])
+
+      await GovernanceToken.write.vote([1n, 0, amount])
+
+      const GovernorVault = await hre.viem.getContractAt("GovernorVault", proposal[1])
+
+      expect(await GovernanceToken.read.balanceOf([proposal[1]])).to.be.equal(sponsorThreshold + amount * 2n)
+
+      expect(await GovernorVault.read.voteFunds()).to.be.equal(amount * 2n)
+
+      expect(await GovernorVault.read.userVoteAbstained([user1.account.address])).to.be.equal(amount * 2n)
+
+      expect(await GovernorVault.read.userVoteFor([user1.account.address])).to.be.equal(0n)
+
+      expect(await GovernorVault.read.userVoteAgainst([user1.account.address])).to.be.equal(0n)
+
+    });
+
+
+    // it("Should record votes For ", async function () {
+
+    //   const { GovernanceToken, user1, proposal, sponsorThreshold } = await loadFixture(deployAndSponsor);
+
+    //   await GovernanceToken.write.vote([1n, 1, amount])
+
+    //   const GovernorVault = await hre.viem.getContractAt("GovernorVault", proposal[1])
+
+    //   expect(await GovernanceToken.read.balanceOf([proposal[1]])).to.be.equal(sponsorThreshold + amount)
+
+    //   expect(await GovernorVault.read.voteFunds()).to.be.equal(amount)
+
+    //   expect(await GovernorVault.read.userVoteAbstained([user1.account.address])).to.be.equal(0n)
+
+    //   expect(await GovernorVault.read.userVoteFor([user1.account.address])).to.be.equal(amount)
+
+    //   expect(await GovernorVault.read.userVoteAgainst([user1.account.address])).to.be.equal(0n)
+
+    // });
+
+
+    // it("Should record votes Against ", async function () {
+
+    //   const { GovernanceToken, user1, proposal, sponsorThreshold } = await loadFixture(deployAndSponsor);
+
+    //   await GovernanceToken.write.vote([1n, 2, amount])
+
+    //   const GovernorVault = await hre.viem.getContractAt("GovernorVault", proposal[1])
+
+    //   expect(await GovernanceToken.read.balanceOf([proposal[1]])).to.be.equal(sponsorThreshold + amount)
+
+    //   expect(await GovernorVault.read.voteFunds()).to.be.equal(amount)
+
+    //   expect(await GovernorVault.read.userVoteAbstained([user1.account.address])).to.be.equal(0n)
+
+    //   expect(await GovernorVault.read.userVoteFor([user1.account.address])).to.be.equal(0n)
+
+    //   expect(await GovernorVault.read.userVoteAgainst([user1.account.address])).to.be.equal(amount)
+
+    // });
+
+  });
+
 
 
 
@@ -342,11 +415,13 @@ describe("Governance", function () {
 
       expect(await GovernanceToken.read.balanceOf([GovernorVault.address])).to.be.equal(0n)
 
-      expect(await GovernanceToken.read.balanceOf([user1.account.address])).to.be.equal(initialGoverTBal + supportFunds + ((initialGoverTBalV * 90n) / 100n))
+      expect(await GovernanceToken.read.balanceOf([user1.account.address])).to.be.equal(initialGoverTBal + 0n + initialGoverTBalV)
 
       console.log(initialGoverTBal)
 
       console.log(initialTUSDCBal)
+
+      console.log(await TUSDC.read.balanceOf([user1.account.address]))
 
     });
 

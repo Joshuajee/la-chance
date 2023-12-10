@@ -2,10 +2,17 @@ import hre from "hardhat";
 import { deploy } from "./helper";
 
 async function main() {
+  
   const linkToken = {address: "0x0b9d5D9136855f6FEc3c0993feE6E9CE8a297846"};
   const vrfV2Wrapper = {address: "0x9345AC54dA4D0B5Cda8CB749d8ef37e5F02BBb21" };
 
+
   const {Jackpot, JackpotCore, LendingProtocol, TUSDC, Chainlink, Governance, GovernanceToken, GovernorVault } = await deploy(linkToken, vrfV2Wrapper)
+
+
+  console.log("\n\n\n\n\n\n\n\n")
+
+  console.log("----------------------Addresses------------------")
 
   console.log("Jackpot ", Jackpot.address)
 

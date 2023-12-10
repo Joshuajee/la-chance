@@ -43,6 +43,11 @@ contract Vault is CloneFactory, Authorization, IVault {
         tokenInterest[token] += amount;
     }
 
+
+    function decreaseInterest(address token, uint amount) external onlyLendingProtocol  {
+        tokenInterest[token] -= amount;
+    }
+    
     function clearInterest(address token) external onlyLendingProtocol  {
         tokenInterest[token] = 0;
     }

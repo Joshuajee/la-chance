@@ -6,17 +6,37 @@ import HomePage from './pages/home';
 import StakePage from './pages/stake';
 import ProposalPage from './pages/proposals';
 import GameHistoryPage from './pages/game-history';
-import VotingPage from './pages/proposals/votingPage';
+import VotingPage from './pages/proposals/create-proposal';
 import MyGames from './pages/my-games';
 import GetTestToken from './pages/get-tokens';
 import Lending from './pages/lending';
+import ScrollToTop from './ScrollToTop';
+import { useNetwork, useSwitchNetwork } from 'wagmi';
+import { useEffect, useState } from 'react';
+import { avalancheFuji } from 'wagmi/chains';
+import { DEFAULT_CHAIN_ID } from './libs/constants';
+import { networkNameByChainId } from './libs/utils';
 
 
 
 function App() {
 
+
+  const [isWrongNet, setIsWrongNet] = useState(false);
+  const { chain } = useNetwork()
+  const { switchNetwork } = useSwitchNetwork()
+
+  useEffect(() => {
+    if (chain?.id && (chain.id != DEFAULT_CHAIN_ID)) {
+      setIsWrongNet(true)
+    } else {
+      setIsWrongNet(false)
+    }
+  }, [chain?.id]);
+
+
   return (
-    <div className='root h-screen '>
+    <div className='root h-screen'>
 
       <BrowserRouter>
 
@@ -24,7 +44,19 @@ function App() {
 
         <div className='h-20'></div>
 
+        {
+          (chain?.id && isWrongNet) &&
+            <div className='fixed top-14 bg-orange-400 w-full z-10 text-center px-4 py-2'>
+              You are connected to 
+              <strong> {networkNameByChainId(chain?.id)} </strong> 
+              network please switch to  
+              <button onClick={() => switchNetwork?.(DEFAULT_CHAIN_ID)} className='ml-2 underline font-bold'> {avalancheFuji.name} </button>
+            </div>
+      }
+
+
         <Container>
+
 
           <Routes>
             <Route path='/' element={<HomePage/>}/>
@@ -37,6 +69,8 @@ function App() {
             <Route path='/game/:id' element={<HomePage/>}/>
             <Route path='/lending' element={<Lending />}/>
           </Routes>
+
+          <ScrollToTop />
 
         </Container>
         

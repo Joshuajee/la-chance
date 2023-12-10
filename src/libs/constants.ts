@@ -5,5 +5,7 @@ export const LENDING_PROTOCOL = import.meta.env.VITE_LENDING_PROTOCOL
 export const TEST_USDC = import.meta.env.VITE_TEST_USDC
 export const GOVERNANCE = import.meta.env.VITE_GOVERNANCE
 export const GOVERNANCE_TOKEN = import.meta.env.VITE_GOVERNANCE_TOKEN
+export const DEFAULT_CHAIN_ID = import.meta.env.VITE_DEFAULT_CHAIN_ID
 export const EXAMPLE_LOAN = import.meta.env.VITE_EXAMPLE_LOAN
+export const RPC_URL = import.meta.env.VITE_RPC_URL
 export const ADDRESS_ZERO = "0x0000000000000000000000000000000000000000"
