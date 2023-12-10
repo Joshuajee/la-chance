@@ -1,5 +1,5 @@
 import Web3btn from "@/components/utils/Web3btn"
-import Predition from "./Prediction"
+import Predition from "./prediction"
 import LoadingButton from "@/components/utils/LoadingButton"
 import { useEffect, useState } from "react"
 import JackpotAbi from "./../../abi/contracts/Jackpot.sol/Jackpot.json"
@@ -8,6 +8,7 @@ import { useAccount, useContractRead, useContractWrite } from "wagmi"
 import { JACKPOT, TEST_USDC } from "@/libs/constants"
 import { toast } from "react-toastify"
 import { moneyFormat } from "@/libs/utils"
+import useCurrentChainId from "@/hooks/useCurrentChainId"
 export interface IStake {
     value1: number;
     value2: number;
@@ -24,6 +25,8 @@ export interface IStakeForm {
 const StakePage = () => {
 
     const { address, isConnected } = useAccount()
+    const currentChainId = useCurrentChainId()
+    
 
     const [accountBal, setAccountBal] = useState(0n)
     const [allowance, setAllowance] = useState(0n)
@@ -55,7 +58,8 @@ const StakePage = () => {
         abi: JackpotAbi,
         address: JACKPOT,
         functionName: "acceptedTokenPrize",
-        args: [TEST_USDC]
+        args: [TEST_USDC],
+        chainId: currentChainId
     })
 
     const balance = useContractRead({
@@ -63,7 +67,8 @@ const StakePage = () => {
         address: TEST_USDC,
         functionName: "balanceOf",
         args: [address],
-        enabled: isConnected
+        enabled: isConnected,
+        chainId: currentChainId
     })
 
     const getAllowance = useContractRead({
@@ -72,21 +77,24 @@ const StakePage = () => {
         functionName: "allowance",
         args: [address, JACKPOT],
         enabled: accountBal > 0n,
-        watch:true
+        watch:true,
+        chainId: currentChainId
     })
 
     const approve = useContractWrite({
         abi: TestUSDCAbi,
         address: TEST_USDC,
         functionName: "approve",
-        args: [JACKPOT, cost]
+        args: [JACKPOT, cost],
+        chainId: currentChainId
     })
 
     const buyTickets = useContractWrite({
         abi: JackpotAbi,
         address: JACKPOT,
         functionName: "buyTickets",
-        args: [TEST_USDC, stakes.stakes]
+        args: [TEST_USDC, stakes.stakes],
+        chainId: currentChainId
     })
 
     useEffect(() => {

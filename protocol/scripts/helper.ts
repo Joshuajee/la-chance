@@ -83,7 +83,7 @@ export async function chainLinkConfig () {
 }
 
 
-export async function deploy(LinkToken, VRFCoordinatorV2Mock, MockV3Aggregator, VRFV2Wrapper) {
+export async function deploy(LinkToken: any, VRFV2Wrapper: any, VRFCoordinatorV2Mock: any = null, MockV3Aggregator: any = null) {
 
   // Contracts are deployed using the first signer/account by default
   const [user1, user2] = await hre.viem.getWalletClients();
@@ -144,7 +144,7 @@ export async function deployTest() {
 
   const { LinkToken, VRFCoordinatorV2Mock, MockV3Aggregator, VRFV2Wrapper } = await chainLinkConfig()
 
-  const { user1, user2, Jackpot, JackpotCore, Governance, GovernanceToken, GovernorVault, LendingProtocol, TUSDC, Chainlink, Vaults, publicClient } = await deploy(LinkToken, VRFCoordinatorV2Mock, MockV3Aggregator, VRFV2Wrapper)
+  const { user1, user2, Jackpot, JackpotCore, Governance, GovernanceToken, GovernorVault, LendingProtocol, TUSDC, Chainlink, Vaults, publicClient } = await deploy(LinkToken, VRFV2Wrapper, VRFCoordinatorV2Mock, MockV3Aggregator)
   
   return {
     Jackpot,
@@ -322,7 +322,9 @@ export async function deployGovernanceTest() {
 
   await GovernanceToken.write.initFactory([user1.account.address])
 
-  await GovernanceToken.write.mint([user1.account.address, ethers.utils.parseUnits("1000","ether").toBigInt()])
+  await GovernanceToken.write.mint([user1.account.address, ethers.utils.parseUnits("500","ether").toBigInt()])
+
+  await GovernanceToken.write.mint([user2.account.address, ethers.utils.parseUnits("500","ether").toBigInt()])
 
   return {
     user1,

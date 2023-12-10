@@ -5,10 +5,12 @@ import TestUSDCAbi from "../abi/contracts/mocks/TestUSDC.sol/TestUSDC.json"
 import { useEffect } from "react"
 import { toast } from "react-toastify"
 import convert from "ethereum-unit-converter"
+import useCurrentChainId from "@/hooks/useCurrentChainId"
 
 const GetTestToken = () => {
 
     const { address } = useAccount()
+    const currentChainId = useCurrentChainId()
 
     const amount = 1000
 
@@ -16,7 +18,8 @@ const GetTestToken = () => {
         abi: TestUSDCAbi,
         address: TEST_USDC,
         functionName: "mint",
-        args: [address, convert(amount, "ether").wei]
+        args: [address, convert(amount, "ether").wei],
+        chainId: currentChainId
     })
 
     useEffect(() => {

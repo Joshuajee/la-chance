@@ -60,7 +60,7 @@ export interface IProposalInfo {
     description: string, 
     status: PROPSAL_STATUS,
     targets: Address[],
-    threshold: number,
+    threshold: bigint,
     values: bigint[],
     vault: Address,
     voteAbstinence: bigint,

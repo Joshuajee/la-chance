@@ -6,19 +6,30 @@ import { publicProvider } from 'wagmi/providers/public'
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { WagmiConfig, configureChains, createConfig } from 'wagmi'
-import { hardhat, polygonMumbai } from 'wagmi/chains'
+import { avalancheFuji, hardhat  } from 'wagmi/chains'
 // import AOS from 'aos';
 // import 'aos/dist/aos.css';
-//import { jsonRpcProvider } from 'wagmi/providers/jsonRpc';
+import { jsonRpcProvider } from 'wagmi/providers/jsonRpc';
+import { RPC_URL } from './libs/constants.ts'
 
 // AOS.init()
 
 const { publicClient, webSocketPublicClient } = configureChains(
-  [polygonMumbai, hardhat],
+  [avalancheFuji, hardhat],
   [
+    // jsonRpcProvider({
+    //   rpc: () => {
+    //     return {
+    //       http: RPC_URL,
+    //       webSocket:  RPC_URL
+    //     } 
+    //   }
+    // }),
     publicProvider()
   ],
 )
+
+console.log(RPC_URL)
  
 const config = createConfig({
   autoConnect: true,

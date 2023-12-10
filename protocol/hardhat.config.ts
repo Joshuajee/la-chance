@@ -37,7 +37,7 @@ const config: HardhatUserConfig = {
 			path: '../src/abi',
 			pretty: false,
 			runOnCompile: true,
-			only: [ "Jackpot", "LendingProtocol",  "Vault",  "DAOVault", "Pot", "Chainlink", "Governance", "GovernanceToken", "TestUSDC" ]
+			only: [ "Jackpot", "LendingProtocol",  "Vault",  "DAOVault", "Pot", "Chainlink", "Governance", "GovernanceToken", "TestUSDC", "BorrowerExample" ]
 		}
 	],
 	contractSizer: {
@@ -45,7 +45,7 @@ const config: HardhatUserConfig = {
 		disambiguatePaths: false,
 		runOnCompile: true,
 		strict: true,
-		only: [ "Jackpot", "JackpotCore", "LendingProtocol",  "Vault",  "DAOVault", "Pot", "Chainlink", "Governance", "GovernanceToken", "CloneFactory" ]
+		only: [ "Jackpot", "JackpotCore", "LendingProtocol",  "Vault",  "DAOVault", "Pot", "Chainlink", "Governance", "GovernanceToken", "CloneFactory", "BorrowerExample" ]
 	},
 	networks: {
 		mumbai: {

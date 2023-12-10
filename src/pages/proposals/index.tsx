@@ -1,10 +1,13 @@
 import { useEffect, useState } from "react"
 import ProposalCard from "./proposalCard"
 import { IProposalData } from "@/libs/interfaces"
-import { GOVERNANCE } from "@/libs/constants"
-import { useContractRead } from "wagmi"
+import { ADDRESS_ZERO, GOVERNANCE, GOVERNANCE_TOKEN } from "@/libs/constants"
+import { useAccount, useContractRead } from "wagmi"
 import governanceAbi from "@/abi/contracts/Governance.sol/Governance.json";
 import ReactPaginate from "react-paginate"
+import useCurrentChainId from "@/hooks/useCurrentChainId"
+import governanceTokenAbi from "@/abi/contracts/GovernaceToken.sol/GovernanceToken.json";
+import { moneyFormat } from "@/libs/utils";
 
 export interface IProposal {
     id: number, 
@@ -19,6 +22,13 @@ export interface IProposal {
 
 const ProposalPage = () => {
 
+    const [accountBal, setAccountBal] = useState(0n)
+
+    const { address, isConnected } = useAccount()
+
+    const currentAddress = isConnected ? address : ADDRESS_ZERO
+
+    const currentChainId = useCurrentChainId()
 
     const itemsPerPage = 20
 
@@ -34,9 +44,21 @@ const ProposalPage = () => {
     const proposalCounter = useContractRead({
         address: GOVERNANCE,
         abi: governanceAbi,
-        functionName: "proposalCounter"
+        functionName: "proposalCounter",
+        chainId: currentChainId
     })
 
+    const balance = useContractRead({
+        address: GOVERNANCE_TOKEN,
+        abi: governanceTokenAbi,
+        functionName: 'balanceOf',
+        args: [address],
+        enabled: isConnected,
+        chainId: currentChainId,
+        watch: true
+    })
+
+    
     const totalProposals = (proposalCounter.data || 1n) as bigint
 
     const max = BigInt(itemsPerPage)
@@ -49,14 +71,22 @@ const ProposalPage = () => {
         address: GOVERNANCE,
         abi: governanceAbi,
         functionName: "getProposals",
-        args: [showing > 0 ? showing : 0, start],
+        args: [currentAddress, showing > 0 ? showing : 0, start + 1n],
         enabled: totalProposals > 1,
-        watch: true
+        watch: true,
+        chainId: currentChainId
     })
 
     useEffect(() => {
         if (getProposals.data) setProposals(getProposals.data as IProposalData[])
     }, [getProposals.data])
+
+    useEffect(() => {
+        if (balance.data) {
+            setAccountBal(balance.data as bigint)
+        }
+    }, [balance.data])
+
 
     useEffect(() => {
         setStart(totalProposals - 1n)
@@ -72,15 +102,12 @@ const ProposalPage = () => {
         setStart(BigInt(newOffset))
     };
 
-    // console.log(getProposals)
-
-    console.log(proposalCounter)
-
-
     return (
         <main className='h-[calc(100vh_-_100px)] pb-10 text-white'>
 
-            <h2 className="text-center text-5xl my-20 text-white font-bold">Proposals</h2>
+            <h2 className="text-center text-5xl my-10 text-white font-bold">Proposals</h2>
+
+            <h3 className="text-center m-10">Balance: {balance.data ? moneyFormat(accountBal) : "" } <strong>LGT</strong> </h3>
             
             {/* <h3 className="text-end m-4">Showing from {itemOffset} to {endOffset}</h3> */}
 
@@ -88,9 +115,8 @@ const ProposalPage = () => {
 
                 {
                     proposals.map((proposal, index) => {
-                        console.log(proposal)
                         return (
-                            <ProposalCard key={index}   data={proposal}/>
+                            <ProposalCard key={index} data={proposal} accountBal={moneyFormat(accountBal)}/>
                         )
                     })
                 }

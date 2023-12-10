@@ -2,16 +2,19 @@ import { useContractRead, useContractWrite } from "wagmi"
 import Web3btn from "@/components/utils/Web3btn"
 import { EXAMPLE_LOAN, LENDING_PROTOCOL, TEST_USDC } from "@/libs/constants"
 import TestUSDCAbi from "../../abi/contracts/mocks/TestUSDC.sol/TestUSDC.json"
-import LendingAbi from "../../abi/contracts/LendingProtocol.sol/LendingProtocol.json"
+import BorrowAbi from "@/abi/contracts/mocks/BorrowerExample.sol/BorrowerExample.json"
 import { useEffect, useState } from "react"
 import { toast } from "react-toastify"
 import convert from "ethereum-unit-converter"
 import useInput from "@/hooks/useInput"
 import Input from "@/components/utils/Input"
 import ApproveBtn from "@/components/utils/ApproveBtn"
+import useCurrentChainId from "@/hooks/useCurrentChainId"
 
 
 const Lending = () => {
+
+    const currentChainId = useCurrentChainId()
 
     const [allowance, setAllowance] = useState(0n)
 
@@ -23,21 +26,23 @@ const Lending = () => {
 
     const feeInEther = convert(fee, "ether").wei
 
-
     const lockedFunds = useContractRead({
         abi: TestUSDCAbi,
         address: TEST_USDC,
         functionName: "balanceOf",
         args: [LENDING_PROTOCOL],
-        watch: true
+        watch: true,
+        chainId: currentChainId
     })
 
     const { write, isLoading, isError, isSuccess, error } = useContractWrite({
-        abi: LendingAbi,
-        address: LENDING_PROTOCOL,
-        functionName: "flashLoan",
-        args: [TEST_USDC, EXAMPLE_LOAN, amountInEther]
+        abi: BorrowAbi,
+        address: EXAMPLE_LOAN,
+        functionName: "borrow",
+        args: [LENDING_PROTOCOL, TEST_USDC, amountInEther],
+        chainId: currentChainId
     })
+
 
     useEffect(() => {
         if (isSuccess) toast.success("Minted successfully")
@@ -73,7 +78,7 @@ const Lending = () => {
                         <ApproveBtn 
                             amount={feeInEther}
                             tokenAddress={TEST_USDC} 
-                            spenderAddress={LENDING_PROTOCOL} 
+                            spenderAddress={EXAMPLE_LOAN} 
                             allowance={allowance}
                             setAllowance={setAllowance}
                             />

@@ -30,9 +30,9 @@ import { mine } from "@nomicfoundation/hardhat-network-helpers";
 
 async function main() {
 
-  const JackpotCore = await hre.viem.getContractAt("JackpotCore", "0xb7f8bc63bbcad18155201308c8f3540b07f84f5e")
+  const JackpotCore = await hre.viem.getContractAt("JackpotCore", "0x959922be3caee4b8cd9a407cc3ac1c251c2007b1")
 
-  const Chainlink = await hre.viem.getContractAt("Chainlink", "0x610178da211fef7d417bc0e6fed39f05609ad788")
+  const Chainlink = await hre.viem.getContractAt("Chainlink", "0x0b306bf915c4d645ff596e518faf3f9669b97016")
 
   // Increase Time by 1hr 1 min
   await hre.network.provider.send("hardhat_mine", ["0x3D", "0x3c"]);

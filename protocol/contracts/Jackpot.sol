@@ -13,6 +13,7 @@ import "./LendingProtocol.sol";
 import './interface/IVault.sol';
 import './interface/ILendingInterface.sol';
 import './interface/IGovernanceToken.sol';
+import './interface/IGovernance.sol';
 
 //import "hardhat/console.sol";
 
@@ -154,6 +155,10 @@ contract Jackpot is IJackpot, Authorization, CloneFactory {
         IAuthorization(_governanceTokenAddress).initFactory(address(this));
         IAuthorization(_vaultFactoryAddress).initFactory(address(this));
         IAuthorization(_potFactoryAddress).initFactory(address(this));
+
+
+        IGovernance(_governanceAddress).init(_governanceTokenAddress, _daoVault);
+
     }
 
 

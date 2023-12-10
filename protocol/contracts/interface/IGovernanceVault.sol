@@ -4,9 +4,16 @@ pragma solidity ^0.8.19;
 import "./IProposal.sol";
 
 interface IGovernanceVault {
-    
-    function voteFunds() external returns (uint); 
-    function supportFunds() external returns (uint); 
+
+    function voteFunds() external view returns (uint); 
+    function supportFunds() external view  returns (uint); 
+
+    function userSupportFunds(address owner) external view returns (uint);
+
+    function userVotes(address owner) external view  returns (uint);
+    function userVoteAbstained(address owner) external view  returns (uint);
+    function userVoteFor(address owner) external view  returns (uint);
+    function userVoteAgainst(address owner) external view  returns (uint);
 
     function support(address owner, uint amount) external;
     function vote(address owner, IProposal.Vote _vote,  uint amount) external;

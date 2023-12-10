@@ -30,4 +30,25 @@ interface IProposal {
         uint votingPeriod;
         uint threshold;
     }
+
+    struct ProposalData {
+        address[] targets;
+        uint256[] values;
+        bytes[] calldatas;
+        string description;
+        address vault;
+        ProposalStatus status;
+        uint voteFor;
+        uint voteAgainst;
+        uint voteAbstinence;
+        uint votingPeriod;
+        uint threshold;
+        uint id;
+        uint supportFunds;
+        uint mySupport;
+        uint myVotesFor;
+        uint myVotesAgainst;
+        uint myVotesAbstained;
+    }
+
 }

@@ -6,11 +6,14 @@ import JackpotAbi from "./../../abi/contracts/Jackpot.sol/Jackpot.json"
 import { Address, useContractRead } from "wagmi"
 import { ADDRESS_ZERO, JACKPOT } from "@/libs/constants"
 import { useEffect, useState } from "react"
+import useCurrentChainId from "@/hooks/useCurrentChainId"
 
 
 const HomePage = () => {
 
     const navigate = useNavigate()
+
+    const currentChainId = useCurrentChainId()
 
     const [vaults, setVaults] = useState<Address[7]>(Array(7).fill(ADDRESS_ZERO) as any)
 
@@ -18,10 +21,11 @@ const HomePage = () => {
         abi: JackpotAbi,
         address: JACKPOT,
         functionName: "vaultAddresses",
+        chainId: currentChainId
     })
 
     useEffect(() => {
-        setVaults(data as Address[7])
+        if (data) setVaults(data as Address[7])
     }, [data])
 
     console.log(isLoading)

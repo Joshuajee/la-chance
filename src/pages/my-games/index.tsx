@@ -8,8 +8,11 @@ import { TicketStanding } from "@/libs/interfaces"
 import ClaimPrize from "./claimPrizeBtn"
 import WithdrawStake from "./withdrawStakeBtn"
 import ReactPaginate from 'react-paginate';
+import useCurrentChainId from "@/hooks/useCurrentChainId"
 
 const MyGames = () => {
+
+    const currentChainId = useCurrentChainId()
 
     const itemsPerPage = 20
 
@@ -29,7 +32,8 @@ const MyGames = () => {
         address: JACKPOT_CORE,
         abi: JackpotCoreAbi,
         functionName: "getMyTicketLength",
-        args: [address]
+        args: [address],
+        chainId: currentChainId
     })
 
     const myTicketLength = (getMyTicketLength.data || 1n) as bigint
@@ -46,7 +50,8 @@ const MyGames = () => {
         functionName: "getMyRecentTickets",
         args: [address, showing > 0 ? showing : 0, start],
         enabled: myTicketLength > 1,
-        watch: true
+        watch: true,
+        chainId: currentChainId
     })
 
     useEffect(() => {

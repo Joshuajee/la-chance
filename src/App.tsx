@@ -6,17 +6,19 @@ import HomePage from './pages/home';
 import StakePage from './pages/stake';
 import ProposalPage from './pages/proposals';
 import GameHistoryPage from './pages/game-history';
-import VotingPage from './pages/proposals/votingPage';
+import VotingPage from './pages/proposals/create-proposal';
 import MyGames from './pages/my-games';
 import GetTestToken from './pages/get-tokens';
 import Lending from './pages/lending';
+import ScrollToTop from './ScrollToTop';
 
 
 
 function App() {
 
+
   return (
-    <div className='root h-screen '>
+    <div className='root h-screen'>
 
       <BrowserRouter>
 
@@ -25,6 +27,7 @@ function App() {
         <div className='h-20'></div>
 
         <Container>
+
 
           <Routes>
             <Route path='/' element={<HomePage/>}/>
@@ -37,6 +40,8 @@ function App() {
             <Route path='/game/:id' element={<HomePage/>}/>
             <Route path='/lending' element={<Lending />}/>
           </Routes>
+
+          <ScrollToTop />
 
         </Container>
         

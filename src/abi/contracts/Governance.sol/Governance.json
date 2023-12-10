@@ -332,6 +332,11 @@
   {
     "inputs": [
       {
+        "internalType": "address",
+        "name": "owner",
+        "type": "address"
+      },
+      {
         "internalType": "uint256",
         "name": "start",
         "type": "uint256"
@@ -400,9 +405,39 @@
             "internalType": "uint256",
             "name": "threshold",
             "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "id",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "supportFunds",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "mySupport",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "myVotesFor",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "myVotesAgainst",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "myVotesAbstained",
+            "type": "uint256"
           }
         ],
-        "internalType": "struct IProposal.ProposalInfo[]",
+        "internalType": "struct IProposal.ProposalData[]",
         "name": "",
         "type": "tuple[]"
       }

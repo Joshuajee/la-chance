@@ -3,9 +3,10 @@ import { flashloan } from "./helper";
 
 async function main() {
 
-  const TestUSDC = await hre.viem.getContractAt("TestUSDC", "0x5fbdb2315678afecb367f032d93f642f64180aa3")
+  const TestUSDC = await hre.viem.getContractAt("TestUSDC", "0x0165878a594ca255338adfa4d48449f69242eb8f")
 
-  const LendingProtocol = await hre.viem.getContractAt("LendingProtocol", "0xcf7ed3acca5a467e9e704c703e8d87f634fb0fc9")
+  const LendingProtocol = await hre.viem.getContractAt("LendingProtocol", "0x8a791620dd6260079bf849dc5567adc3f2fdc318")
+
 
   for (let i = 0; i < 1000; i++) {
     await flashloan(TestUSDC, LendingProtocol);
