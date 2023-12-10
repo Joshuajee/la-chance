@@ -1,5 +1,5 @@
 import hre from "hardhat"
-import { deployTest } from "./helper";
+import { deployTest } from "../helper";
 
 async function main() {
 

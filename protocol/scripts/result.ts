@@ -5,9 +5,9 @@ import { CHAINLINK } from "./helper";
 
 async function main() {
 
-    const Chainlink = await hre.viem.getContractAt("Chainlink", CHAINLINK)
+  const Chainlink = await hre.viem.getContractAt("Chainlink", CHAINLINK)
 
-    await Chainlink.write.randomRequestRandomWords();
+  await Chainlink.write.randomRequestRandomWords();
 
 }
 

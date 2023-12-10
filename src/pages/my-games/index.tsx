@@ -112,7 +112,7 @@ const MyGames = () => {
                                         if (!hasResult) return false
                                         if (result.ticket.hasClaimedPrize) return false
                                         if (won1) return true
-                                        if(Number(result.ticket.stakePeriod) * 1000 > Date.now()) return true
+                                        if(Number(result.ticket.stakePeriod) * 1000 < Date.now()) return true
                                         return false
                                     }
 

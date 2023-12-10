@@ -53,7 +53,7 @@ const config: HardhatUserConfig = {
 			accounts: [ PRIVATE_KEY ]
 		},
 		fuji: {
-			url: 'https://api.avax-test.network/ext/C/rpc',
+			url: 'https://aged-wider-needle.avalanche-testnet.quiknode.pro/d0313dfde220dd7912c814a6fa97a0620e95d924/ext/bc/C/rpc/',
 			accounts: [ PRIVATE_KEY ]
 		},
 	},

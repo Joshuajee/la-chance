@@ -1,5 +1,5 @@
 import hre from "hardhat";
-import { generateTickets, testUSDCPrice } from "./helper";
+import { generateTickets, testUSDCPrice } from "../helper";
 
 async function main() {
 
