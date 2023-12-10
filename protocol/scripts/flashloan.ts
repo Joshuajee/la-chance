@@ -12,7 +12,7 @@ async function main() {
 
   for (let i = 0; i < 100; i++) {
     await flashloan(TestUSDC, LendingProtocol);
-    console.log("Process ", i + 1, " / 1000")
+    console.log("Process ", i + 1, " / 100")
   }
 
 }
