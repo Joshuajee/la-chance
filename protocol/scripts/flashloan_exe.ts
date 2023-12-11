@@ -1,13 +1,14 @@
 import hre from "hardhat";
+import { LENDING_PROTOCOL, TEST_USDC } from "./helper";
 
 
 async function main() {
 
-  const TestUSDC = await hre.viem.getContractAt("TestUSDC", "0x0165878a594ca255338adfa4d48449f69242eb8f")
+  const TestUSDC = await hre.viem.getContractAt("TestUSDC", TEST_USDC)
 
-  const LendingProtocol = await hre.viem.getContractAt("LendingProtocol", "0x8a791620dd6260079bf849dc5567adc3f2fdc318")
+  const LendingProtocol = await hre.viem.getContractAt("LendingProtocol", LENDING_PROTOCOL)
 
-  const Borrower = await hre.viem.getContractAt("BorrowerExample", "0x68b1d87f95878fe05b998f19b66f4baba5de1aed")
+  const Borrower = await hre.viem.getContractAt("BorrowerExample", "0xfa1ed18f424b0fbc9f1fe0826939abd78db850d6")
 
   const balance = await TestUSDC.read.balanceOf([LendingProtocol.address])
 
@@ -15,10 +16,7 @@ async function main() {
 
   await Borrower.write.borrow([LendingProtocol.address, TestUSDC.address, balance ])
  
-
   console.log("Borrower: ", Borrower.address)
-
-  console.log(TestUSDC.address, LendingProtocol.address, Borrower.address)
 
 }
 

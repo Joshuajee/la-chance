@@ -7,7 +7,7 @@ import { toast } from "react-toastify"
 import useCurrentChainId from "@/hooks/useCurrentChainId"
 
 
-const ClaimPrize = ({gameRound, ticketId}: { gameRound: bigint, ticketId: bigint }) => {
+const ClaimPrize = ({gameRound, ticketId, disabled }: { gameRound: bigint, ticketId: bigint, disabled: boolean }) => {
 
     const currentChainId = useCurrentChainId()
 
@@ -31,7 +31,7 @@ const ClaimPrize = ({gameRound, ticketId}: { gameRound: bigint, ticketId: bigint
 
     return (
         <div>
-            <Web3btn loading={isLoading} onClick={write}>
+            <Web3btn disabled={disabled} loading={isLoading} onClick={write}>
                 Claim Prize
             </Web3btn>
         </div>

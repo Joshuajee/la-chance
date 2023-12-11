@@ -1,36 +1,27 @@
 import hre from "hardhat";
-import { LENDING_PROTOCOL, TEST_USDC, flashloan } from "./helper";
 import dotenv from 'dotenv'
 
 dotenv.config()
 
 async function main() {
 
-  const TestUSDC = await hre.viem.getContractAt("TestUSDC", TEST_USDC)
+  const TestUSDC = await hre.viem.getContractAt("TestUSDC", "0xeb52d74c78e50e1b1d30f93b57ae7e66376b8bf6")
 
-  const LendingProtocol = await hre.viem.getContractAt("LendingProtocol", LENDING_PROTOCOL)
-
+  const LendingProtocol = await hre.viem.getContractAt("LendingProtocol", "0xebb1d7a9d9807d4a61a6cfab1dc9884fec76defa")
 
   const BorrowerContract = await hre.viem.deployContract("FlashBorrowerExample")
 
   console.log(BorrowerContract.address)
 
-  await TestUSDC.write.transfer([BorrowerContract.address,  BigInt(10e20)])
+  await TestUSDC.write.transfer([BorrowerContract.address,  4900000000000000000n])
 
   const protocolBalance = await TestUSDC.read.balanceOf([LendingProtocol.address])
 
   console.log(protocolBalance)
 
-  // await LendingProtocol.write.flashLoan([TestUSDC.address, BorrowerContract.address, protocolBalance])
+  await LendingProtocol.write.flashLoan(["0xeb52d74c78e50e1b1d30f93b57ae7e66376b8bf6", BorrowerContract.address, protocolBalance])
 
   console.log("DONE")
-
-  //await flashloan(TestUSDC, LendingProtocol);
-  
-  // for (let i = 0; i < 100; i++) {
-  //   await flashloan(TestUSDC, LendingProtocol);
-  //   console.log("Process ", i + 1, " / 100")
-  // }
 
 }
 

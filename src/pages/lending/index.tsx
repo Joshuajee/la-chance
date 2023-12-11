@@ -45,7 +45,7 @@ const Lending = () => {
 
 
     useEffect(() => {
-        if (isSuccess) toast.success("Minted successfully")
+        if (isSuccess) toast.success("Borrowed and returned successfully")
     }, [isSuccess, error])
 
     useEffect(() => {
@@ -94,6 +94,8 @@ const Lending = () => {
                 </div>
 
             </div>
+
+            <a target="_blank" className="text-center text-white" href="https://github.com/Joshuajee/la-chance/blob/master/protocol/contracts/interface/IFlashBorrower.sol">View Our Interface here</a>
 
         </main>
     )

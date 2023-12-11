@@ -22,23 +22,14 @@ export const networkNameByChainId = (chainId: number) => {
             return "Polygon Mainnet"
         case 80001:
             return "Mumbai"
+        case 43113:
+            return "Avalance Fuji"
         default:
             return "Unknown Network"
     }
 
 }
 
-
-export const getDate = () => {
-
-    const date = new Date()
-
-    const year = date.getFullYear()
-    const month = (date.getMonth() + 1 > 10) ? date.getMonth() + 1 : `0${date.getMonth() + 1}`
-
-    return (`${year}-${month}-${date.getDate()}`)
-
-}
 
 
 export const dateToTimeStamp = (date: Date) => {

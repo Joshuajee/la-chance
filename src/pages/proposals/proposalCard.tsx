@@ -39,6 +39,8 @@ const ProposalCard = ({ data, accountBal } : IProps) => {
 
     const countdown = Date.now() + Number(votingPeriod) * 1000
 
+    const expired = votingPeriod === 0n && status === PROPSAL_STATUS.Pending
+
     const execute = useContractWrite({
         address: GOVERNANCE,
         abi: governanceAbi,
@@ -105,7 +107,7 @@ const ProposalCard = ({ data, accountBal } : IProps) => {
             <div className="flex flex-col lg:flex-row justify-between font-medium">
                 
                 <div>
-                    <Status status={status} />
+                    <Status status={status} expired={expired} />
                 </div> 
 
                 <div>
@@ -137,7 +139,7 @@ const ProposalCard = ({ data, accountBal } : IProps) => {
             </div>
 
             {
-                status === PROPSAL_STATUS.Pending && (
+                status === PROPSAL_STATUS.Pending && !expired && (
                     <div className="flex flex-row space-x-2 justify-end">
                         <div className="w-48">
                             <LoadingButtonSM 

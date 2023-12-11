@@ -36,47 +36,41 @@ function App() {
 
 
   return (
-    <div className='root h-screen'>
+    <BrowserRouter>
 
-      <BrowserRouter>
+      <Navbar/>
 
-        <Navbar/>
+      <div className='h-20'></div>
 
-        <div className='h-20'></div>
-
-        {
-          (chain?.id && isWrongNet) &&
-            <div className='fixed top-14 bg-orange-400 w-full z-10 text-center px-4 py-2'>
-              You are connected to 
-              <strong> {networkNameByChainId(chain?.id)} </strong> 
-              network please switch to  
-              <button onClick={() => switchNetwork?.(DEFAULT_CHAIN_ID)} className='ml-2 underline font-bold'> {avalancheFuji.name} </button>
-            </div>
+      {
+        (chain?.id && isWrongNet) &&
+          <div className='fixed top-14 bg-orange-400 w-full z-10 text-center px-4 py-2'>
+            You are connected to 
+            <strong> {networkNameByChainId(chain?.id)} </strong> 
+            network please switch to  
+            <button onClick={() => switchNetwork?.(DEFAULT_CHAIN_ID)} className='ml-2 underline font-bold'> {avalancheFuji.name} </button>
+          </div>
       }
 
+      <Container>
 
-        <Container>
+        <Routes>
+          <Route path='/' element={<HomePage/>}/>
+          <Route path='/stake' element={<StakePage />}/>
+          <Route path='/my-games' element={<MyGames /> } />
+          <Route path='/get-tokens' element={<GetTestToken /> } />
+          <Route path='/proposals' element={<ProposalPage />}/>
+          <Route path='/proposals/:id' element={<VotingPage />}/>
+          <Route path='/game-history' element={<GameHistoryPage />}/>
+          <Route path='/game/:id' element={<HomePage/>}/>
+          <Route path='/lending' element={<Lending />}/>
+        </Routes>
 
+        <ScrollToTop />
 
-          <Routes>
-            <Route path='/' element={<HomePage/>}/>
-            <Route path='/stake' element={<StakePage />}/>
-            <Route path='/my-games' element={<MyGames /> } />
-            <Route path='/get-tokens' element={<GetTestToken /> } />
-            <Route path='/proposals' element={<ProposalPage />}/>
-            <Route path='/proposals/:id' element={<VotingPage />}/>
-            <Route path='/game-history' element={<GameHistoryPage />}/>
-            <Route path='/game/:id' element={<HomePage/>}/>
-            <Route path='/lending' element={<Lending />}/>
-          </Routes>
-
-          <ScrollToTop />
-
-        </Container>
-        
-      </BrowserRouter>
-
-    </div>
+      </Container>
+      
+    </BrowserRouter>
   )
 }
 
