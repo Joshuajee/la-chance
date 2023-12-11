@@ -8,6 +8,8 @@ import ReactPaginate from "react-paginate"
 import useCurrentChainId from "@/hooks/useCurrentChainId"
 import governanceTokenAbi from "@/abi/contracts/GovernaceToken.sol/GovernanceToken.json";
 import { moneyFormat } from "@/libs/utils";
+import { IoAddOutline } from "react-icons/io5";
+import { useNavigate } from "react-router-dom"
 
 export interface IProposal {
     id: number, 
@@ -25,6 +27,8 @@ const ProposalPage = () => {
     const [accountBal, setAccountBal] = useState(0n)
 
     const { address, isConnected } = useAccount()
+
+    const navigate = useNavigate()
 
     const currentAddress = isConnected ? address : ADDRESS_ZERO
 
@@ -146,6 +150,10 @@ const ProposalPage = () => {
                         renderOnZeroPageCount={null}/>
                 }
             </div>
+
+            <button onClick={() => navigate("/proposals/create")} className="fixed right-10 bottom-10 bg-green-600 p-4 rounded-full">
+                <IoAddOutline size={24} />
+            </button>
 
         </main>
     )
