@@ -134,9 +134,6 @@ contract Governance is IGovernance, CloneFactory, IProposal {
         
     }
 
-
-
-
     function propose(
         address[] memory targets,
         uint256[] memory values,
