@@ -112,7 +112,7 @@ const MyGames = () => {
                                         if (!hasResult) return false
                                         if (result.ticket.hasClaimedPrize) return false
                                         if (won1) return true
-                                        if(Number(result.ticket.stakePeriod) * 1000 > Date.now()) return true
+                                        if(Number(result.ticket.stakePeriod) * 1000 < Date.now()) return true
                                         return false
                                     }
 
@@ -155,9 +155,9 @@ const MyGames = () => {
                                         
                                                     {   
                                                         won1 ? 
-                                                            <ClaimPrize gameRound={result.gameRound} ticketId={result.ticketId} /> 
+                                                            <ClaimPrize gameRound={result.gameRound} ticketId={result.ticketId} disabled={!canWithdraw()} /> 
                                                                 : 
-                                                            <WithdrawStake gameRound={result.gameRound} ticketId={result.ticketId} disabled={!canWithdraw()} />
+                                                            <WithdrawStake gameRound={result.gameRound} ticketId={result.ticketId} disabled={!canWithdraw()}  />
                                                     }
              
                                                 </div>
@@ -176,27 +176,29 @@ const MyGames = () => {
 
             </div>
 
-            <div className="page-wrapper flex w-full justify-end">
-                <ReactPaginate
-                    nextLabel="next >"
-                    onPageChange={handlePageClick}
-                    pageRangeDisplayed={3}
-                    marginPagesDisplayed={2}
-                    pageCount={pageCount}
-                    previousLabel="< previous"
-                    pageClassName="page-item"
-                    pageLinkClassName="page-link"
-                    previousClassName="page-item"
-                    previousLinkClassName="page-link"
-                    nextClassName="page-item"
-                    nextLinkClassName="page-link"
-                    breakLabel="..."
-                    breakClassName="page-item"
-                    breakLinkClassName="page-link"
-                    containerClassName="pagination"
-                    activeClassName="active"
-                    renderOnZeroPageCount={null}/>
-                </div>
+            { pageCount > 1 &&                
+                <div className="page-wrapper flex w-full justify-end">
+                    <ReactPaginate
+                        nextLabel="next >"
+                        onPageChange={handlePageClick}
+                        pageRangeDisplayed={8}
+                        marginPagesDisplayed={2}
+                        pageCount={pageCount}
+                        previousLabel="< previous"
+                        pageClassName="page-item"
+                        pageLinkClassName="page-link"
+                        previousClassName="page-item"
+                        previousLinkClassName="page-link"
+                        nextClassName="page-item"
+                        nextLinkClassName="page-link"
+                        breakLabel="..."
+                        breakClassName="page-item"
+                        breakLinkClassName="page-link"
+                        containerClassName="pagination"
+                        activeClassName="active"
+                        renderOnZeroPageCount={null}/>
+                    </div>
+                }
 
         </main>
     )

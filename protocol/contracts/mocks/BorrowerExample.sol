@@ -19,7 +19,7 @@ contract BorrowerExample {
 
     function borrow(LendingProtocol lendingProtocol, address token, uint amount) external {
         uint fee = amount * lendingProtocol.interestRate() / lendingProtocol.PERCENT();
-        IERC20(token).safeTransfer(address(borrower), fee);
+        IERC20(token).safeTransferFrom(msg.sender, address(borrower), fee);
         lendingProtocol.flashLoan(token, address(borrower), amount);
     }
 

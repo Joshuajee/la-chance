@@ -1,7 +1,7 @@
 import hre from "hardhat";
 import { ethers } from "ethers";
 import { time } from '@nomicfoundation/hardhat-network-helpers';
-import { flashloan, generateTickets, testUSDCPrice } from "./helper";
+import { flashloan, generateTickets, testUSDCPrice } from "../helper";
 
 
 async function main() {

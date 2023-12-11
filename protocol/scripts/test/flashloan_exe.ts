@@ -1,5 +1,5 @@
 import hre from "hardhat";
-import { flashloan } from "./helper";
+
 
 async function main() {
 
@@ -7,11 +7,18 @@ async function main() {
 
   const LendingProtocol = await hre.viem.getContractAt("LendingProtocol", "0x8a791620dd6260079bf849dc5567adc3f2fdc318")
 
+  const Borrower = await hre.viem.getContractAt("BorrowerExample", "0x68b1d87f95878fe05b998f19b66f4baba5de1aed")
 
-  for (let i = 0; i < 1000; i++) {
-    await flashloan(TestUSDC, LendingProtocol);
-    console.log("Process ", i + 1, " / 1000")
-  }
+  const balance = await TestUSDC.read.balanceOf([LendingProtocol.address])
+
+  await TestUSDC.write.approve([Borrower.address, balance])
+
+  await Borrower.write.borrow([LendingProtocol.address, TestUSDC.address, balance ])
+ 
+
+  console.log("Borrower: ", Borrower.address)
+
+  console.log(TestUSDC.address, LendingProtocol.address, Borrower.address)
 
 }
 

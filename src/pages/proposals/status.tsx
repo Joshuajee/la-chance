@@ -3,10 +3,18 @@ import { PROPSAL_STATUS } from "@/libs/enums";
 
 
 interface IProps {
-    status: PROPSAL_STATUS
+    status: PROPSAL_STATUS;
+    expired: boolean;
 }
 
-const Status = ({ status } : IProps) => {
+const Status = ({ status, expired } : IProps) => {
+
+    if (expired)            
+        return (
+            <Badge color={"gray"}> 
+                <p className="ml-2 text-sm">{"Expired"}</p> 
+            </Badge>
+        )
 
     switch(status) {
         case PROPSAL_STATUS.Active:

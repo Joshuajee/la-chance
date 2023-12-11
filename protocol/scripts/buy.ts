@@ -5,15 +5,19 @@ async function main() {
 
   //const [user1, user2] = await hre.viem.getWalletClients();
 
-    const TestUSDC = await hre.viem.getContractAt("TestUSDC", TEST_USDC)
+  const TestUSDC = await hre.viem.getContractAt("TestUSDC", TEST_USDC)
 
-    const Jackpot = await hre.viem.getContractAt("Jackpot", "0x12d470884133d0b6846f60daae60affdfee2c1d1")
+  const Jackpot = await hre.viem.getContractAt("Jackpot", "0x12d470884133d0b6846f60daae60affdfee2c1d1")
 
-    await TestUSDC.write.approve([Jackpot.address, testUSDCPrice.toBigInt() * 200000n])
+  await TestUSDC.write.approve([Jackpot.address, testUSDCPrice.toBigInt() * 200000n])
 
-    await Jackpot.write.buyTickets([TestUSDC.address, generateTickets(1)]);
+  for (let i = 0; i < 10; i++) {
+    await Jackpot.write.buyTickets([TestUSDC.address, generateTickets(10)]);
 
-    console.log("DONE")
+  }
+
+
+  console.log("DONE")
 
 
 }

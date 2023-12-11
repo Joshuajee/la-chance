@@ -2,15 +2,11 @@
 @tailwind components;
 @tailwind utilities;
 
-.root {
-  position: fixed;
-  width: 100%;
+body {
   background: rgb(2,0,36);
   background: linear-gradient(90deg, rgba(2,0,36,1) 0%, rgba(64,152,180,1) 93%);
-
-  overflow-y: auto;
-
 }
+
 
 /* Chrome, Safari, Edge, Opera */
 input::-webkit-outer-spin-button,
