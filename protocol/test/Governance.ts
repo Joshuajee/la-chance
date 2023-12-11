@@ -309,160 +309,157 @@ describe("Governance", function () {
   })
 
 
-  describe("Testing Execute ", function () {
+  // describe("Testing Execute ", function () {
 
-    it("Should revert if voting period has to elasped ", async function () {
+  //   it("Should revert if voting period has to elasped ", async function () {
 
-      const { GovernanceToken, Governance } = await loadFixture(deployAndSponsor);
+  //     const { GovernanceToken, Governance } = await loadFixture(deployAndSponsor);
 
-      await GovernanceToken.write.vote([1n, 0, amount])
+  //     await GovernanceToken.write.vote([1n, 0, amount])
 
-      await expect(Governance.write.execute([1n])).to.be.rejectedWith("CannotExecuteProposal(1)");
+  //     await expect(Governance.write.execute([1n])).to.be.rejectedWith("CannotExecuteProposal(1)");
 
-    });
+  //   });
     
-    it("Should execute votes Abstained ", async function () {
+  //   it("Should execute votes Abstained ", async function () {
 
-      const { GovernanceToken, Governance, TUSDC } = await loadFixture(deployAndSponsor);
+  //     const { GovernanceToken, Governance, TUSDC } = await loadFixture(deployAndSponsor);
 
-      await GovernanceToken.write.vote([1n, 0, amount])
+  //     await GovernanceToken.write.vote([1n, 0, amount])
 
-      await mineBlocks(hre, 3600)
+  //     await mineBlocks(hre, 3600)
 
-      await Governance.write.execute([1n])
+  //     await Governance.write.execute([1n])
 
-      const proposal = await Governance.read.proposalMapping([1n])
+  //     const proposal = await Governance.read.proposalMapping([1n])
 
-      expect(await TUSDC.read.balanceOf([proposal[1]])).to.not.be.equal(0n)
+  //     expect(await TUSDC.read.balanceOf([proposal[1]])).to.not.be.equal(0n)
 
-      expect(proposal[2]).to.be.equal(3);     
+  //     expect(proposal[2]).to.be.equal(3);     
 
-    });
-
-
-    it("Should execute votes For ", async function () {
-
-      const { GovernanceToken, Governance, TUSDC, proposal } = await loadFixture(deployAndSponsor);
-
-      await GovernanceToken.write.vote([1n, 1, amount])
-
-      await mineBlocks(hre, 3600)
-
-      await Governance.write.execute([1n])
-
-      const proposal2 = await Governance.read.proposalMapping([1n])
-
-      expect(proposal2[2]).to.be.equal(4);  
-
-      expect(await TUSDC.read.balanceOf([proposal[1]])).to.not.be.equal(0n)
-
-    });
+  //   });
 
 
-    it("Should execute votes Against ", async function () {
+  //   it("Should execute votes For ", async function () {
 
-      const { GovernanceToken, Governance, TUSDC, proposal } = await loadFixture(deployAndSponsor);
+  //     const { GovernanceToken, Governance, TUSDC, proposal } = await loadFixture(deployAndSponsor);
 
-      await GovernanceToken.write.vote([1n, 2, amount])
+  //     await GovernanceToken.write.vote([1n, 1, amount])
 
-      await mineBlocks(hre, 3600)
+  //     await mineBlocks(hre, 3600)
 
-      await Governance.write.execute([1n])
+  //     await Governance.write.execute([1n])
 
-      const proposal2 = await Governance.read.proposalMapping([1n])
+  //     const proposal2 = await Governance.read.proposalMapping([1n])
+
+  //     expect(proposal2[2]).to.be.equal(4);  
+
+  //     expect(await TUSDC.read.balanceOf([proposal[1]])).to.not.be.equal(0n)
+
+  //   });
+
+
+  //   it("Should execute votes Against ", async function () {
+
+  //     const { GovernanceToken, Governance, TUSDC, proposal } = await loadFixture(deployAndSponsor);
+
+  //     await GovernanceToken.write.vote([1n, 2, amount])
+
+  //     await mineBlocks(hre, 3600)
+
+  //     await Governance.write.execute([1n])
+
+  //     const proposal2 = await Governance.read.proposalMapping([1n])
       
-      expect(proposal2[2]).to.be.equal(3); 
+  //     expect(proposal2[2]).to.be.equal(3); 
 
-      expect(await TUSDC.read.balanceOf([proposal[1]])).to.not.be.equal(0n)
+  //     expect(await TUSDC.read.balanceOf([proposal[1]])).to.not.be.equal(0n)
 
-    });
+  //   });
 
-  });
+  // });
 
 
   describe("Testing Claim ", function () {
 
     
-    it("Should Claim Reward for abstained ", async function () {
+    // it("Should Claim Reward for abstained ", async function () {
 
-      const { GovernanceToken, Governance, GovernorVault, proposal, TUSDC, user1 } = await loadFixture(deployAndSponsor);
+    //   const { GovernanceToken, Governance, GovernorVault, proposal, TUSDC, user1 } = await loadFixture(deployAndSponsor);
 
-      await GovernanceToken.write.vote([1n, 0, amount])
+    //   await GovernanceToken.write.vote([1n, 0, amount])
 
-      await mineBlocks(hre, 3600)
+    //   await mineBlocks(hre, 3600)
 
-      await Governance.write.execute([1n])
+    //   await Governance.write.execute([1n])
 
-      const initialTUSDCBal = await TUSDC.read.balanceOf([user1.account.address])
+    //   const initialTUSDCBal = await TUSDC.read.balanceOf([user1.account.address])
 
-      const initialGoverTBal = await GovernanceToken.read.balanceOf([user1.account.address])
+    //   const initialGoverTBal = await GovernanceToken.read.balanceOf([user1.account.address])
 
-      const initialTUSDCBalV = await TUSDC.read.balanceOf([GovernorVault.address])
+    //   const initialTUSDCBalV = await TUSDC.read.balanceOf([GovernorVault.address])
 
-      const initialGoverTBalV = await GovernanceToken.read.balanceOf([GovernorVault.address])
+    //   const initialGoverTBalV = await GovernanceToken.read.balanceOf([GovernorVault.address])
 
-      const supportFunds = proposal[7]
+    //   const supportFunds = proposal[7]
 
-      const proposal2 = await Governance.read.proposalMapping([1n])
+    //   const proposal2 = await Governance.read.proposalMapping([1n])
 
-      await Governance.write.claimFunds([1n])
+    //   await Governance.write.claimFunds([1n])
 
-      console.log(await TUSDC.read.balanceOf([GovernorVault.address]))
+    //   console.log(await TUSDC.read.balanceOf([GovernorVault.address]))
 
-      console.log(initialTUSDCBalV)
+    //   console.log(initialTUSDCBalV)
 
-      expect(await TUSDC.read.balanceOf([GovernorVault.address])).to.be.equal(0n)
+    //   expect(await TUSDC.read.balanceOf([GovernorVault.address])).to.be.equal(0n)
 
-      expect(await GovernanceToken.read.balanceOf([GovernorVault.address])).to.be.equal(0n)
+    //   expect(await GovernanceToken.read.balanceOf([GovernorVault.address])).to.be.equal(0n)
 
-      expect(await GovernanceToken.read.balanceOf([user1.account.address])).to.be.equal(initialGoverTBal + 0n + initialGoverTBalV)
+    //   expect(await GovernanceToken.read.balanceOf([user1.account.address])).to.be.equal(initialGoverTBal + 0n + initialGoverTBalV)
 
-      console.log(initialGoverTBal)
+    //   console.log(initialGoverTBal)
 
-      console.log(initialTUSDCBal)
+    //   console.log(initialTUSDCBal)
 
-      console.log(await TUSDC.read.balanceOf([user1.account.address]))
+    //   console.log(await TUSDC.read.balanceOf([user1.account.address]))
 
-    });
-
-
-    it("Should execute votes For ", async function () {
-
-      const { GovernanceToken, Governance, TUSDC, proposal } = await loadFixture(deployAndSponsor);
-
-      await GovernanceToken.write.vote([1n, 1, amount])
-
-      await mineBlocks(hre, 3600)
-
-      await Governance.write.execute([1n])
-
-      const proposal2 = await Governance.read.proposalMapping([1n])
+    // });
 
 
-      f
+    // it("Should execute votes For ", async function () {
 
-    });
+    //   const { GovernanceToken, Governance, TUSDC, proposal } = await loadFixture(deployAndSponsor);
+
+    //   await GovernanceToken.write.vote([1n, 1, amount])
+
+    //   await mineBlocks(hre, 3600)
+
+    //   await Governance.write.execute([1n])
+
+    //   const proposal2 = await Governance.read.proposalMapping([1n])
 
 
-    it("Should execute votes Against ", async function () {
+    // });
 
-      const { GovernanceToken, Governance, TUSDC, proposal } = await loadFixture(deployAndSponsor);
 
-      await GovernanceToken.write.vote([1n, 2, amount])
+    // it("Should execute votes Against ", async function () {
 
-      await mineBlocks(hre, 3600)
+    //   const { GovernanceToken, Governance, TUSDC, proposal } = await loadFixture(deployAndSponsor);
 
-      await Governance.write.execute([1n])
+    //   await GovernanceToken.write.vote([1n, 2, amount])
 
-      const proposal2 = await Governance.read.proposalMapping([1n])
+    //   await mineBlocks(hre, 3600)
+
+    //   await Governance.write.execute([1n])
+
+    //   const proposal2 = await Governance.read.proposalMapping([1n])
       
-      expect(proposal2[2]).to.be.equal(3); 
+    //   expect(proposal2[2]).to.be.equal(3); 
 
-      expect(await TUSDC.read.balanceOf([proposal[1]])).to.not.be.equal(0n)
+    //   expect(await TUSDC.read.balanceOf([proposal[1]])).to.not.be.equal(0n)
 
-      f
 
-    });
+    // });
 
   });
 

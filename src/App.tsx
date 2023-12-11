@@ -6,7 +6,6 @@ import HomePage from './pages/home';
 import StakePage from './pages/stake';
 import ProposalPage from './pages/proposals';
 import GameHistoryPage from './pages/game-history';
-import VotingPage from './pages/proposals/create-proposal';
 import MyGames from './pages/my-games';
 import GetTestToken from './pages/get-tokens';
 import Lending from './pages/lending';
@@ -16,6 +15,7 @@ import { useEffect, useState } from 'react';
 import { avalancheFuji } from 'wagmi/chains';
 import { DEFAULT_CHAIN_ID } from './libs/constants';
 import { networkNameByChainId } from './libs/utils';
+import CreateProposal from './pages/proposals/create-proposal';
 
 
 
@@ -60,7 +60,7 @@ function App() {
           <Route path='/my-games' element={<MyGames /> } />
           <Route path='/get-tokens' element={<GetTestToken /> } />
           <Route path='/proposals' element={<ProposalPage />}/>
-          <Route path='/proposals/:id' element={<VotingPage />}/>
+          <Route path='/proposals/create' element={<CreateProposal />}/>
           <Route path='/game-history' element={<GameHistoryPage />}/>
           <Route path='/game/:id' element={<HomePage/>}/>
           <Route path='/lending' element={<Lending />}/>

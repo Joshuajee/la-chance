@@ -170,6 +170,8 @@ export async function deployTest() {
 
   const { user1, user2, Jackpot, JackpotCore, Governance, GovernanceToken, GovernorVault, LendingProtocol, TUSDC, Chainlink, Vaults, publicClient } = await deploy(LinkToken, VRFV2Wrapper, VRFCoordinatorV2Mock, MockV3Aggregator)
   
+  await LinkToken.write.transfer([Chainlink.address, oneHundredLink.toBigInt()])
+
   return {
     Jackpot,
     JackpotCore,
@@ -331,14 +333,13 @@ export async function deployGovernanceTest() {
   // Contracts are deployed using the first signer/account by default
   const [user1, user2] = await hre.viem.getWalletClients();
 
-
-  const { DAOVault, TUSDC } = await loadFixture(DAOVaultTest);
-
   const GovernorVault = await hre.viem.deployContract("GovernorVault");
 
   const Governance = await hre.viem.deployContract("Governance", [GovernorVault.address]);
 
   const GovernanceToken = await hre.viem.deployContract("GovernanceToken", [Governance.address]);
+
+  const  { DAOVault, TUSDC } = await deployLendingProtocolInitVaults();
 
   await DAOVault.write.initGovernor([Governance.address])
 
@@ -361,36 +362,6 @@ export async function deployGovernanceTest() {
 }
 
 
-
-
-export async function DAOVaultTest() {
-
-  // Contracts are deployed using the first signer/account by default
-  const [user1, user2] = await hre.viem.getWalletClients();
-
-  const DAOVault = await hre.viem.deployContract("DAOVault");
-
-  await DAOVault.write.initialize([user1.account.address, user1.account.address])
-
-  const TUSDC = await hre.viem.deployContract("TestUSDC");
-
-  const amount = ethers.utils.parseUnits("100","ether")
-
-  await TUSDC.write.transfer([DAOVault.address, amount.toBigInt()])
-
-  await DAOVault.write.addInterest([TUSDC.address, amount.toBigInt()])
-
-  await DAOVault.write.initFactory([user1.account.address])
-
-  await DAOVault.write.addSupportedToken([TUSDC.address])
-
-  return {
-    user1,
-    user2,
-    DAOVault,
-    TUSDC,
-  };
-}
 
 export const mineBlocks = async (hre: HardhatRuntimeEnvironment, minutes: number) => {
   await hre.network.provider.send("hardhat_mine", [ethers.utils.hexValue(minutes), "0x3c"]);
