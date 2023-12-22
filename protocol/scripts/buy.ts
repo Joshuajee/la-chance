@@ -11,10 +11,8 @@ async function main() {
 
   await TestUSDC.write.approve([Jackpot.address, testUSDCPrice.toBigInt() * 200000n])
 
-  for (let i = 0; i < 10; i++) {
-    await Jackpot.write.buyTickets([TestUSDC.address, generateTickets(10)]);
+  await Jackpot.write.buyTickets([TestUSDC.address, generateTickets(10)]);
 
-  }
 
 
   console.log("DONE")

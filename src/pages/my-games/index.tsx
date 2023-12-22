@@ -48,7 +48,7 @@ const MyGames = () => {
         address: JACKPOT_CORE,
         abi: JackpotCoreAbi,
         functionName: "getMyRecentTickets",
-        args: [address, showing > 0 ? showing : 0, start],
+        args: [address, showing >= 0 ? showing : 0, start],
         enabled: myTicketLength > 1,
         watch: true,
         chainId: currentChainId
